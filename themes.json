@@ -7,14 +7,14 @@
         "secondary": "#00A8CC",
         "accent": "#4DD0E1",
         "background": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "backgroundOverlay": "rgba(0, 119, 190, 0.15)",
+        "backgroundOverlay": "rgba(0, 119, 190, 0.25)",
         "text": "#FFFFFF",
         "textSecondary": "#E0F7FA",
-        "cardBg": "rgba(0, 119, 190, 0.25)",
-        "cardBorder": "rgba(77, 208, 225, 0.3)",
-        "shadow": "0 8px 32px rgba(0, 119, 190, 0.3)",
+        "cardBg": "rgba(0, 119, 190, 0.45)",
+        "cardBorder": "rgba(77, 208, 225, 0.4)",
+        "shadow": "0 8px 32px rgba(0, 119, 190, 0.4)",
         "timerRing": "#00A8CC",
-        "timerBg": "rgba(0, 119, 190, 0.2)",
+        "timerBg": "rgba(0, 119, 190, 0.35)",
         "taskDone": "#80DEEA",
         "taskFocus": "#FFEB3B"
       },
@@ -35,14 +35,14 @@
         "secondary": "#FFA07A",
         "accent": "#FFD93D",
         "background": "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-        "backgroundOverlay": "rgba(255, 107, 107, 0.15)",
+        "backgroundOverlay": "rgba(255, 107, 107, 0.25)",
         "text": "#FFFFFF",
         "textSecondary": "#FFF5E1",
-        "cardBg": "rgba(255, 107, 107, 0.25)",
-        "cardBorder": "rgba(255, 217, 61, 0.3)",
-        "shadow": "0 8px 32px rgba(255, 107, 107, 0.4)",
+        "cardBg": "rgba(255, 107, 107, 0.45)",
+        "cardBorder": "rgba(255, 217, 61, 0.4)",
+        "shadow": "0 8px 32px rgba(255, 107, 107, 0.5)",
         "timerRing": "#FFA07A",
-        "timerBg": "rgba(255, 107, 107, 0.2)",
+        "timerBg": "rgba(255, 107, 107, 0.35)",
         "taskDone": "#FFCCBC",
         "taskFocus": "#FFD93D"
       },
@@ -63,14 +63,14 @@
         "secondary": "#16213E",
         "accent": "#0F3460",
         "background": "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
-        "backgroundOverlay": "rgba(26, 26, 46, 0.2)",
+        "backgroundOverlay": "rgba(26, 26, 46, 0.35)",
         "text": "#E4E4E4",
         "textSecondary": "#CCCCCC",
-        "cardBg": "rgba(22, 33, 62, 0.5)",
-        "cardBorder": "rgba(15, 52, 96, 0.5)",
-        "shadow": "0 8px 32px rgba(0, 0, 0, 0.5)",
+        "cardBg": "rgba(22, 33, 62, 0.65)",
+        "cardBorder": "rgba(15, 52, 96, 0.6)",
+        "shadow": "0 8px 32px rgba(0, 0, 0, 0.6)",
         "timerRing": "#4A90E2",
-        "timerBg": "rgba(26, 26, 46, 0.3)",
+        "timerBg": "rgba(26, 26, 46, 0.45)",
         "taskDone": "#7A8A99",
         "taskFocus": "#4A90E2"
       },
@@ -91,14 +91,14 @@
         "secondary": "#8338EC",
         "accent": "#00F5FF",
         "background": "linear-gradient(135deg, #1a1a1d 0%, #4e4e50 100%)",
-        "backgroundOverlay": "rgba(255, 0, 110, 0.1)",
+        "backgroundOverlay": "rgba(255, 0, 110, 0.2)",
         "text": "#FFFFFF",
         "textSecondary": "#F0F0F0",
-        "cardBg": "rgba(131, 56, 236, 0.2)",
-        "cardBorder": "rgba(0, 245, 255, 0.4)",
+        "cardBg": "rgba(131, 56, 236, 0.4)",
+        "cardBorder": "rgba(0, 245, 255, 0.5)",
         "shadow": "0 0 20px rgba(255, 0, 110, 0.6), 0 0 40px rgba(131, 56, 236, 0.4)",
         "timerRing": "#00F5FF",
-        "timerBg": "rgba(255, 0, 110, 0.15)",
+        "timerBg": "rgba(255, 0, 110, 0.3)",
         "taskDone": "#B388FF",
         "taskFocus": "#00F5FF"
       },
@@ -122,11 +122,11 @@
         "backgroundOverlay": "rgba(45, 106, 79, 0.15)",
         "text": "#F1FAEE",
         "textSecondary": "#D8F3DC",
-        "cardBg": "rgba(45, 106, 79, 0.3)",
-        "cardBorder": "rgba(149, 213, 178, 0.3)",
-        "shadow": "0 8px 32px rgba(45, 106, 79, 0.3)",
+        "cardBg": "rgba(45, 106, 79, 0.5)",
+        "cardBorder": "rgba(149, 213, 178, 0.4)",
+        "shadow": "0 8px 32px rgba(45, 106, 79, 0.4)",
         "timerRing": "#95D5B2",
-        "timerBg": "rgba(45, 106, 79, 0.2)",
+        "timerBg": "rgba(45, 106, 79, 0.35)",
         "taskDone": "#B7E4C7",
         "taskFocus": "#FFD60A"
       },
@@ -178,11 +178,11 @@
         "backgroundOverlay": "rgba(255, 0, 255, 0.1)",
         "text": "#00FFFF",
         "textSecondary": "#FF00FF",
-        "cardBg": "rgba(22, 33, 62, 0.6)",
-        "cardBorder": "rgba(0, 255, 255, 0.5)",
-        "shadow": "0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)",
+        "cardBg": "rgba(22, 33, 62, 0.75)",
+        "cardBorder": "rgba(0, 255, 255, 0.6)",
+        "shadow": "0 0 20px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4)",
         "timerRing": "#FFFF00",
-        "timerBg": "rgba(26, 26, 46, 0.3)",
+        "timerBg": "rgba(26, 26, 46, 0.45)",
         "taskDone": "#9D4EDD",
         "taskFocus": "#FFFF00"
       },
@@ -234,11 +234,11 @@
         "backgroundOverlay": "rgba(13, 27, 42, 0.35)",
         "text": "#F6F1E9",
         "textSecondary": "#D9CAB3",
-        "cardBg": "rgba(27, 38, 59, 0.55)",
-        "cardBorder": "rgba(224, 169, 109, 0.35)",
-        "shadow": "0 8px 32px rgba(13, 27, 42, 0.6)",
+        "cardBg": "rgba(27, 38, 59, 0.7)",
+        "cardBorder": "rgba(224, 169, 109, 0.5)",
+        "shadow": "0 8px 32px rgba(13, 27, 42, 0.7)",
         "timerRing": "#E0A96D",
-        "timerBg": "rgba(27, 38, 59, 0.5)",
+        "timerBg": "rgba(27, 38, 59, 0.65)",
         "taskDone": "#74828F",
         "taskFocus": "#E0A96D"
       },
@@ -262,11 +262,11 @@
         "backgroundOverlay": "rgba(31, 41, 51, 0.4)",
         "text": "#E4E7EB",
         "textSecondary": "#CBD2D9",
-        "cardBg": "rgba(31, 41, 51, 0.65)",
-        "cardBorder": "rgba(61, 90, 254, 0.3)",
-        "shadow": "0 8px 32px rgba(15, 23, 42, 0.45)",
+        "cardBg": "rgba(31, 41, 51, 0.8)",
+        "cardBorder": "rgba(61, 90, 254, 0.45)",
+        "shadow": "0 8px 32px rgba(15, 23, 42, 0.6)",
         "timerRing": "#3D5AFE",
-        "timerBg": "rgba(61, 90, 254, 0.2)",
+        "timerBg": "rgba(61, 90, 254, 0.35)",
         "taskDone": "#52606D",
         "taskFocus": "#3D5AFE"
       },
@@ -318,11 +318,11 @@
         "backgroundOverlay": "rgba(15, 28, 44, 0.4)",
         "text": "#E6FAFC",
         "textSecondary": "#B2DFDB",
-        "cardBg": "rgba(17, 43, 67, 0.55)",
-        "cardBorder": "rgba(91, 192, 190, 0.35)",
-        "shadow": "0 8px 32px rgba(15, 28, 44, 0.6)",
+        "cardBg": "rgba(17, 43, 67, 0.7)",
+        "cardBorder": "rgba(91, 192, 190, 0.5)",
+        "shadow": "0 8px 32px rgba(15, 28, 44, 0.7)",
         "timerRing": "#5BC0BE",
-        "timerBg": "rgba(15, 28, 44, 0.35)",
+        "timerBg": "rgba(15, 28, 44, 0.5)",
         "taskDone": "#8DE4E6",
         "taskFocus": "#FFE066"
       },
@@ -374,11 +374,11 @@
         "backgroundOverlay": "rgba(47, 15, 19, 0.4)",
         "text": "#FFEFE7",
         "textSecondary": "#FFD4BF",
-        "cardBg": "rgba(47, 15, 19, 0.6)",
-        "cardBorder": "rgba(255, 111, 60, 0.3)",
-        "shadow": "0 12px 40px rgba(47, 15, 19, 0.6)",
+        "cardBg": "rgba(47, 15, 19, 0.75)",
+        "cardBorder": "rgba(255, 111, 60, 0.45)",
+        "shadow": "0 12px 40px rgba(47, 15, 19, 0.7)",
         "timerRing": "#FF6F3C",
-        "timerBg": "rgba(90, 30, 42, 0.4)",
+        "timerBg": "rgba(90, 30, 42, 0.55)",
         "taskDone": "#FFAB76",
         "taskFocus": "#FFD93D"
       },
@@ -388,6 +388,174 @@
       },
       "effects": {
         "blur": "14px",
+        "borderRadius": "14px",
+        "cardRadius": "12px"
+      }
+    },
+    "codeDark": {
+      "name": "Code Dark Pro",
+      "colors": {
+        "primary": "#1E1E1E",
+        "secondary": "#2D2D30",
+        "accent": "#007ACC",
+        "background": "linear-gradient(135deg, #0D0D0D 0%, #1E1E1E 50%, #252526 100%)",
+        "backgroundOverlay": "rgba(30, 30, 30, 0.5)",
+        "text": "#D4D4D4",
+        "textSecondary": "#9CDCFE",
+        "cardBg": "rgba(30, 30, 30, 0.85)",
+        "cardBorder": "rgba(0, 122, 204, 0.5)",
+        "shadow": "0 8px 32px rgba(0, 0, 0, 0.8)",
+        "timerRing": "#4EC9B0",
+        "timerBg": "rgba(30, 30, 30, 0.7)",
+        "taskDone": "#6A9955",
+        "taskFocus": "#CE9178"
+      },
+      "fonts": {
+        "primary": "Fira Code",
+        "secondary": "Source Code Pro"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "8px",
+        "cardRadius": "8px"
+      }
+    },
+    "codeLight": {
+      "name": "Code Light Clean",
+      "colors": {
+        "primary": "#F5F5F5",
+        "secondary": "#E8E8E8",
+        "accent": "#0066BF",
+        "background": "linear-gradient(135deg, #FAFAFA 0%, #F0F0F0 100%)",
+        "backgroundOverlay": "rgba(255, 255, 255, 0.85)",
+        "text": "#333333",
+        "textSecondary": "#0066BF",
+        "cardBg": "rgba(255, 255, 255, 0.92)",
+        "cardBorder": "rgba(0, 102, 191, 0.35)",
+        "shadow": "0 8px 24px rgba(0, 0, 0, 0.12)",
+        "timerRing": "#0066BF",
+        "timerBg": "rgba(0, 102, 191, 0.15)",
+        "taskDone": "#999999",
+        "taskFocus": "#D73A49"
+      },
+      "fonts": {
+        "primary": "JetBrains Mono",
+        "secondary": "Inter"
+      },
+      "effects": {
+        "blur": "10px",
+        "borderRadius": "10px",
+        "cardRadius": "8px"
+      }
+    },
+    "gamingRgb": {
+      "name": "Gaming RGB",
+      "colors": {
+        "primary": "#1A0033",
+        "secondary": "#330066",
+        "accent": "#FF00FF",
+        "background": "linear-gradient(135deg, #000000 0%, #1A0033 30%, #330066 60%, #00FFFF 100%)",
+        "backgroundOverlay": "rgba(26, 0, 51, 0.35)",
+        "text": "#FFFFFF",
+        "textSecondary": "#00FFFF",
+        "cardBg": "rgba(26, 0, 51, 0.75)",
+        "cardBorder": "rgba(255, 0, 255, 0.6)",
+        "shadow": "0 0 25px rgba(255, 0, 255, 0.7), 0 0 50px rgba(0, 255, 255, 0.5)",
+        "timerRing": "#00FFFF",
+        "timerBg": "rgba(51, 0, 102, 0.6)",
+        "taskDone": "#9D4EDD",
+        "taskFocus": "#39FF14"
+      },
+      "fonts": {
+        "primary": "Rajdhani",
+        "secondary": "Orbitron"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "terminalHacker": {
+      "name": "Terminal Matrix",
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#001100",
+        "accent": "#00FF00",
+        "background": "linear-gradient(135deg, #000000 0%, #001100 100%)",
+        "backgroundOverlay": "rgba(0, 17, 0, 0.5)",
+        "text": "#00FF00",
+        "textSecondary": "#00CC00",
+        "cardBg": "rgba(0, 0, 0, 0.85)",
+        "cardBorder": "rgba(0, 255, 0, 0.6)",
+        "shadow": "0 0 20px rgba(0, 255, 0, 0.5), 0 8px 32px rgba(0, 0, 0, 0.9)",
+        "timerRing": "#00FF00",
+        "timerBg": "rgba(0, 17, 0, 0.7)",
+        "taskDone": "#006600",
+        "taskFocus": "#00FF00"
+      },
+      "fonts": {
+        "primary": "Share Tech Mono",
+        "secondary": "VT323"
+      },
+      "effects": {
+        "blur": "8px",
+        "borderRadius": "4px",
+        "cardRadius": "4px"
+      }
+    },
+    "streamerPro": {
+      "name": "Streamer Pro Clean",
+      "colors": {
+        "primary": "#18181B",
+        "secondary": "#27272A",
+        "accent": "#9147FF",
+        "background": "linear-gradient(135deg, #0F0F12 0%, #18181B 50%, #27272A 100%)",
+        "backgroundOverlay": "rgba(24, 24, 27, 0.5)",
+        "text": "#EFEFF1",
+        "textSecondary": "#ADADB8",
+        "cardBg": "rgba(24, 24, 27, 0.85)",
+        "cardBorder": "rgba(145, 71, 255, 0.45)",
+        "shadow": "0 8px 32px rgba(0, 0, 0, 0.7)",
+        "timerRing": "#9147FF",
+        "timerBg": "rgba(145, 71, 255, 0.25)",
+        "taskDone": "#53535F",
+        "taskFocus": "#F1C40F"
+      },
+      "fonts": {
+        "primary": "Inter",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "14px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "cleanChrome": {
+      "name": "Clean Chrome",
+      "colors": {
+        "primary": "#E8EAED",
+        "secondary": "#DADCE0",
+        "accent": "#1A73E8",
+        "background": "linear-gradient(135deg, #F8F9FA 0%, #E8EAED 100%)",
+        "backgroundOverlay": "rgba(255, 255, 255, 0.88)",
+        "text": "#202124",
+        "textSecondary": "#5F6368",
+        "cardBg": "rgba(255, 255, 255, 0.93)",
+        "cardBorder": "rgba(26, 115, 232, 0.3)",
+        "shadow": "0 6px 20px rgba(0, 0, 0, 0.1)",
+        "timerRing": "#1A73E8",
+        "timerBg": "rgba(26, 115, 232, 0.12)",
+        "taskDone": "#80868B",
+        "taskFocus": "#EA4335"
+      },
+      "fonts": {
+        "primary": "Roboto",
+        "secondary": "Open Sans"
+      },
+      "effects": {
+        "blur": "10px",
         "borderRadius": "14px",
         "cardRadius": "12px"
       }

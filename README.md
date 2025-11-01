@@ -1,11 +1,8 @@
-
 # Twitch Chatbot Multitask Task List Overlay
 
-<div align="center">
-<img src="./images/live-sample.png" alt="Live overlay sample showing task list in action" style="max-width: 800px;">
-<br >
-<img src="./images/customize-sample.png" alt="Customization options and theme examples" style="max-width: 800px;">
-</div>
+![Live overlay sample showing task list in action](./images/live-sample.png)
+
+![Customization options and theme examples](./images/customize-sample.png)
 
 > **📌 This is a fork** of the original project by [Jujoco](https://github.com/jujoco/twitch-multitask-task-list-overlay) with enhanced features including:
 >
@@ -129,7 +126,7 @@ twitch_channel = "Jujoco_Dev",
 
 4. **Done!** - Select OK to save!. Read the [Customization settings](#customization-settings) section to customize the MultiTask list widget and connect it to your Twitch chat.
 
-<img width="480px" src="./images/obs-source-example.png" alt="OBS Browser Source configuration example"/>
+![OBS Browser Source configuration example](./images/obs-source-example.png)
 
 ## Customization settings
 
@@ -393,10 +390,14 @@ Open the `_styles.js` file and modify the following settings to customized the T
 
 - Advanced Pomodoro Timer with session tracking, pause/resume, and state persistence
 - Personal backlog system for all viewers (separate from broadcaster task list)
-- Theme management system with multiple themes
+- **20 Premium Themes** with improved visibility (15-20% higher opacity):
+  - **Coding:** Code Dark Pro, Code Light Clean, Terminal Matrix
+  - **Gaming:** Gaming RGB, Neon Nights, Cyberpunk
+  - **Browser:** Clean Chrome, Streamer Pro Clean, Minimal White
+  - **Creative:** Ocean Breeze, Sunset Glow, Aurora Drift, Ember Forge, and more
 - Layout management with 6 preset layouts and draggable panels
 - Viewer info profiles system
-- Keyboard shortcuts for quick access
+- Keyboard shortcuts for quick access (Alt+T for themes, Alt+L for layouts)
 - Broadcaster-only task list restriction
 - Full command documentation in COMMANDS.md
 
