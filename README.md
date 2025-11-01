@@ -125,7 +125,7 @@ twitch_channel = "Jujoco_Dev",
 
 2. **Select the Local file checkbox** - In the Browser Source settings, select `Local file` and then `Browse` to the location where you unzipped the downloaded files. Select the `index.html` file and click `Open`.
 
-3. **Set the Width and Height** - Next, in the Browser Source, set the width and height. I recommend 660px Width and 1600px Height. Adjust as needed.
+3. **Set the Width and Height** - Next, in the Browser Source, set the width and height. I recommend 1920px width and 1080px height. Adjust as needed.
 
 4. **Done!** - Select OK to save!. Read the [Customization settings](#customization-settings) section to customize the MultiTask list widget and connect it to your Twitch chat.
 
