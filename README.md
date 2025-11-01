@@ -1,10 +1,22 @@
-<div align="center">
-<img src="./images/live-sample.png" style="max-width: 800px;">
-<br >
-<img src="./images/customize-sample.png" style="max-width: 800px;">
-</div>
 
 # Twitch Chatbot Multitask Task List Overlay
+
+<div align="center">
+<img src="./images/live-sample.png" alt="Live overlay sample showing task list in action" style="max-width: 800px;">
+<br >
+<img src="./images/customize-sample.png" alt="Customization options and theme examples" style="max-width: 800px;">
+</div>
+
+> **📌 This is a fork** of the original project by [Jujoco](https://github.com/jujoco/twitch-multitask-task-list-overlay) with enhanced features including:
+>
+> - 🎯 Advanced Pomodoro Timer with session tracking
+> - 📋 Personal backlog system for viewers
+> - 🎨 Theme & layout management system
+> - 🖱️ Draggable UI panels
+> - ⌨️ Keyboard shortcuts
+> - 👥 Viewer info profiles
+>
+> **Original Repository:** [jujoco/twitch-multitask-task-list-overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay)
 
 ## What and Why?
 
@@ -90,13 +102,14 @@ Viewers can create, edit, mark as done, and delete tasks from the list. This Tas
    - Copy the token from the URL (it follows `#access_token=` and ends just before `&scope`).
    - Save this token in a safe place for the next step.
 
-4. **Update Your \_auth.js File**
+4. **Setup Your \_auth.js File**
 
    - Navigate to the location where you unzipped the downloaded files.
+   - Copy `_auth.js.example` to `_auth.js` (this file is gitignored to protect your credentials)
    - Open the `_auth.js` file in a text editor. (Notepad works, but I recommend downloading VS Code to make it easier to read and edit the file.)
-   - Replace `OAUTHTOKEN` with the access token you copied.
-   - Replace `USERNAME` with your Twitch main username or bot username.
-   - Replace `CHANNEL` with your Twitch channel name.
+   - Replace `your_oauth_token_here` with the access token you copied from the previous step.
+   - Replace `your_bot_username` with your Twitch main username or bot username.
+   - Replace `your_channel_name` with your Twitch channel name.
 
 When you are done, it should look something like this:
 
@@ -116,7 +129,7 @@ twitch_channel = "Jujoco_Dev",
 
 4. **Done!** - Select OK to save!. Read the [Customization settings](#customization-settings) section to customize the MultiTask list widget and connect it to your Twitch chat.
 
-<img width="480px" src="./images/obs-source-example.png"/>
+<img width="480px" src="./images/obs-source-example.png" alt="OBS Browser Source configuration example"/>
 
 ## Customization settings
 
@@ -365,6 +378,29 @@ Open the `_styles.js` file and modify the following settings to customized the T
 
 ## Credits
 
-**Author:** [**@Jujoco_Dev**](https://twitch.tv/Jujoco_Dev)
+### Original Project
 
-**Contributors:** [**Thank you to all the Contributors!**](https://github.com/jujoco/twitch-multitask-task-list-overlay/graphs/contributors)
+**Original Author:** [**@Jujoco_Dev**](https://twitch.tv/Jujoco_Dev)  
+**Original Repository:** [twitch-multitask-task-list-overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay)  
+**Original Contributors:** [Thank you to all the Contributors!](https://github.com/jujoco/twitch-multitask-task-list-overlay/graphs/contributors)
+
+### This Fork
+
+**Maintainer:** [**@mozayed007**](https://github.com/mozayed007)  
+**Fork Repository:** [mozayed007/twitch-multitask-task-list-overlay](https://github.com/mozayed007/twitch-multitask-task-list-overlay)
+
+**Enhanced Features:**
+
+- Advanced Pomodoro Timer with session tracking, pause/resume, and state persistence
+- Personal backlog system for all viewers (separate from broadcaster task list)
+- Theme management system with multiple themes
+- Layout management with 6 preset layouts and draggable panels
+- Viewer info profiles system
+- Keyboard shortcuts for quick access
+- Broadcaster-only task list restriction
+- Full command documentation in COMMANDS.md
+
+---
+
+**License:** MIT  
+**Special Thanks:** To Jujoco for creating the original amazing project that made this possible! 🙏

@@ -246,9 +246,17 @@ export default class App {
 				}
 			}
 
-			// USER COMMANDS
+			// USER COMMANDS (BROADCASTER ONLY - viewers should use !backlog)
 			if (_userConfig.commands.addTask.includes(command)) {
-				// ADD TASK
+				// ADD TASK - BROADCASTER ONLY
+				if (!flags.broadcaster) {
+					return respondMessage(
+						"📋 Use !backlog add [task] to manage your personal tasks!",
+						username,
+						"",
+						false
+					);
+				}
 				if (message === "") {
 					throw new Error("Task description is empty");
 				}
@@ -282,6 +290,15 @@ export default class App {
 				}
 			}
 			else if (_userConfig.commands.editTask.includes(command)) {
+				// EDIT TASK - BROADCASTER ONLY
+				if (!flags.broadcaster) {
+					return respondMessage(
+						"📋 Use !backlog commands to manage your personal tasks!",
+						username,
+						"",
+						false
+					);
+				}
 				// EDIT TASK
 				const whiteSpaceIdx = message.search(/(?<=\d)\s/); // number followed by space
 				if (whiteSpaceIdx === -1) {

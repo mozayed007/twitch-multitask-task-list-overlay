@@ -2,10 +2,10 @@
 
 Thank you for considering contributing! We welcome all kinds of contributions, including bug reports, feature requests, and code improvements. Please follow these guidelines to help us review and accept your contributions.
 
-1.  [Reporting Bugs](#reporting-bugs)
-2.  [Contributing Code](#contributing-code)
-3.  [Code of Conduct](#code-of-conduct)
-4.  [Thank You](#thank-you)
+1. [Reporting Bugs](#reporting-bugs)
+2. [Contributing Code](#contributing-code)
+3. [Code of Conduct](#code-of-conduct)
+4. [Thank You](#thank-you)
 
 ## Reporting Bugs
 

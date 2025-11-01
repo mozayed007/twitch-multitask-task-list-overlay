@@ -4,10 +4,17 @@ export default defineConfig({
 	build: {
 		outDir: "dist",
 		lib: {
-			entry: "src/index.js",
+			// Use enhanced version as default
+			entry: "src/index-enhanced.js",
 			name: "taskBot",
 			formats: ["iife"],
 			fileName: "taskBot",
+		},
+		rollupOptions: {
+			output: {
+				// Include all dependencies in single file
+				inlineDynamicImports: true,
+			},
 		},
 	},
 	publicDir: false,

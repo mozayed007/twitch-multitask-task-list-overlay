@@ -8,6 +8,9 @@ node_modules/
 .env
 .env.local
 
+# Authentication credentials
+_auth.js
+
 # Misc files
 .DS_Store
 .todo.md

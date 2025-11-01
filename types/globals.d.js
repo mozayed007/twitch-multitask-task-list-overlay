@@ -62,3 +62,13 @@
  * @property {Object} commands - The user commands
  * @property {Object} responseTo - The user response to
  */
+
+/**
+ * Enhanced overlay debug object
+ * @typedef {Object} DebugOverlay
+ * @property {*} themeManager
+ * @property {*} timer
+ * @property {*} backlog
+ * @property {*} infoPanel
+ * @property {*} layoutManager
+ */

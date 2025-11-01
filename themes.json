@@ -1,0 +1,397 @@
+{
+  "themes": {
+    "ocean": {
+      "name": "Ocean Breeze",
+      "colors": {
+        "primary": "#0077BE",
+        "secondary": "#00A8CC",
+        "accent": "#4DD0E1",
+        "background": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "backgroundOverlay": "rgba(0, 119, 190, 0.15)",
+        "text": "#FFFFFF",
+        "textSecondary": "#E0F7FA",
+        "cardBg": "rgba(0, 119, 190, 0.25)",
+        "cardBorder": "rgba(77, 208, 225, 0.3)",
+        "shadow": "0 8px 32px rgba(0, 119, 190, 0.3)",
+        "timerRing": "#00A8CC",
+        "timerBg": "rgba(0, 119, 190, 0.2)",
+        "taskDone": "#80DEEA",
+        "taskFocus": "#FFEB3B"
+      },
+      "fonts": {
+        "primary": "Poppins",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "sunset": {
+      "name": "Sunset Glow",
+      "colors": {
+        "primary": "#FF6B6B",
+        "secondary": "#FFA07A",
+        "accent": "#FFD93D",
+        "background": "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+        "backgroundOverlay": "rgba(255, 107, 107, 0.15)",
+        "text": "#FFFFFF",
+        "textSecondary": "#FFF5E1",
+        "cardBg": "rgba(255, 107, 107, 0.25)",
+        "cardBorder": "rgba(255, 217, 61, 0.3)",
+        "shadow": "0 8px 32px rgba(255, 107, 107, 0.4)",
+        "timerRing": "#FFA07A",
+        "timerBg": "rgba(255, 107, 107, 0.2)",
+        "taskDone": "#FFCCBC",
+        "taskFocus": "#FFD93D"
+      },
+      "fonts": {
+        "primary": "Poppins",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "midnight": {
+      "name": "Midnight Blue",
+      "colors": {
+        "primary": "#1A1A2E",
+        "secondary": "#16213E",
+        "accent": "#0F3460",
+        "background": "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+        "backgroundOverlay": "rgba(26, 26, 46, 0.2)",
+        "text": "#E4E4E4",
+        "textSecondary": "#CCCCCC",
+        "cardBg": "rgba(22, 33, 62, 0.5)",
+        "cardBorder": "rgba(15, 52, 96, 0.5)",
+        "shadow": "0 8px 32px rgba(0, 0, 0, 0.5)",
+        "timerRing": "#4A90E2",
+        "timerBg": "rgba(26, 26, 46, 0.3)",
+        "taskDone": "#7A8A99",
+        "taskFocus": "#4A90E2"
+      },
+      "fonts": {
+        "primary": "Poppins",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "16px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "neon": {
+      "name": "Neon Nights",
+      "colors": {
+        "primary": "#FF006E",
+        "secondary": "#8338EC",
+        "accent": "#00F5FF",
+        "background": "linear-gradient(135deg, #1a1a1d 0%, #4e4e50 100%)",
+        "backgroundOverlay": "rgba(255, 0, 110, 0.1)",
+        "text": "#FFFFFF",
+        "textSecondary": "#F0F0F0",
+        "cardBg": "rgba(131, 56, 236, 0.2)",
+        "cardBorder": "rgba(0, 245, 255, 0.4)",
+        "shadow": "0 0 20px rgba(255, 0, 110, 0.6), 0 0 40px rgba(131, 56, 236, 0.4)",
+        "timerRing": "#00F5FF",
+        "timerBg": "rgba(255, 0, 110, 0.15)",
+        "taskDone": "#B388FF",
+        "taskFocus": "#00F5FF"
+      },
+      "fonts": {
+        "primary": "Orbitron",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "10px",
+        "borderRadius": "20px",
+        "cardRadius": "16px"
+      }
+    },
+    "forest": {
+      "name": "Forest Green",
+      "colors": {
+        "primary": "#2D6A4F",
+        "secondary": "#40916C",
+        "accent": "#95D5B2",
+        "background": "linear-gradient(135deg, #2d3561 0%, #c05c7e 100%)",
+        "backgroundOverlay": "rgba(45, 106, 79, 0.15)",
+        "text": "#F1FAEE",
+        "textSecondary": "#D8F3DC",
+        "cardBg": "rgba(45, 106, 79, 0.3)",
+        "cardBorder": "rgba(149, 213, 178, 0.3)",
+        "shadow": "0 8px 32px rgba(45, 106, 79, 0.3)",
+        "timerRing": "#95D5B2",
+        "timerBg": "rgba(45, 106, 79, 0.2)",
+        "taskDone": "#B7E4C7",
+        "taskFocus": "#FFD60A"
+      },
+      "fonts": {
+        "primary": "Poppins",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "16px",
+        "cardRadius": "12px"
+      }
+    },
+    "minimal": {
+      "name": "Minimal White",
+      "colors": {
+        "primary": "#333333",
+        "secondary": "#666666",
+        "accent": "#007AFF",
+        "background": "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        "backgroundOverlay": "rgba(255, 255, 255, 0.7)",
+        "text": "#1A1A1A",
+        "textSecondary": "#4A4A4A",
+        "cardBg": "rgba(255, 255, 255, 0.9)",
+        "cardBorder": "rgba(0, 122, 255, 0.2)",
+        "shadow": "0 4px 16px rgba(0, 0, 0, 0.1)",
+        "timerRing": "#007AFF",
+        "timerBg": "rgba(245, 247, 250, 0.5)",
+        "taskDone": "#999999",
+        "taskFocus": "#007AFF"
+      },
+      "fonts": {
+        "primary": "Inter",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "8px",
+        "borderRadius": "12px",
+        "cardRadius": "8px"
+      }
+    },
+    "cyberpunk": {
+      "name": "Cyberpunk",
+      "colors": {
+        "primary": "#FF00FF",
+        "secondary": "#00FFFF",
+        "accent": "#FFFF00",
+        "background": "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+        "backgroundOverlay": "rgba(255, 0, 255, 0.1)",
+        "text": "#00FFFF",
+        "textSecondary": "#FF00FF",
+        "cardBg": "rgba(22, 33, 62, 0.6)",
+        "cardBorder": "rgba(0, 255, 255, 0.5)",
+        "shadow": "0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)",
+        "timerRing": "#FFFF00",
+        "timerBg": "rgba(26, 26, 46, 0.3)",
+        "taskDone": "#9D4EDD",
+        "taskFocus": "#FFFF00"
+      },
+      "fonts": {
+        "primary": "Orbitron",
+        "secondary": "Share Tech Mono"
+      },
+      "effects": {
+        "blur": "10px",
+        "borderRadius": "4px",
+        "cardRadius": "4px"
+      }
+    },
+    "pastel": {
+      "name": "Soft Pastel",
+      "colors": {
+        "primary": "#FFB3C6",
+        "secondary": "#C7CEEA",
+        "accent": "#FFFFD2",
+        "background": "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
+        "backgroundOverlay": "rgba(255, 179, 198, 0.15)",
+        "text": "#4A4A4A",
+        "textSecondary": "#6A6A6A",
+        "cardBg": "rgba(255, 255, 255, 0.6)",
+        "cardBorder": "rgba(199, 206, 234, 0.4)",
+        "shadow": "0 8px 24px rgba(255, 179, 198, 0.3)",
+        "timerRing": "#C7CEEA",
+        "timerBg": "rgba(255, 255, 255, 0.5)",
+        "taskDone": "#D4A5A5",
+        "taskFocus": "#FFFFD2"
+      },
+      "fonts": {
+        "primary": "Poppins",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "20px",
+        "cardRadius": "16px"
+      }
+    },
+    "nocturne": {
+      "name": "Nocturne Gold",
+      "colors": {
+        "primary": "#0D1B2A",
+        "secondary": "#1B263B",
+        "accent": "#E0A96D",
+        "background": "linear-gradient(135deg, #0d1b2a 0%, #1f2a44 100%)",
+        "backgroundOverlay": "rgba(13, 27, 42, 0.35)",
+        "text": "#F6F1E9",
+        "textSecondary": "#D9CAB3",
+        "cardBg": "rgba(27, 38, 59, 0.55)",
+        "cardBorder": "rgba(224, 169, 109, 0.35)",
+        "shadow": "0 8px 32px rgba(13, 27, 42, 0.6)",
+        "timerRing": "#E0A96D",
+        "timerBg": "rgba(27, 38, 59, 0.5)",
+        "taskDone": "#74828F",
+        "taskFocus": "#E0A96D"
+      },
+      "fonts": {
+        "primary": "Playfair Display",
+        "secondary": "Nunito"
+      },
+      "effects": {
+        "blur": "14px",
+        "borderRadius": "18px",
+        "cardRadius": "12px"
+      }
+    },
+    "studio": {
+      "name": "Studio Slate",
+      "colors": {
+        "primary": "#1F2933",
+        "secondary": "#323F4B",
+        "accent": "#3D5AFE",
+        "background": "linear-gradient(135deg, #151A21 0%, #1F2933 50%, #323F4B 100%)",
+        "backgroundOverlay": "rgba(31, 41, 51, 0.4)",
+        "text": "#E4E7EB",
+        "textSecondary": "#CBD2D9",
+        "cardBg": "rgba(31, 41, 51, 0.65)",
+        "cardBorder": "rgba(61, 90, 254, 0.3)",
+        "shadow": "0 8px 32px rgba(15, 23, 42, 0.45)",
+        "timerRing": "#3D5AFE",
+        "timerBg": "rgba(61, 90, 254, 0.2)",
+        "taskDone": "#52606D",
+        "taskFocus": "#3D5AFE"
+      },
+      "fonts": {
+        "primary": "Barlow",
+        "secondary": "Source Sans Pro"
+      },
+      "effects": {
+        "blur": "14px",
+        "borderRadius": "18px",
+        "cardRadius": "14px"
+      }
+    },
+    "daybreak": {
+      "name": "Daybreak Light",
+      "colors": {
+        "primary": "#2D3142",
+        "secondary": "#BFC0C0",
+        "accent": "#EF8354",
+        "background": "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+        "backgroundOverlay": "rgba(255, 255, 255, 0.85)",
+        "text": "#1F2933",
+        "textSecondary": "#52606D",
+        "cardBg": "rgba(255, 255, 255, 0.9)",
+        "cardBorder": "rgba(239, 131, 84, 0.25)",
+        "shadow": "0 12px 30px rgba(31, 41, 51, 0.15)",
+        "timerRing": "#EF8354",
+        "timerBg": "rgba(239, 131, 84, 0.2)",
+        "taskDone": "#9AA5B1",
+        "taskFocus": "#EF8354"
+      },
+      "fonts": {
+        "primary": "Work Sans",
+        "secondary": "Nunito Sans"
+      },
+      "effects": {
+        "blur": "10px",
+        "borderRadius": "20px",
+        "cardRadius": "16px"
+      }
+    },
+    "aurora": {
+      "name": "Aurora Drift",
+      "colors": {
+        "primary": "#0F1C2C",
+        "secondary": "#1B3B6F",
+        "accent": "#5BC0BE",
+        "background": "linear-gradient(135deg, #0f1c2c 0%, #1b3b6f 45%, #5bc0be 100%)",
+        "backgroundOverlay": "rgba(15, 28, 44, 0.4)",
+        "text": "#E6FAFC",
+        "textSecondary": "#B2DFDB",
+        "cardBg": "rgba(17, 43, 67, 0.55)",
+        "cardBorder": "rgba(91, 192, 190, 0.35)",
+        "shadow": "0 8px 32px rgba(15, 28, 44, 0.6)",
+        "timerRing": "#5BC0BE",
+        "timerBg": "rgba(15, 28, 44, 0.35)",
+        "taskDone": "#8DE4E6",
+        "taskFocus": "#FFE066"
+      },
+      "fonts": {
+        "primary": "Quicksand",
+        "secondary": "Roboto"
+      },
+      "effects": {
+        "blur": "16px",
+        "borderRadius": "18px",
+        "cardRadius": "14px"
+      }
+    },
+    "zen": {
+      "name": "Zen Garden",
+      "colors": {
+        "primary": "#2A4D69",
+        "secondary": "#4B86B4",
+        "accent": "#ADCBE3",
+        "background": "linear-gradient(135deg, #b8d8d8 0%, #7a9e9f 100%)",
+        "backgroundOverlay": "rgba(42, 77, 105, 0.2)",
+        "text": "#1E1E24",
+        "textSecondary": "#3A506B",
+        "cardBg": "rgba(255, 255, 255, 0.8)",
+        "cardBorder": "rgba(173, 203, 227, 0.4)",
+        "shadow": "0 10px 24px rgba(42, 77, 105, 0.25)",
+        "timerRing": "#4B86B4",
+        "timerBg": "rgba(173, 203, 227, 0.2)",
+        "taskDone": "#9DC3C2",
+        "taskFocus": "#FFD166"
+      },
+      "fonts": {
+        "primary": "Karla",
+        "secondary": "Open Sans"
+      },
+      "effects": {
+        "blur": "12px",
+        "borderRadius": "22px",
+        "cardRadius": "18px"
+      }
+    },
+    "ember": {
+      "name": "Ember Forge",
+      "colors": {
+        "primary": "#2F0F13",
+        "secondary": "#5A1E2A",
+        "accent": "#FF6F3C",
+        "background": "linear-gradient(135deg, #1f0b0f 0%, #501f2f 60%, #ff6f3c 100%)",
+        "backgroundOverlay": "rgba(47, 15, 19, 0.4)",
+        "text": "#FFEFE7",
+        "textSecondary": "#FFD4BF",
+        "cardBg": "rgba(47, 15, 19, 0.6)",
+        "cardBorder": "rgba(255, 111, 60, 0.3)",
+        "shadow": "0 12px 40px rgba(47, 15, 19, 0.6)",
+        "timerRing": "#FF6F3C",
+        "timerBg": "rgba(90, 30, 42, 0.4)",
+        "taskDone": "#FFAB76",
+        "taskFocus": "#FFD93D"
+      },
+      "fonts": {
+        "primary": "Montserrat",
+        "secondary": "Raleway"
+      },
+      "effects": {
+        "blur": "14px",
+        "borderRadius": "14px",
+        "cardRadius": "12px"
+      }
+    }
+  },
+  "defaultTheme": "ocean"
+}

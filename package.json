@@ -2,11 +2,11 @@
 	"name": "twitch-multitask-task-list-overlay",
 	"version": "2.3.0",
 	"description": "Interactive multitask task list overlay for streamer",
-	"author": "Jujoco",
+	"author": "mozayed007",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/jujoco/twitch-multitask-task-list-overlay.git"
+		"url": "https://github.com/mozayed007/twitch-multitask-task-list-overlay.git"
 	},
 	"keywords": [
 		"twitch overlay",
@@ -34,6 +34,7 @@
 		"jsdom": "^26.0.0",
 		"standard-version": "^9.5.0",
 		"vite": "^6.2.0",
+		"vite-plugin-static-copy": "^3.1.4",
 		"vitest": "^3.0.7"
 	}
 }

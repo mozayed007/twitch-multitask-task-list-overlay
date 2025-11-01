@@ -1,0 +1,281 @@
+/**
+ * OBS Browser Source Layout Fix
+ * This ensures the overlay works properly at 1920x1080 resolution
+ */
+
+/* Force fixed dimensions for OBS */
+html, body {
+	width: 1920px;
+	height: 1080px;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+body {
+	font-size: 16px; /* Base font size */
+	/* Ensure body can receive focus for keyboard events */
+}
+
+body.overlay-dragging {
+	user-select: none;
+	cursor: move;
+	pointer-events: auto;
+}
+
+/* Main app container - full screen */
+#app {
+	width: 1920px;
+	height: 1080px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding: 30px;
+	box-sizing: border-box;
+	/* Ensure proper pointer events for interaction */
+	pointer-events: auto;
+}
+
+/* Remove all the * 2 scaling issues */
+.header {
+	padding: var(--header-padding, 12px);
+	margin-bottom: var(--header-margin-bottom, 12px);
+	font-size: calc(var(--header-font-size, 18) * 1px);
+}
+
+/* Component containers should be properly sized */
+.component-container {
+	box-sizing: border-box;
+	/* Ensure containers can interact with mouse events */
+	pointer-events: auto;
+}
+
+.draggable-panel {
+	transition: box-shadow 0.2s ease;
+	/* Ensure draggable panels receive pointer events */
+	pointer-events: auto;
+	/* Better cursor feedback */
+	cursor: grab;
+}
+
+.draggable-panel:hover {
+	cursor: grab;
+}
+
+.draggable-panel.dragging {
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+	cursor: grabbing;
+	/* Ensure dragging panel stays on top */
+	z-index: 1000;
+}
+
+/* Drag handle specific styling */
+.draggable-panel .header,
+.draggable-panel .backlog-header,
+.draggable-panel .info-header,
+.draggable-panel .circular-timer {
+	cursor: grab;
+	pointer-events: auto;
+}
+
+.draggable-panel .header:hover,
+.draggable-panel .backlog-header:hover,
+.draggable-panel .info-header:hover,
+.draggable-panel .circular-timer:hover {
+	cursor: grab;
+}
+
+.draggable-panel.dragging .header,
+.draggable-panel.dragging .backlog-header,
+.draggable-panel.dragging .info-header,
+.draggable-panel.dragging .circular-timer {
+	cursor: grabbing;
+}
+
+/* Visual drag indicator */
+.drag-indicator {
+	position: absolute !important;
+	top: 8px !important;
+	right: 8px !important;
+	opacity: 0.4 !important;
+	cursor: grab !important;
+	font-size: 14px !important;
+	color: white !important;
+	background: rgba(0, 0, 0, 0.3) !important;
+	padding: 2px 4px !important;
+	border-radius: 3px !important;
+	transition: opacity 0.2s ease !important;
+	pointer-events: auto !important;
+}
+
+.drag-indicator:hover {
+	opacity: 0.8 !important;
+	cursor: grab !important;
+}
+
+.draggable-panel.dragging .drag-indicator {
+	cursor: grabbing !important;
+}
+
+/* Circular timer sizing */
+#timer-container {
+	min-width: 200px;
+	min-height: 200px;
+	pointer-events: auto;
+}
+
+/* Ensure proper task list sizing */
+#task-list-container {
+	min-width: 400px;
+	pointer-events: auto;
+}
+
+/* Backlog and info panels */
+#backlog-container,
+#info-panel-container {
+	min-width: 300px;
+	pointer-events: auto;
+}
+
+/* Theme switcher positioning */
+.theme-switcher {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 9999;
+	pointer-events: auto;
+}
+
+.theme-toggle-btn {
+	font-size: 32px;
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(10px);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: auto;
+}
+
+.theme-toggle-btn:hover {
+	transform: scale(1.1);
+	background: rgba(0, 0, 0, 0.7);
+	border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Theme menu positioning */
+.theme-menu {
+	position: fixed;
+	top: 90px;
+	right: 20px;
+	z-index: 9998;
+	max-width: 350px;
+	pointer-events: auto;
+}
+
+/* Layout selector positioning */
+.layout-selector-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 1920px;
+	height: 1080px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9997;
+	pointer-events: auto;
+}
+
+/* Ensure text is readable */
+.task-container {
+	font-size: 18px;
+	line-height: 1.6;
+	pointer-events: auto;
+}
+
+.task-item {
+	padding: 12px 16px;
+	margin-bottom: 8px;
+	pointer-events: auto;
+}
+
+/* Circular timer text sizing */
+.circular-timer-time {
+	font-size: 48px;
+	font-weight: bold;
+}
+
+.circular-timer-label {
+	font-size: 18px;
+	margin-top: 8px;
+}
+
+/* Backlog item sizing */
+.backlog-item {
+	padding: 12px;
+	margin-bottom: 8px;
+	font-size: 16px;
+	pointer-events: auto;
+}
+
+/* Info panel sizing */
+.info-viewer-item {
+	padding: 12px;
+	margin-bottom: 8px;
+	font-size: 16px;
+	pointer-events: auto;
+}
+
+/* Modal positioning for OBS */
+.modal {
+	width: 1920px;
+	height: 1080px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	pointer-events: auto;
+}
+
+.modal-content {
+	max-width: 600px;
+	padding: 40px;
+	font-size: 18px;
+	pointer-events: auto;
+}
+
+/* Prevent any viewport-based scaling */
+@media screen {
+	html {
+		zoom: 1;
+		transform: scale(1);
+		transform-origin: 0 0;
+	}
+}
+
+/* OBS-specific fixes for coordinate mapping */
+@media screen and (min-width: 1920px) and (min-height: 1080px) {
+	/* Ensure proper coordinate system for OBS browser source */
+	.draggable-panel {
+		transform-origin: top left;
+		will-change: transform;
+	}
+	
+	/* Fix for OBS mouse coordinate mapping */
+	* {
+		-webkit-transform: translateZ(0);
+		transform: translateZ(0);
+	}
+}
+
+/* Layout-specific adjustments - DISABLED - Using absolute positioning from LayoutManager */
+
+/* Grid layouts removed - LayoutManager now handles absolute positioning */

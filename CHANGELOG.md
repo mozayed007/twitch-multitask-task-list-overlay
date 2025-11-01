@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.3.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.2.0...v2.3.0) (2025-08-15)
 
-
 ### Features
 
 * **mods:** allow your mods to set your focus timer on stream ([4e44b01](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/4e44b010bba9bcfb754f81263ecdf857f8cb75f1))
@@ -15,12 +14,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.1.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.0.0...v2.1.0) (2025-03-03)
 
-
 ### Features
 
 * **command:** add !focus command ([2334025](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/233402500cfcbd8c542a6215881e29986139bf6a))
 * **focus:** unfocus a task after it has been completed ([#38](https://github.com/jujoco/twitch-multitask-task-list-overlay/issues/38)) ([134685c](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/134685ccfd01d77b05da9cdd7b74f802cee2bf43))
-
 
 ### Bug Fixes
 
@@ -29,7 +26,6 @@ All notable changes to this project will be documented in this file. See [standa
 ## [2.0.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v1.1.0...v2.0.0) (2024-12-29)
 
 ## 1.1.0 (2024-12-23)
-
 
 ### Features
 
@@ -42,7 +38,6 @@ All notable changes to this project will be documented in this file. See [standa
 * **i18n:** part2: add ES, FR, JP alias to doc & config ([eefacd1](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/eefacd11899c24c81860681ff82b39e71237b0e3))
 * **style:** refactor to keep size constant for users ([f4f6ece](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/f4f6eceb1b8c21ab0a6accc39f1bae71bd8f490a))
 * **style:** simplify paddding, wording, config options ([6887bd0](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/6887bd01f64d9b11b9ca727b80c2f30d6ecc35b4))
-
 
 ### Bug Fixes
 

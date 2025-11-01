@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=1920, height=1080" />
 		<meta author="jujoco" />
 		<meta
 			name="keywords"
@@ -16,57 +16,78 @@
 			href="https://github.githubassets.com/favicons/favicon-dark.png"
 		/>
 		<link rel="stylesheet" type="text/css" href="./styles/index.css" />
+		<link rel="stylesheet" type="text/css" href="./styles/enhanced.css" />
+		<link rel="stylesheet" type="text/css" href="./styles/obs-fix.css" />
 		<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 		<script defer src="./_auth.js"></script>
 		<script defer src="./_configAdmin.js"></script>
 		<script defer src="./_configUser.js"></script>
 		<script defer src="./_settings.js"></script>
 		<script defer src="./_styles.js"></script>
+x		<script defer src="./_enhancedCommands.js"></script>
 		<script defer src="./dist/taskBot.iife.js"></script>
-		<title>Multi Task List</title>
+		<title>Multi Task List - Enhanced Streaming Overlay</title>
 	</head>
 
 	<body>
 		<main id="app">
-			<div class="header">
-				<div class="header-features">
-					<div class="timer hidden">
-						<span
-							class="timer-title"
-							>Break</span
-						>
-						<span
-							class="timer-countdown"
-							>00:00</span
-						>
-					</div>
+			<!-- Circular Timer Container -->
+			<div id="timer-container" class="component-container">
+				<!-- Timer will be rendered here by CircularTimer class -->
+			</div>
 
-					<div class="command-tips hidden">
-						<spans
-							class="command-code"
-							>!help</spans
-						>
-					</div>
+			<!-- Task List Container -->
+			<div id="task-list-container" class="component-container">
+				<div class="header">
+					<div class="header-features">
+						<div class="timer hidden">
+							<span class="timer-title">Break</span>
+							<span class="timer-countdown">00:00</span>
+						</div>
 
-					<div class="custom-header hidden">
-						<span class="custom-text">Custom Header Text</span>
-					</div>
+						<div class="command-tips hidden">
+							<span class="command-code">!help</span>
+						</div>
 
-					<div class="task-title">
-						<span class="task-title">tasks</span>
-						<span class="task-count">0/0</span>
+						<div class="custom-header hidden">
+							<span class="custom-text">Custom Header Text</span>
+						</div>
+
+						<div class="task-title">
+							<span class="task-title">tasks</span>
+							<span class="task-count">0/0</span>
+						</div>
 					</div>
+				</div>
+
+				<div class="task-wrapper">
+					<div class="task-container primary"></div>
+					<div class="task-container secondary"></div>
 				</div>
 			</div>
 
-			<div class="task-wrapper">
-				<div class="task-container primary"></div>
-				<div class="task-container secondary"></div>
+			<!-- Backlog Panel Container -->
+			<div id="backlog-container" class="component-container">
+				<!-- Backlog will be rendered here by BacklogPanel class -->
 			</div>
+
+			<!-- Info Panel Container -->
+			<div id="info-panel-container" class="component-container">
+				<!-- Info panel will be rendered here by InfoPanel class -->
+			</div>
+
 			<audio id="audioSample" src="./media/breakTime.mp3"></audio>
 		</main>
 
-		<div id="modal"	class="modal hidden justify-center items-center absolute">
+		<!-- Theme Switcher UI -->
+		<div class="theme-switcher hidden">
+			<button class="theme-toggle-btn" id="theme-toggle" title="Change Theme">
+				🎨
+			</button>
+		</div>
+
+		<!-- OAuth Modal -->
+		<div id="modal" class="modal hidden justify-center items-center absolute">
 			<div class="modal-content">
 				<h2 class="modal-header">Invalid oAuth access token</h2>
 				<div class="modal-body">

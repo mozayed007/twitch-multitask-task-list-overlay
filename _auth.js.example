@@ -1,0 +1,11 @@
+// ========================================
+// oAuth access token and channel info - Required
+// ========================================
+// Copy this file to _auth.js and fill in your actual credentials
+// Get your OAuth token from: https://twitchapps.com/tmi/
+/** @type {AuthConfig} */
+const _authConfig = {
+  twitch_oauth: "oauth:your_oauth_token_here", 
+  twitch_username: "your_bot_username",
+  twitch_channel: "your_channel_name",
+};
