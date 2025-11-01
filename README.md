@@ -15,6 +15,127 @@
 >
 > **Original Repository:** [jujoco/twitch-multitask-task-list-overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay)
 
+## ✨ Enhanced Features in This Fork
+
+### 🎯 Advanced Pomodoro Timer System
+
+Full-featured Pomodoro timer with session tracking, pause/resume, and state persistence.
+
+**Commands (Moderator Only):**
+
+- `!pomo` or `!pomodoro` - Start default cycle (25min/5min × 4 sessions)
+- `!pomo 50/10` - Custom focus/break times
+- `!pomo 25/5/6` - Custom with session count (max 12)
+- `!pomopause` / `!pomoresume` - Pause and resume timer
+- `!pomostop` or `!stoptimer` - Stop timer completely
+- `!pomoreset` - Reset all session progress
+- `!pomostatus` - Get current timer status
+
+**Features:**
+
+- ✅ Session tracking (Session 2/4)
+- ✅ Auto-progression through focus → break cycles
+- ✅ Long breaks every 4 sessions (15min default)
+- ✅ State persistence (survives page refresh)
+- ✅ Chat announcements for completions
+
+### 📋 Personal Backlog System
+
+Separate task backlog for **all viewers** - distinct from the broadcaster's main task list.
+
+**Commands (Everyone):**
+
+- `!backlog add [task]` - Add item to your personal backlog
+- `!backlog done [number]` - Mark backlog item complete
+- `!backlog remove [number]` - Remove item from backlog
+- `!backlog clear` - Clear your entire backlog
+
+**Features:**
+
+- ✅ Per-user backlog storage
+- ✅ Independent from main task list
+- ✅ Personal task management for viewers
+- ✅ Full CRUD operations
+
+### 🎨 Advanced Theme System (20 Premium Themes)
+
+**Commands (Moderator Only):**
+
+- `!theme` - List all available themes
+- `!theme [name]` - Switch to specific theme
+
+**Theme Categories:**
+
+- **Coding:** Code Dark Pro, Code Light Clean, Terminal Matrix, Studio Slate
+- **Gaming:** Gaming RGB, Neon Nights, Cyberpunk
+- **Professional:** Streamer Pro Clean, Clean Chrome, Minimal White, Daybreak Light
+- **Creative:** Ocean Breeze, Sunset Glow, Forest Green, Aurora Drift, Ember Forge, Nocturne Gold, Zen Garden, Soft Pastel
+- **Classic:** Midnight Blue
+
+**Features:**
+
+- ✅ 20 carefully crafted themes
+- ✅ 15-20% higher opacity for better visibility
+- ✅ Optimized for dark/light backgrounds
+- ✅ Scene-appropriate styling
+- ✅ Instant theme switching
+
+### 📐 Layout Management System (6 Preset Layouts)
+
+**Commands (Moderator Only):**
+
+- `!layout` - List all available layouts
+- `!layout [name]` - Switch to specific layout
+- `!resetpanel [panel]` - Reset panel position
+- `!resetlayout [name]` - Reset all panels in layout
+
+**Available Layouts:**
+
+- `compact` - Timer and tasks side-by-side
+- `split` - Timer left, tasks center, backlog right
+- `fullOverlay` - Balanced dashboard with all panels
+- `minimal` - Single timer focus
+- `timerWithTasks` - Timer stacked above tasks
+- `dashboard` - Comprehensive work/study layout
+
+**Features:**
+
+- ✅ 6 preset layouts for different streaming scenarios
+- ✅ Drag and reposition any panel
+- ✅ Position persistence (saved per layout)
+- ✅ Quick layout switching
+
+### 👥 Viewer Info Profiles System
+
+Store and retrieve custom information about your viewers.
+
+**Commands (Everyone):**
+
+- `!setinfo [key] [value]` - Store custom info (e.g., timezone, goals)
+- `!getinfo [username] [key]` - Retrieve stored info
+
+**Features:**
+
+- ✅ Persistent viewer data storage
+- ✅ Custom key-value pairs
+- ✅ Great for community engagement
+
+### ⌨️ Keyboard Shortcuts
+
+Quick access to overlay features without typing commands:
+
+- `Alt + T` - Toggle theme selector
+- `Alt + L` - Toggle layout selector  
+- `Escape` - Close open panels
+
+### 🔒 Broadcaster-Only Task List
+
+Main task list (`!task` commands) is now **broadcaster-only**. Viewers are automatically redirected to use `!backlog` commands for their personal task management.
+
+**For full command documentation, see [COMMANDS.md](./COMMANDS.md)**
+
+---
+
 ## What and Why?
 
 A TaskList widget for Twitch TV which allows users to interact with the broadcaster's stream.
