@@ -1155,3 +1155,58 @@
 	color: #000000;
 	font-weight: 600;
 }
+
+/* ===================================
+   	Panel Selection Styles (for resizing)
+   =================================== */
+.draggable-panel {
+	position: relative;
+}
+
+.panel-selected {
+	outline: 3px solid var(--color-accent);
+	outline-offset: 2px;
+	box-shadow: 0 0 20px var(--color-accent), var(--shadow);
+	animation: panelSelectPulse 2s ease-in-out infinite;
+}
+
+@keyframes panelSelectPulse {
+	0%, 100% {
+		outline-color: var(--color-accent);
+		box-shadow: 0 0 20px var(--color-accent), var(--shadow);
+	}
+	50% {
+		outline-color: var(--color-primary);
+		box-shadow: 0 0 30px var(--color-primary), var(--shadow);
+	}
+}
+
+/* Add resize indicator */
+.panel-selected::before {
+	content: '⊕ Selected - Use +/- to resize';
+	position: absolute;
+	top: -32px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--color-accent);
+	color: #000000;
+	padding: 6px 16px;
+	border-radius: 20px;
+	font-family: var(--font-secondary);
+	font-size: var(--font-size-xs);
+	font-weight: 600;
+	white-space: nowrap;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	z-index: 1000;
+	animation: floatLabel 2s ease-in-out infinite;
+	pointer-events: none;
+}
+
+@keyframes floatLabel {
+	0%, 100% {
+		transform: translateX(-50%) translateY(0px);
+	}
+	50% {
+		transform: translateX(-50%) translateY(-4px);
+	}
+}

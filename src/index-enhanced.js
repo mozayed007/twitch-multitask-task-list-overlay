@@ -36,6 +36,9 @@ const panelHandleSelectors = {
 	infoPanel: '.info-header'
 };
 
+// Track selected panel for resizing
+let selectedPanel = null;
+
 window.addEventListener("load", () => {
 	let storeName = "userList";
 	if (_settings.testMode) {
@@ -683,6 +686,16 @@ function setupPanelDraggables() {
 			}
 		});
 
+		// Add click handler to select panel for resizing
+		panelEl.addEventListener('click', (e) => {
+			// Don't select if clicking interactive elements
+			const target = /** @type {HTMLElement} */ (e.target);
+			if (target.tagName === 'BUTTON' || target.tagName === 'INPUT') {
+				return;
+			}
+			selectPanel(panelEl, panelKey);
+		});
+
 		panelDragCleanups.set(panelKey, cleanup);
 		console.log(`Draggable setup complete for panel: ${panelKey}`);
 	});
@@ -775,6 +788,26 @@ function setupKeyboardShortcuts() {
 	const handleKeyDown = (e) => {
 		console.log('Key pressed:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey, 'Shift:', e.shiftKey);
 		
+		// + key = Increase size of selected panel
+		if ((e.key === '+' || e.key === '=' || e.key === 'Add') && !e.altKey && !e.ctrlKey && !e.shiftKey) {
+			if (selectedPanel) {
+				e.preventDefault();
+				e.stopPropagation();
+				resizeSelectedPanel(1.1); // Increase by 10%
+				return;
+			}
+		}
+
+		// - key = Decrease size of selected panel
+		if ((e.key === '-' || e.key === '_' || e.key === 'Subtract') && !e.altKey && !e.ctrlKey && !e.shiftKey) {
+			if (selectedPanel) {
+				e.preventDefault();
+				e.stopPropagation();
+				resizeSelectedPanel(0.9); // Decrease by 10%
+				return;
+			}
+		}
+		
 		// Alt + L = Show layout selector
 		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'l') {
 			e.preventDefault();
@@ -803,10 +836,16 @@ function setupKeyboardShortcuts() {
 			return;
 		}
 
-		// Escape key to close any open menus/overlays
+		// Escape key to close any open menus/overlays or deselect panel
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			e.stopPropagation();
+			
+			// Deselect panel first
+			if (selectedPanel) {
+				deselectPanel();
+				return;
+			}
 			
 			// Close theme menu if open
 			const themeMenu = document.querySelector('.theme-menu');
@@ -852,6 +891,109 @@ function showLayoutSelector() {
 	}
 }
 
+/**
+ * Select a panel for resizing
+ * @param {HTMLElement} panelEl - Panel element
+ * @param {string} panelKey - Panel key identifier
+ */
+function selectPanel(panelEl, panelKey) {
+	// Deselect previous panel
+	deselectPanel();
+	
+	// Select new panel
+	selectedPanel = { element: panelEl, key: panelKey };
+	panelEl.classList.add('panel-selected');
+	console.log(`Panel selected: ${panelKey}`);
+}
+
+/**
+ * Deselect the currently selected panel
+ */
+function deselectPanel() {
+	if (selectedPanel) {
+		selectedPanel.element.classList.remove('panel-selected');
+		selectedPanel = null;
+		console.log('Panel deselected');
+	}
+}
+
+/**
+ * Resize the selected panel while maintaining center position and aspect ratio
+ * @param {number} scaleFactor - Scale factor (e.g., 1.1 for 10% increase, 0.9 for 10% decrease)
+ */
+function resizeSelectedPanel(scaleFactor) {
+	if (!selectedPanel || !layoutManager) return;
+	
+	const { element, key } = selectedPanel;
+	const rect = element.getBoundingClientRect();
+	const container = document.getElementById('app');
+	if (!container) return;
+	
+	const containerRect = container.getBoundingClientRect();
+	
+	// Get current dimensions
+	const currentWidth = rect.width;
+	const currentHeight = rect.height;
+	
+	// Calculate new dimensions (maintaining aspect ratio)
+	const newWidth = Math.round(currentWidth * scaleFactor);
+	const newHeight = Math.round(currentHeight * scaleFactor);
+	
+	// Get current position (relative to container)
+	const currentLeft = rect.left - containerRect.left;
+	const currentTop = rect.top - containerRect.top;
+	
+	// Calculate center point
+	const centerX = currentLeft + currentWidth / 2;
+	const centerY = currentTop + currentHeight / 2;
+	
+	// Calculate new position to maintain center
+	let newLeft = centerX - newWidth / 2;
+	let newTop = centerY - newHeight / 2;
+	
+	// Clamp to container bounds
+	const maxLeft = Math.max(0, containerRect.width - newWidth);
+	const maxTop = Math.max(0, containerRect.height - newHeight);
+	newLeft = Math.max(0, Math.min(maxLeft, newLeft));
+	newTop = Math.max(0, Math.min(maxTop, newTop));
+	
+	// Apply new size
+	element.style.width = `${newWidth}px`;
+	element.style.height = `${newHeight}px`;
+	
+	// Apply new position
+	element.style.left = `${Math.round(newLeft)}px`;
+	element.style.top = `${Math.round(newTop)}px`;
+	
+	// Save to layout manager
+	const layoutName = layoutManager.getCurrentLayout();
+	layoutManager.savePanelSize(layoutName, key, {
+		width: newWidth,
+		height: newHeight
+	});
+	layoutManager.savePanelPosition(layoutName, key, {
+		left: newLeft,
+		top: newTop
+	});
+	
+	console.log(`Resized ${key}: ${currentWidth}x${currentHeight} -> ${newWidth}x${newHeight}`);
+}
+
+// Deselect panel when clicking outside
+document.addEventListener('click', (e) => {
+	if (!selectedPanel) return;
+	
+	const target = /** @type {HTMLElement} */ (e.target);
+	// Check if click is outside the selected panel
+	if (!selectedPanel.element.contains(target)) {
+		// Don't deselect if clicking on menu items
+		if (target.closest('.theme-menu') || target.closest('.layout-selector')) {
+			return;
+		}
+		deselectPanel();
+	}
+});
+
 // Export for debugging
 if (typeof window !== 'undefined') {
 	// @ts-ignore - Adding debug object to window
@@ -861,6 +1003,9 @@ if (typeof window !== 'undefined') {
 		circularTimer,
 		backlogPanel,
 		infoPanel,
-		layoutManager
+		layoutManager,
+		selectPanel,
+		deselectPanel,
+		resizeSelectedPanel
 	};
 }

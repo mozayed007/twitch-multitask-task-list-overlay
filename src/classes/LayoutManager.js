@@ -157,7 +157,9 @@ export default class LayoutManager {
 	#currentLayout = 'compact';
 	#containerEl;
 	#panelPositions = {};
+	#panelSizes = {};
 	#positionsKey = 'enhancedOverlay.panelPositions.v2';
+	#sizesKey = 'enhancedOverlay.panelSizes.v1';
 
 	/**
 	 * @constructor
@@ -171,6 +173,7 @@ export default class LayoutManager {
 		}
 
 		this.#panelPositions = this.#loadPanelPositions();
+		this.#panelSizes = this.#loadPanelSizes();
 
 		// Load saved layout or use default
 		const savedLayout = localStorage.getItem('currentLayout') || 'compact';
@@ -226,6 +229,23 @@ export default class LayoutManager {
 	}
 
 	/**
+	 * Save a panel size to localStorage
+	 * @param {string} layoutName
+	 * @param {string} component
+	 * @param {{width:number, height:number}} size
+	 */
+	savePanelSize(layoutName, component, size) {
+		if (!this.#panelSizes[layoutName]) {
+			this.#panelSizes[layoutName] = {};
+		}
+		this.#panelSizes[layoutName][component] = {
+			width: Math.round(size.width),
+			height: Math.round(size.height)
+		};
+		this.#persistPanelSizes();
+	}
+
+	/**
 	 * Reset saved positions for a component within a layout
 	 * @param {string} component
 	 * @param {string} [layoutName]
@@ -238,6 +258,11 @@ export default class LayoutManager {
 		if (component) {
 			if (this.#panelPositions[layoutName][component]) {
 				delete this.#panelPositions[layoutName][component];
+				// Also delete saved size
+				if (this.#panelSizes[layoutName]?.[component]) {
+					delete this.#panelSizes[layoutName][component];
+					this.#persistPanelSizes();
+				}
 				this.#persistPanelPositions();
 				this.applyLayout(layoutName);
 				return true;
@@ -245,7 +270,9 @@ export default class LayoutManager {
 			return false;
 		}
 		delete this.#panelPositions[layoutName];
+		delete this.#panelSizes[layoutName];
 		this.#persistPanelPositions();
+		this.#persistPanelSizes();
 		this.applyLayout(layoutName);
 		return true;
 	}
@@ -399,7 +426,7 @@ export default class LayoutManager {
 				class: element.className
 			});
 
-			this.#applyPanelSize(element, config.size);
+			this.#applyPanelSize(element, config.size, componentKey, layoutName);
 
 			const saved = this.#getSavedPosition(layoutName, componentKey);
 			const position = saved ?? config.position;
@@ -415,11 +442,15 @@ export default class LayoutManager {
 		});
 	}
 
-	#applyPanelSize(element, size = {}) {
+	#applyPanelSize(element, size = {}, componentKey = null, layoutName = null) {
+		// Check for saved size first
+		const savedSize = layoutName && componentKey ? this.#getSavedSize(layoutName, componentKey) : null;
+		const finalSize = savedSize ? { ...size, ...savedSize } : size;
+		
 		const props = ['width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'];
 		props.forEach(prop => {
-			if (size[prop] !== undefined) {
-				element.style[prop] = `${size[prop]}px`;
+			if (finalSize[prop] !== undefined) {
+				element.style[prop] = `${finalSize[prop]}px`;
 			} else {
 				element.style[prop] = '';
 			}
@@ -428,6 +459,10 @@ export default class LayoutManager {
 
 	#getSavedPosition(layoutName, component) {
 		return this.#panelPositions[layoutName]?.[component] ?? null;
+	}
+
+	#getSavedSize(layoutName, component) {
+		return this.#panelSizes[layoutName]?.[component] ?? null;
 	}
 
 	#getScaleFactors() {
@@ -500,6 +535,24 @@ export default class LayoutManager {
 			localStorage.setItem(this.#positionsKey, JSON.stringify(this.#panelPositions));
 		} catch (error) {
 			console.warn('Failed to persist panel positions', error);
+		}
+	}
+
+	#loadPanelSizes() {
+		try {
+			const raw = localStorage.getItem(this.#sizesKey);
+			return raw ? JSON.parse(raw) : {};
+		} catch (error) {
+			console.warn('Failed to load saved panel sizes', error);
+			return {};
+		}
+	}
+
+	#persistPanelSizes() {
+		try {
+			localStorage.setItem(this.#sizesKey, JSON.stringify(this.#panelSizes));
+		} catch (error) {
+			console.warn('Failed to persist panel sizes', error);
 		}
 	}
 }
