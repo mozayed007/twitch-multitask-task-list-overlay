@@ -341,16 +341,39 @@
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.backlog-content {
+.backlog-content-wrapper {
 	flex: 1;
-	overflow-y: auto;
+	overflow: hidden;
 	min-height: 0;
+	position: relative;
+}
+
+.backlog-content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
 }
 
 .backlog-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-sm);
+}
+
+.backlog-list-secondary {
+	display: none;
+}
+
+/* Disable hover effects during scrolling */
+.backlog-content.scrolling .backlog-item {
+	pointer-events: none;
+}
+
+.backlog-content.scrolling .backlog-item:hover {
+	transform: none;
+	background: rgba(255, 255, 255, 0.05);
+	box-shadow: none;
 }
 
 .backlog-item {
@@ -364,6 +387,7 @@
 	align-items: center;
 	transition: all var(--transition-fast);
 	animation: slideIn 0.3s ease-out;
+	flex-shrink: 0;
 }
 
 @keyframes slideIn {

@@ -8,6 +8,9 @@ export default class BacklogPanel {
 	#containerEl;
 	#storageKey = 'taskBacklog';
 	#maxItems = 50;
+	#scrollAnimation = null;
+	#isScrolling = false;
+	#scrollSpeed = 15;
 
 	/**
 	 * @constructor
@@ -49,11 +52,14 @@ export default class BacklogPanel {
 						<span class="backlog-cmd-typewriter"></span>
 					</div>
 				</div>
-				<div class="backlog-content">
-					<div class="backlog-list"></div>
-					<div class="backlog-empty">
-						<p>No tasks in backlog</p>
-						<p class="backlog-hint">Use !backlog add [task] to add tasks</p>
+				<div class="backlog-content-wrapper">
+					<div class="backlog-content">
+						<div class="backlog-list backlog-list-primary"></div>
+						<div class="backlog-list backlog-list-secondary"></div>
+						<div class="backlog-empty">
+							<p>No tasks in backlog</p>
+							<p class="backlog-hint">Use !backlog add [task] to add tasks</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -261,7 +267,8 @@ export default class BacklogPanel {
 	 * Render the backlog panel
 	 */
 	render() {
-		const listEl = this.#containerEl.querySelector('.backlog-list');
+		const primaryListEl = this.#containerEl.querySelector('.backlog-list-primary');
+		const secondaryListEl = this.#containerEl.querySelector('.backlog-list-secondary');
 		const emptyEl = this.#containerEl.querySelector('.backlog-empty');
 		const countEl = this.#containerEl.querySelector('.backlog-count');
 
@@ -271,20 +278,37 @@ export default class BacklogPanel {
 
 		// Show/hide empty state
 		if (this.#backlogItems.length === 0) {
-			listEl.classList.add('hidden');
+			primaryListEl.classList.add('hidden');
+			secondaryListEl.classList.add('hidden');
 			emptyEl.classList.remove('hidden');
+			this.#stopScrollAnimation();
 			return;
 		}
 
-		listEl.classList.remove('hidden');
+		primaryListEl.classList.remove('hidden');
 		emptyEl.classList.add('hidden');
 
-		// Render items
-		listEl.innerHTML = this.#backlogItems
+		// Render items in both containers
+		const itemsHtml = this.#backlogItems
 			.map((item, index) => this.#renderItem(item, index + 1))
 			.join('');
+		
+		primaryListEl.innerHTML = itemsHtml;
+		secondaryListEl.innerHTML = itemsHtml;
 
-		// Add event listeners
+		// Add event listeners to both containers
+		this.#addEventListeners(primaryListEl);
+		this.#addEventListeners(secondaryListEl);
+		
+		// Start scroll animation if needed
+		setTimeout(() => this.#updateScrollAnimation(), 100);
+	}
+
+	/**
+	 * Add event listeners to a list element
+	 * @param {Element} listEl - List element
+	 */
+	#addEventListeners(listEl) {
 		listEl.querySelectorAll('.backlog-item-check').forEach(el => {
 			el.addEventListener('click', (e) => {
 				const target = /** @type {HTMLElement} */ (e.target);
@@ -304,6 +328,90 @@ export default class BacklogPanel {
 				}
 			});
 		});
+	}
+
+	/**
+	 * Update scroll animation based on content size
+	 */
+	#updateScrollAnimation() {
+		const wrapper = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-content-wrapper'));
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
+		
+		if (!wrapper || !primaryList) return;
+		
+		const wrapperHeight = wrapper.clientHeight;
+		const contentHeight = primaryList.scrollHeight;
+		
+		if (contentHeight > wrapperHeight && !this.#isScrolling) {
+			secondaryList.style.display = 'flex';
+			this.#startScrollAnimation(contentHeight);
+		} else if (contentHeight <= wrapperHeight) {
+			secondaryList.style.display = 'none';
+			this.#stopScrollAnimation();
+		}
+	}
+
+	/**
+	 * Start infinite scroll animation
+	 * @param {number} contentHeight - Height of content to scroll
+	 */
+	#startScrollAnimation(contentHeight) {
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
+		
+		if (!primaryList || !secondaryList) return;
+		
+		// Calculate duration based on content height and speed
+		const gapSize = 12; // var(--spacing-sm) in pixels
+		const adjustedHeight = contentHeight + gapSize;
+		const duration = (adjustedHeight / this.#scrollSpeed) * 1000;
+		
+		const keyframes = [
+			{ transform: 'translateY(0)' },
+			{ transform: `translateY(-${adjustedHeight}px)` }
+		];
+		
+		const options = {
+			duration: duration,
+			iterations: Infinity,
+			easing: 'linear'
+		};
+		
+		// Apply animation to both containers
+		primaryList.animate(keyframes, options);
+		secondaryList.animate(keyframes, options);
+		
+		this.#isScrolling = true;
+		
+		// Add scrolling class to disable hover effects
+		const content = this.#containerEl.querySelector('.backlog-content');
+		if (content) {
+			content.classList.add('scrolling');
+		}
+	}
+
+	/**
+	 * Stop scroll animation
+	 */
+	#stopScrollAnimation() {
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
+		
+		if (primaryList) {
+			primaryList.getAnimations().forEach(anim => anim.cancel());
+		}
+		if (secondaryList) {
+			secondaryList.getAnimations().forEach(anim => anim.cancel());
+		}
+		
+		this.#isScrolling = false;
+		
+		// Remove scrolling class
+		const content = this.#containerEl.querySelector('.backlog-content');
+		if (content) {
+			content.classList.remove('scrolling');
+		}
 	}
 
 	/**
