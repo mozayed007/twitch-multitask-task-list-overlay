@@ -388,31 +388,31 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	}
 
 	// Pomodoro timer commands (mod only)
-	if (cmd === '!pomo' || cmd === '!pomodoro') {
+	// Check specific subcommands first before the generic !pomo command
+	if (cmd === '!pomopause') {
 		if (!isMod) {
 			return {
 				message: `${prefix}@${username} Only moderators can control the timer.`,
 				error: true
 			};
 		}
-		// Parse: !pomo 25/5/4 = 25min focus, 5min break, 4 sessions
-		const parts = rawMessage.split('/');
-		const focusTime = Math.max(1, parseInt(parts[0], 10) || 25);
-		const breakTime = Math.max(1, parseInt(parts[1], 10) || 5);
-		const sessions = Math.max(1, Math.min(12, parseInt(parts[2], 10) || 4));
-		
-		circularTimer.startCycle(focusTime, breakTime, sessions, (mode, current, total) => {
-			if (mode === 'focus') {
-				client.say(`${prefix}Focus session ${current} complete! Time for a break ☕`);
-			} else if (mode === 'break' || mode === 'longbreak') {
-				client.say(`${prefix}Break over! Starting session ${current + 1}/${total} 💪`);
-			} else if (mode === 'cycle_complete') {
-				client.say(`${prefix}Pomodoro cycle complete! ${total} sessions done! 🎉`);
-			}
-		});
-
+		circularTimer.pause();
 		return {
-			message: `${prefix}Pomodoro started: ${focusTime}m focus / ${breakTime}m break × ${sessions} sessions ⏱️`,
+			message: `${prefix}Timer paused! ⏸️`,
+			error: false
+		};
+	}
+
+	if (cmd === '!pomoresume') {
+		if (!isMod) {
+			return {
+				message: `${prefix}@${username} Only moderators can control the timer.`,
+				error: true
+			};
+		}
+		circularTimer.resume();
+		return {
+			message: `${prefix}Timer resumed! ▶️`,
 			error: false
 		};
 	}
@@ -445,34 +445,6 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		};
 	}
 
-	if (cmd === '!pomopause') {
-		if (!isMod) {
-			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
-				error: true
-			};
-		}
-		circularTimer.pause();
-		return {
-			message: `${prefix}Timer paused! ⏸️`,
-			error: false
-		};
-	}
-
-	if (cmd === '!pomoresume') {
-		if (!isMod) {
-			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
-				error: true
-			};
-		}
-		circularTimer.resume();
-		return {
-			message: `${prefix}Timer resumed! ▶️`,
-			error: false
-		};
-	}
-
 	if (cmd === '!pomostatus') {
 		const state = circularTimer.getState();
 		const mins = Math.floor(state.currentSeconds / 60);
@@ -482,6 +454,35 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		
 		return {
 			message: `${prefix}Timer: ${status} | ${state.mode} mode | ${timeStr} | Session ${state.currentSession}/${state.totalSessions} 📊`,
+			error: false
+		};
+	}
+
+	if (cmd === '!pomo' || cmd === '!pomodoro') {
+		if (!isMod) {
+			return {
+				message: `${prefix}@${username} Only moderators can control the timer.`,
+				error: true
+			};
+		}
+		// Parse: !pomo 25/5/4 = 25min focus, 5min break, 4 sessions
+		const parts = rawMessage.split('/');
+		const focusTime = Math.max(1, parseInt(parts[0], 10) || 25);
+		const breakTime = Math.max(1, parseInt(parts[1], 10) || 5);
+		const sessions = Math.max(1, Math.min(12, parseInt(parts[2], 10) || 4));
+		
+		circularTimer.startCycle(focusTime, breakTime, sessions, (mode, current, total) => {
+			if (mode === 'focus') {
+				client.say(`${prefix}Focus session ${current} complete! Time for a break ☕`);
+			} else if (mode === 'break' || mode === 'longbreak') {
+				client.say(`${prefix}Break over! Starting session ${current + 1}/${total} 💪`);
+			} else if (mode === 'cycle_complete') {
+				client.say(`${prefix}Pomodoro cycle complete! ${total} sessions done! 🎉`);
+			}
+		});
+
+		return {
+			message: `${prefix}Pomodoro started: ${focusTime}m focus / ${breakTime}m break × ${sessions} sessions ⏱️`,
 			error: false
 		};
 	}
