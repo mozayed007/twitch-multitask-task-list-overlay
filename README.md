@@ -102,7 +102,8 @@ Separate task backlog for **all viewers** - distinct from the broadcaster's main
 
 - ✅ 6 preset layouts for different streaming scenarios
 - ✅ Drag and reposition any panel
-- ✅ Position persistence (saved per layout)
+- ✅ Manual panel resizing in all directions (Alt + G for grid overlay)
+- ✅ Position and size persistence (saved per layout)
 - ✅ Quick layout switching
 
 ### 👥 Viewer Info Profiles System
@@ -124,9 +125,10 @@ Store and retrieve custom information about your viewers.
 
 Quick access to overlay features without typing commands:
 
+- `Alt + G` - Toggle grid overlay with resize handles (drag handles to resize panels in all directions)
 - `Alt + T` - Toggle theme selector
 - `Alt + L` - Toggle layout selector  
-- `Escape` - Close open panels
+- `Escape` - Close open panels/grid overlay
 
 ### 🔒 Broadcaster-Only Task List
 
@@ -517,8 +519,9 @@ Open the `_styles.js` file and modify the following settings to customized the T
   - **Browser:** Clean Chrome, Streamer Pro Clean, Minimal White
   - **Creative:** Ocean Breeze, Sunset Glow, Aurora Drift, Ember Forge, and more
 - Layout management with 6 preset layouts and draggable panels
+- Manual panel resizing with grid overlay (Alt+G shows 8-directional resize handles)
 - Viewer info profiles system
-- Keyboard shortcuts for quick access (Alt+T for themes, Alt+L for layouts)
+- Keyboard shortcuts for quick access (Alt+G for grid, Alt+T for themes, Alt+L for layouts)
 - Broadcaster-only task list restriction
 - Full command documentation in COMMANDS.md
 

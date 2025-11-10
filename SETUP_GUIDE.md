@@ -80,6 +80,13 @@ In Twitch chat:
 !setinfo goal Learn streaming
 ```
 
+**Keyboard Shortcuts (Streamer Only):**
+
+- `Alt + G` - Toggle grid overlay with resize handles (drag to resize panels)
+- `Alt + T` - Toggle theme menu
+- `Alt + L` - Toggle layout selector
+- `Escape` - Close menus/grid
+
 ## Step 6: Optional Backend Setup
 
 If you want persistent storage:

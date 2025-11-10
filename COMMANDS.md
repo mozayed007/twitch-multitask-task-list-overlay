@@ -168,18 +168,28 @@ Complete list of all available chat commands for the interactive task list overl
 
 ## ⌨️ Keyboard Shortcuts (Streamer Only)
 
+**`Alt + G`** - Toggle grid overlay with resize handles
+
+- Shows a visual grid over the entire interface
+- Adds 8 resize handles to each panel (4 corners + 4 edges)
+- Drag any handle to resize panels manually in all directions
+- Panel sizes auto-save per layout
+- Press `Alt + G` again or `Escape` to hide
+
 **`Alt + L`** - Open layout selector menu (draggable)
 **`Alt + T`** - Open theme menu (draggable)
-**`Escape`** - Close any open menus
+**`Escape`** - Close any open menus or hide grid overlay
 
 ---
 
 ## 🎯 Key Features
 
-### Draggable Panels
+### Draggable & Resizable Panels
 
 - **All panels are draggable!** Click and drag any panel to reposition
-- Positions auto-save per layout
+- **Manual resizing:** Press `Alt + G` to show resize handles, then drag to resize in any direction
+- 8-directional resizing: corners (diagonal) and edges (horizontal/vertical)
+- Positions and sizes auto-save per layout
 - Works on timer, task list, backlog, and info panels
 
 ### Session Persistence

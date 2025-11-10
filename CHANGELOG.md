@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0] - Enhanced Fork (2025-11-11)
+
+### Features
+
+* **ui:** Add grid overlay with manual panel resizing (Alt + G)
+  * Visual grid overlay shows 50x50px alignment grid
+  * 8-directional resize handles on each panel (4 corners + 4 edges)
+  * Manual panel resizing in all directions with drag handles
+  * Proper cursor indicators for each resize direction
+  * Minimum size constraints (100px) and boundary clamping
+  * Panel positions adjust automatically when resizing from top/left
+  * Sizes and positions persist per layout via LayoutManager
+  * Smooth animations and visual feedback on hover
+  * Works with both mouse and touch events
+  * Keyboard shortcut: `Alt + G` to toggle, `Escape` to hide
+
 ## [2.3.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.2.0...v2.3.0) (2025-08-15)
 
 ### Features
