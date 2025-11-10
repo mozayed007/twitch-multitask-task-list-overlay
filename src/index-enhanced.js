@@ -39,6 +39,11 @@ const panelHandleSelectors = {
 // Track selected panel for resizing
 let selectedPanel = null;
 
+// Track grid overlay visibility and resize handles
+let gridOverlayVisible = false;
+let resizeHandlesActive = false;
+const resizeHandleCleanups = new Map();
+
 window.addEventListener("load", () => {
 	let storeName = "userList";
 	if (_settings.testMode) {
@@ -816,6 +821,14 @@ function setupKeyboardShortcuts() {
 			return;
 		}
 
+		// Alt + G = Toggle grid overlay and resize handles
+		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'g') {
+			e.preventDefault();
+			e.stopPropagation();
+			toggleGridOverlay();
+			return;
+		}
+
 		// Alt + T = Show theme menu
 		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 't') {
 			e.preventDefault();
@@ -841,7 +854,13 @@ function setupKeyboardShortcuts() {
 			e.preventDefault();
 			e.stopPropagation();
 			
-			// Deselect panel first
+			// Hide grid overlay first
+			if (gridOverlayVisible) {
+				hideGridOverlay();
+				return;
+			}
+			
+			// Deselect panel
 			if (selectedPanel) {
 				deselectPanel();
 				return;
@@ -977,6 +996,274 @@ function resizeSelectedPanel(scaleFactor) {
 	});
 	
 	console.log(`Resized ${key}: ${currentWidth}x${currentHeight} -> ${newWidth}x${newHeight}`);
+}
+
+/**
+ * Toggle grid overlay and resize handles
+ */
+function toggleGridOverlay() {
+	if (gridOverlayVisible) {
+		hideGridOverlay();
+	} else {
+		showGridOverlay();
+	}
+}
+
+/**
+ * Show grid overlay and resize handles
+ */
+function showGridOverlay() {
+	if (gridOverlayVisible) return;
+	
+	gridOverlayVisible = true;
+	
+	// Create grid overlay element
+	const gridOverlay = document.createElement('div');
+	gridOverlay.id = 'grid-overlay';
+	gridOverlay.className = 'grid-overlay';
+	document.body.appendChild(gridOverlay);
+	
+	// Add resize handles to all panels
+	addResizeHandles();
+	
+	console.log('Grid overlay shown');
+}
+
+/**
+ * Hide grid overlay and resize handles
+ */
+function hideGridOverlay() {
+	if (!gridOverlayVisible) return;
+	
+	gridOverlayVisible = false;
+	
+	// Remove grid overlay element
+	const gridOverlay = document.getElementById('grid-overlay');
+	if (gridOverlay) {
+		gridOverlay.remove();
+	}
+	
+	// Remove resize handles from all panels
+	removeResizeHandles();
+	
+	console.log('Grid overlay hidden');
+}
+
+/**
+ * Add resize handles to all draggable panels
+ */
+function addResizeHandles() {
+	if (resizeHandlesActive) return;
+	
+	resizeHandlesActive = true;
+	
+	const panels = document.querySelectorAll('.draggable-panel');
+	panels.forEach(panelEl => {
+		const panel = /** @type {HTMLElement} */ (panelEl);
+		const panelKey = panel.dataset.panel;
+		if (!panelKey) return;
+		
+		// Create 8 resize handles (corners and edges)
+		const handles = [
+			{ name: 'nw', cursor: 'nwse-resize', position: 'top-left' },
+			{ name: 'n', cursor: 'ns-resize', position: 'top-center' },
+			{ name: 'ne', cursor: 'nesw-resize', position: 'top-right' },
+			{ name: 'e', cursor: 'ew-resize', position: 'middle-right' },
+			{ name: 'se', cursor: 'nwse-resize', position: 'bottom-right' },
+			{ name: 's', cursor: 'ns-resize', position: 'bottom-center' },
+			{ name: 'sw', cursor: 'nesw-resize', position: 'bottom-left' },
+			{ name: 'w', cursor: 'ew-resize', position: 'middle-left' }
+		];
+		
+		handles.forEach(({ name, cursor, position }) => {
+			const handle = document.createElement('div');
+			handle.className = `resize-handle resize-handle-${name}`;
+			handle.dataset.direction = name;
+			handle.style.cursor = cursor;
+			panel.appendChild(handle);
+			
+			// Make this handle draggable for resizing
+			const cleanup = makeResizable(panel, handle, name, panelKey);
+			
+			// Store cleanup function
+			if (!resizeHandleCleanups.has(panelKey)) {
+				resizeHandleCleanups.set(panelKey, []);
+			}
+			resizeHandleCleanups.get(panelKey).push(cleanup);
+		});
+	});
+	
+	console.log('Resize handles added to all panels');
+}
+
+/**
+ * Remove resize handles from all panels
+ */
+function removeResizeHandles() {
+	if (!resizeHandlesActive) return;
+	
+	resizeHandlesActive = false;
+	
+	// Call all cleanup functions
+	resizeHandleCleanups.forEach(cleanups => {
+		cleanups.forEach(cleanup => cleanup());
+	});
+	resizeHandleCleanups.clear();
+	
+	// Remove all resize handle elements
+	const handles = document.querySelectorAll('.resize-handle');
+	handles.forEach(handle => handle.remove());
+	
+	console.log('Resize handles removed from all panels');
+}
+
+/**
+ * Make a panel resizable by dragging a handle
+ * @param {HTMLElement} panel - Panel element
+ * @param {HTMLElement} handle - Resize handle element
+ * @param {string} direction - Direction of resize (n, s, e, w, ne, nw, se, sw)
+ * @param {string} panelKey - Panel key identifier
+ * @returns {() => void} Cleanup function
+ */
+function makeResizable(panel, handle, direction, panelKey) {
+	let isResizing = false;
+	let startX = 0;
+	let startY = 0;
+	let startWidth = 0;
+	let startHeight = 0;
+	let startLeft = 0;
+	let startTop = 0;
+	
+	const resizeStart = (e) => {
+		// Handle both mouse and touch events
+		if (e.type === 'mousedown' && e.button !== 0) return;
+		
+		e.preventDefault();
+		e.stopPropagation();
+		isResizing = true;
+		
+		// Get coordinates based on event type
+		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+		
+		startX = clientX;
+		startY = clientY;
+		
+		const rect = panel.getBoundingClientRect();
+		startWidth = rect.width;
+		startHeight = rect.height;
+		startLeft = panel.offsetLeft;
+		startTop = panel.offsetTop;
+		
+		panel.classList.add('resizing');
+		document.body.classList.add('overlay-resizing');
+	};
+	
+	const resize = (e) => {
+		if (!isResizing) return;
+		e.preventDefault();
+		
+		// Get coordinates based on event type
+		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+		
+		const deltaX = clientX - startX;
+		const deltaY = clientY - startY;
+		
+		let newWidth = startWidth;
+		let newHeight = startHeight;
+		let newLeft = startLeft;
+		let newTop = startTop;
+		
+		// Calculate new dimensions based on direction
+		if (direction.includes('e')) {
+			newWidth = Math.max(100, startWidth + deltaX);
+		}
+		if (direction.includes('w')) {
+			newWidth = Math.max(100, startWidth - deltaX);
+			newLeft = startLeft + (startWidth - newWidth);
+		}
+		if (direction.includes('s')) {
+			newHeight = Math.max(100, startHeight + deltaY);
+		}
+		if (direction.includes('n')) {
+			newHeight = Math.max(100, startHeight - deltaY);
+			newTop = startTop + (startHeight - newHeight);
+		}
+		
+		// Get container bounds for clamping
+		const container = document.getElementById('app');
+		if (container) {
+			const containerRect = container.getBoundingClientRect();
+			
+			// Clamp to container bounds
+			if (newLeft < 0) {
+				newWidth += newLeft;
+				newLeft = 0;
+			}
+			if (newTop < 0) {
+				newHeight += newTop;
+				newTop = 0;
+			}
+			if (newLeft + newWidth > containerRect.width) {
+				newWidth = containerRect.width - newLeft;
+			}
+			if (newTop + newHeight > containerRect.height) {
+				newHeight = containerRect.height - newTop;
+			}
+		}
+		
+		// Apply new dimensions and position
+		panel.style.width = `${Math.round(newWidth)}px`;
+		panel.style.height = `${Math.round(newHeight)}px`;
+		panel.style.left = `${Math.round(newLeft)}px`;
+		panel.style.top = `${Math.round(newTop)}px`;
+	};
+	
+	const resizeEnd = () => {
+		if (!isResizing) return;
+		isResizing = false;
+		
+		panel.classList.remove('resizing');
+		document.body.classList.remove('overlay-resizing');
+		
+		// Save to layout manager
+		if (layoutManager) {
+			const layoutName = layoutManager.getCurrentLayout();
+			const rect = panel.getBoundingClientRect();
+			
+			layoutManager.savePanelSize(layoutName, panelKey, {
+				width: Math.round(rect.width),
+				height: Math.round(rect.height)
+			});
+			layoutManager.savePanelPosition(layoutName, panelKey, {
+				left: Math.round(panel.offsetLeft),
+				top: Math.round(panel.offsetTop)
+			});
+			
+			console.log(`Panel ${panelKey} resized: ${Math.round(rect.width)}x${Math.round(rect.height)}`);
+		}
+	};
+	
+	// Mouse events
+	handle.addEventListener('mousedown', resizeStart);
+	document.addEventListener('mousemove', resize);
+	document.addEventListener('mouseup', resizeEnd);
+	
+	// Touch events
+	handle.addEventListener('touchstart', resizeStart, { passive: false });
+	document.addEventListener('touchmove', resize, { passive: false });
+	document.addEventListener('touchend', resizeEnd);
+	
+	// Return cleanup function
+	return () => {
+		handle.removeEventListener('mousedown', resizeStart);
+		document.removeEventListener('mousemove', resize);
+		document.removeEventListener('mouseup', resizeEnd);
+		handle.removeEventListener('touchstart', resizeStart);
+		document.removeEventListener('touchmove', resize);
+		document.removeEventListener('touchend', resizeEnd);
+	};
 }
 
 // Deselect panel when clicking outside

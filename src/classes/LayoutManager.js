@@ -50,12 +50,12 @@ export default class LayoutManager {
 				taskList: {
 					enabled: true,
 					position: { top: 100, left: 440 },
-					size: { width: 640, minHeight: 480 }
+					size: { width: 320, minHeight: 480 }
 				},
 				backlog: {
 					enabled: true,
-					position: { top: 100, left: 1120 },
-					size: { width: 360, minHeight: 420 }
+					position: { top: 100, left: 800 },
+					size: { width: 320, minHeight: 420 }
 				},
 				infoPanel: { enabled: false }
 			}
@@ -73,18 +73,18 @@ export default class LayoutManager {
 				},
 				taskList: {
 					enabled: true,
-					position: { top: 460, left: 680 },
-					size: { width: 560, minHeight: 420 }
+					position: { top: 460, left: 540 },
+					size: { width: 280, minHeight: 420 }
 				},
 				backlog: {
 					enabled: true,
-					position: { top: 460, left: 80 },
-					size: { width: 520, minHeight: 420 }
+					position: { top: 460, left: 220 },
+					size: { width: 280, minHeight: 420 }
 				},
 				infoPanel: {
 					enabled: true,
-					position: { top: 460, left: 1320 },
-					size: { width: 520, minHeight: 420 }
+					position: { top: 460, left: 860 },
+					size: { width: 280, minHeight: 420 }
 				}
 			}
 		},
@@ -138,17 +138,17 @@ export default class LayoutManager {
 				taskList: {
 					enabled: true,
 					position: { top: 80, left: 460 },
-					size: { width: 720, minHeight: 480 }
+					size: { width: 360, minHeight: 480 }
 				},
 				backlog: {
 					enabled: true,
 					position: { top: 620, left: 80 },
-					size: { width: 420, minHeight: 360 }
+					size: { width: 360, minHeight: 360 }
 				},
 				infoPanel: {
 					enabled: true,
-					position: { top: 620, left: 1260 },
-					size: { width: 580, minHeight: 360 }
+					position: { top: 620, left: 480 },
+					size: { width: 360, minHeight: 360 }
 				}
 			}
 		}

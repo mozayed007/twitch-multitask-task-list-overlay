@@ -1210,3 +1210,134 @@
 		transform: translateX(-50%) translateY(-4px);
 	}
 }
+
+/* ===================================
+   	Grid Overlay Styles
+   =================================== */
+.grid-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 9999;
+	background-image: 
+		linear-gradient(rgba(77, 208, 225, 0.15) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(77, 208, 225, 0.15) 1px, transparent 1px);
+	background-size: 50px 50px;
+	animation: gridFadeIn 0.3s ease-out;
+}
+
+@keyframes gridFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* ===================================
+   Resize Handle Styles
+   =================================== */
+.resize-handle {
+	position: absolute;
+	z-index: 10000;
+	background: var(--color-accent);
+	border: 2px solid var(--color-primary);
+	opacity: 0.7;
+	transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.resize-handle:hover {
+	opacity: 1;
+	transform: scale(1.2);
+	box-shadow: 0 0 10px var(--color-accent);
+}
+
+/* Corner handles (larger squares) */
+.resize-handle-nw,
+.resize-handle-ne,
+.resize-handle-se,
+.resize-handle-sw {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+}
+
+.resize-handle-nw {
+	top: -6px;
+	left: -6px;
+}
+
+.resize-handle-ne {
+	top: -6px;
+	right: -6px;
+}
+
+.resize-handle-se {
+	bottom: -6px;
+	right: -6px;
+}
+
+.resize-handle-sw {
+	bottom: -6px;
+	left: -6px;
+}
+
+/* Edge handles (rectangles) */
+.resize-handle-n,
+.resize-handle-s {
+	width: 40px;
+	height: 8px;
+	border-radius: 4px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.resize-handle-n {
+	top: -4px;
+}
+
+.resize-handle-s {
+	bottom: -4px;
+}
+
+.resize-handle-e,
+.resize-handle-w {
+	width: 8px;
+	height: 40px;
+	border-radius: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.resize-handle-e {
+	right: -4px;
+}
+
+.resize-handle-w {
+	left: -4px;
+}
+
+/* Resizing state */
+.resizing {
+	transition: none !important;
+	user-select: none;
+}
+
+.overlay-resizing {
+	cursor: grabbing !important;
+	user-select: none;
+}
+
+.overlay-resizing * {
+	cursor: inherit !important;
+	user-select: none;
+}
+
+/* Add pointer events to resize handles when grid is visible */
+.draggable-panel .resize-handle {
+	pointer-events: all;
+}
