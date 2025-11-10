@@ -32,15 +32,21 @@ export default class BacklogPanel {
 		this.#containerEl.innerHTML = `
 			<div class="backlog-panel">
 				<div class="backlog-header">
-					<h3 class="backlog-title">
-						<span class="backlog-icon">📋</span>
-						Task Backlog
-					</h3>
-					<div class="backlog-controls">
-						<span class="backlog-count">0 tasks</span>
-						<button class="backlog-btn backlog-clear-btn" title="Clear completed">
-							<span>🗑️</span>
-						</button>
+					<div class="backlog-header-top">
+						<h3 class="backlog-title">
+							<span class="backlog-icon">📋</span>
+							Task Backlog
+						</h3>
+						<div class="backlog-controls">
+							<span class="backlog-count">0 tasks</span>
+							<button class="backlog-btn backlog-clear-btn" title="Clear completed">
+								<span>🗑️</span>
+							</button>
+						</div>
+					</div>
+					<div class="backlog-commands-hint">
+						<span class="backlog-cmd-label">COMMANDS:</span>
+						<span class="backlog-cmd-typewriter"></span>
 					</div>
 				</div>
 				<div class="backlog-content">
@@ -57,15 +63,79 @@ export default class BacklogPanel {
 		this.#containerEl
 			.querySelector('.backlog-clear-btn')
 			.addEventListener('click', () => this.clearCompleted());
+
+		// Initialize typewriter animation
+		this.#initTypewriter();
+	}
+
+	/**
+	 * Initialize typewriter animation for command hints
+	 */
+	#initTypewriter() {
+		const commands = [
+			'!backlog add [task]',
+			'!backlog done #',
+			'!backlog remove #',
+			'!backlog clear (mods)'
+		];
+		
+		const typewriterEl = this.#containerEl.querySelector('.backlog-cmd-typewriter');
+		if (!typewriterEl) return;
+
+		let commandIndex = 0;
+		let charIndex = 0;
+		let isDeleting = false;
+		let isPaused = false;
+
+		const type = () => {
+			const currentCommand = commands[commandIndex];
+
+			if (isPaused) {
+				setTimeout(() => {
+					isPaused = false;
+					isDeleting = true;
+					type();
+				}, 2000); // Pause for 2 seconds before deleting
+				return;
+			}
+
+			if (!isDeleting) {
+				// Typing
+				typewriterEl.textContent = currentCommand.substring(0, charIndex + 1);
+				charIndex++;
+
+				if (charIndex === currentCommand.length) {
+					isPaused = true;
+				}
+				
+				setTimeout(type, isPaused ? 0 : 80); // Typing speed
+			} else {
+				// Deleting
+				typewriterEl.textContent = currentCommand.substring(0, charIndex - 1);
+				charIndex--;
+
+				if (charIndex === 0) {
+					isDeleting = false;
+					commandIndex = (commandIndex + 1) % commands.length;
+					setTimeout(type, 500); // Pause before typing next command
+				} else {
+					setTimeout(type, 40); // Deleting speed (faster)
+				}
+			}
+		};
+
+		// Start the animation
+		type();
 	}
 
 	/**
 	 * Add item to backlog
 	 * @param {string} description - Task description
+	 * @param {string} creator - Username of the task creator
 	 * @param {number} priority - Priority (1-5, default 3)
 	 * @returns {Object|null} Created item or null if failed
 	 */
-	addItem(description, priority = 3) {
+	addItem(description, creator = 'Unknown', priority = 3) {
 		if (this.#backlogItems.length >= this.#maxItems) {
 			console.warn('Backlog is full');
 			return null;
@@ -74,6 +144,7 @@ export default class BacklogPanel {
 		const item = {
 			id: Date.now().toString(),
 			description,
+			creator,
 			priority: Math.max(1, Math.min(5, priority)),
 			completed: false,
 			createdAt: new Date().toISOString()
@@ -242,14 +313,14 @@ export default class BacklogPanel {
 	 * @returns {string} HTML string
 	 */
 	#renderItem(item, index) {
-		const priorityStars = '⭐'.repeat(item.priority);
 		const checkIcon = item.completed ? '✅' : '⬜';
+		const creatorName = item.creator || 'Unknown';
 		
 		return `
 			<div class="backlog-item ${item.completed ? 'completed' : ''}" data-id="${item.id}">
 				<div class="backlog-item-header">
 					<span class="backlog-item-index">${index}.</span>
-					<span class="backlog-item-priority" title="Priority ${item.priority}">${priorityStars}</span>
+					<span class="backlog-item-creator" title="Created by ${creatorName}">@${this.#escapeHtml(creatorName)}</span>
 				</div>
 				<div class="backlog-item-body">
 					<button class="backlog-item-check" title="${item.completed ? 'Mark incomplete' : 'Mark complete'}">

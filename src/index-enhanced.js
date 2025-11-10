@@ -287,7 +287,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 					error: true
 				};
 			}
-			const item = backlogPanel.addItem(content);
+			const item = backlogPanel.addItem(content, username);
 			return {
 				message: item 
 					? `${prefix}@${username} Added "${content}" to backlog! 📋`
