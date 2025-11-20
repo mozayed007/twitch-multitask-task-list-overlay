@@ -271,19 +271,31 @@ export default class BacklogPanel {
 		const secondaryListEl = this.#containerEl.querySelector('.backlog-list-secondary');
 		const emptyEl = this.#containerEl.querySelector('.backlog-empty');
 		const countEl = this.#containerEl.querySelector('.backlog-count');
+		const panelEl = this.#containerEl.querySelector('.backlog-panel');
 
 		// Update count
 		const activeCount = this.#backlogItems.filter(item => !item.completed).length;
 		countEl.textContent = `${activeCount} task${activeCount !== 1 ? 's' : ''}`;
 
-		// Show/hide empty state
+		// Apply dynamic sizing based on item count
+		panelEl.classList.remove('minimized', 'single-item', 'expanded');
+		
 		if (this.#backlogItems.length === 0) {
+			// Minimized state - no items
+			panelEl.classList.add('minimized');
 			primaryListEl.classList.add('hidden');
 			secondaryListEl.classList.add('hidden');
 			emptyEl.classList.remove('hidden');
 			this.#stopScrollAnimation();
 			return;
+		} else if (this.#backlogItems.length === 1) {
+			// Single item state
+			panelEl.classList.add('single-item');
+		} else if (this.#backlogItems.length >= 5) {
+			// Expanded state - 5 or more items with scroll
+			panelEl.classList.add('expanded');
 		}
+		// For 2-4 items, use default sizing (no class)
 
 		primaryListEl.classList.remove('hidden');
 		emptyEl.classList.add('hidden');
@@ -331,22 +343,20 @@ export default class BacklogPanel {
 	}
 
 	/**
-	 * Update scroll animation based on content size
+	 * Update scroll animation based on item count
 	 */
 	#updateScrollAnimation() {
-		const wrapper = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-content-wrapper'));
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
 		
-		if (!wrapper || !primaryList) return;
+		if (!primaryList) return;
 		
-		const wrapperHeight = wrapper.clientHeight;
-		const contentHeight = primaryList.scrollHeight;
-		
-		if (contentHeight > wrapperHeight && !this.#isScrolling) {
+		// Only start scrolling if we have MORE than 5 items
+		if (this.#backlogItems.length > 5 && !this.#isScrolling) {
+			const contentHeight = primaryList.scrollHeight;
 			secondaryList.style.display = 'flex';
 			this.#startScrollAnimation(contentHeight);
-		} else if (contentHeight <= wrapperHeight) {
+		} else {
 			secondaryList.style.display = 'none';
 			this.#stopScrollAnimation();
 		}

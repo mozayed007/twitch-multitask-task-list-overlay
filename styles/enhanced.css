@@ -202,6 +202,22 @@
 	transition: all var(--transition-normal);
 }
 
+/* Dynamic sizing states for backlog panel */
+.backlog-panel.minimized {
+	min-height: 120px;
+	max-height: 120px;
+}
+
+.backlog-panel.single-item {
+	min-height: 180px;
+	max-height: 180px;
+}
+
+.backlog-panel.expanded {
+	min-height: 500px;
+	max-height: 500px;
+}
+
 .backlog-header {
 	display: flex;
 	flex-direction: column;
@@ -631,29 +647,20 @@
 }
 
 /* ===================================
-   Scrollbar Styles
+   Scrollbar Styles - Hidden for auto-scroll animation
    =================================== */
 .backlog-content::-webkit-scrollbar,
-.task-wrapper::-webkit-scrollbar {
-	width: 8px;
+.task-wrapper::-webkit-scrollbar,
+.info-content::-webkit-scrollbar {
+	display: none;
+	width: 0;
 }
 
-.backlog-content::-webkit-scrollbar-track,
-.task-wrapper::-webkit-scrollbar-track {
-	background: rgba(255, 255, 255, 0.05);
-	border-radius: 10px;
-}
-
-.backlog-content::-webkit-scrollbar-thumb,
-.task-wrapper::-webkit-scrollbar-thumb {
-	background: var(--color-accent);
-	border-radius: 10px;
-	transition: background var(--transition-fast);
-}
-
-.backlog-content::-webkit-scrollbar-thumb:hover,
-.task-wrapper::-webkit-scrollbar-thumb:hover {
-	background: var(--color-primary);
+.backlog-content,
+.task-wrapper,
+.info-content {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
 }
 
 /* ===================================
@@ -699,6 +706,22 @@
 	display: flex;
 	flex-direction: column;
 	transition: all var(--transition-normal);
+}
+
+/* Dynamic sizing states for info panel */
+.info-panel.minimized {
+	min-height: 120px;
+	max-height: 120px;
+}
+
+.info-panel.single-item {
+	min-height: 180px;
+	max-height: 180px;
+}
+
+.info-panel.expanded {
+	min-height: 500px;
+	max-height: 500px;
 }
 
 .info-header {
@@ -784,16 +807,39 @@
 	font-weight: 700;
 }
 
-.info-content {
+.info-content-wrapper {
 	flex: 1;
-	overflow-y: auto;
+	overflow: hidden;
 	min-height: 0;
+	position: relative;
+}
+
+.info-content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
 }
 
 .info-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--spacing-sm);
+}
+
+.info-list-secondary {
+	display: none;
+}
+
+/* Disable hover effects during scrolling */
+.info-content.scrolling .viewer-card {
+	pointer-events: none;
+}
+
+.info-content.scrolling .viewer-card:hover {
+	transform: none;
+	background: rgba(255, 255, 255, 0.05);
+	box-shadow: none;
 }
 
 .viewer-card {
@@ -1239,7 +1285,7 @@
 }
 
 /* ===================================
-   Resize Handle Styles
+    Resize Handle Styles
    =================================== */
 .resize-handle {
 	position: absolute;

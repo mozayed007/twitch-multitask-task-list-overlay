@@ -8,6 +8,9 @@ export default class InfoPanel {
 	#containerEl;
 	#storageKey = 'viewerProfiles';
 	#maxViewers = 100;
+	#scrollAnimation = null;
+	#isScrolling = false;
+	#scrollSpeed = 15;
 
 	/**
 	 * @constructor
@@ -47,11 +50,14 @@ export default class InfoPanel {
 						</span>
 					</div>
 				</div>
-				<div class="info-content">
-					<div class="info-list"></div>
-					<div class="info-empty">
-						<p>No viewer data yet</p>
-						<p class="info-hint">Viewers can set info with !setinfo [field] [value]</p>
+				<div class="info-content-wrapper">
+					<div class="info-content">
+						<div class="info-list info-list-primary"></div>
+						<div class="info-list info-list-secondary"></div>
+						<div class="info-empty">
+							<p>No viewer data yet</p>
+							<p class="info-hint">Viewers can set info with !setinfo [field] [value]</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -169,32 +175,53 @@ export default class InfoPanel {
 	 * Render the info panel
 	 */
 	render() {
-		const listEl = this.#containerEl.querySelector('.info-list');
+		const primaryListEl = this.#containerEl.querySelector('.info-list-primary');
+		const secondaryListEl = this.#containerEl.querySelector('.info-list-secondary');
 		const emptyEl = this.#containerEl.querySelector('.info-empty');
 		const activeCountEl = this.#containerEl.querySelector('.active-count');
 		const totalCountEl = this.#containerEl.querySelector('.total-count');
+		const panelEl = this.#containerEl.querySelector('.info-panel');
 
 		// Update stats
 		const activeViewers = this.getActiveViewers();
 		activeCountEl.textContent = String(activeViewers.length);
 		totalCountEl.textContent = String(this.#viewerData.size);
 
-		// Show/hide empty state
+		// Apply dynamic sizing based on viewer count
+		panelEl.classList.remove('minimized', 'single-item', 'expanded');
+		
 		if (this.#viewerData.size === 0) {
-			listEl.classList.add('hidden');
+			// Minimized state - no viewers
+			panelEl.classList.add('minimized');
+			primaryListEl.classList.add('hidden');
+			secondaryListEl.classList.add('hidden');
 			emptyEl.classList.remove('hidden');
+			this.#stopScrollAnimation();
 			return;
+		} else if (this.#viewerData.size === 1) {
+			// Single viewer state
+			panelEl.classList.add('single-item');
+		} else if (this.#viewerData.size >= 5) {
+			// Expanded state - 5 or more viewers with scroll
+			panelEl.classList.add('expanded');
 		}
+		// For 2-4 viewers, use default sizing (no class)
 
-		listEl.classList.remove('hidden');
+		primaryListEl.classList.remove('hidden');
 		emptyEl.classList.add('hidden');
 
 		// Render viewer cards (show active viewers first)
 		const viewers = this.getAllViewers().sort((a, b) => b.lastActive - a.lastActive);
-		listEl.innerHTML = viewers
+		const viewersHtml = viewers
 			.slice(0, 10) // Show only top 10
 			.map(viewer => this.#renderViewerCard(viewer))
 			.join('');
+		
+		primaryListEl.innerHTML = viewersHtml;
+		secondaryListEl.innerHTML = viewersHtml;
+
+		// Start scroll animation if needed
+		setTimeout(() => this.#updateScrollAnimation(), 100);
 	}
 
 	/**
@@ -284,6 +311,88 @@ export default class InfoPanel {
 		} catch (error) {
 			console.error('Failed to load viewer data:', error);
 			this.#viewerData = new Map();
+		}
+	}
+
+	/**
+	 * Update scroll animation based on viewer count
+	 */
+	#updateScrollAnimation() {
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-secondary'));
+		
+		if (!primaryList) return;
+		
+		// Only start scrolling if we have MORE than 5 viewers
+		if (this.#viewerData.size > 5 && !this.#isScrolling) {
+			const contentHeight = primaryList.scrollHeight;
+			secondaryList.style.display = 'flex';
+			this.#startScrollAnimation(contentHeight);
+		} else {
+			secondaryList.style.display = 'none';
+			this.#stopScrollAnimation();
+		}
+	}
+
+	/**
+	 * Start infinite scroll animation
+	 * @param {number} contentHeight - Height of content to scroll
+	 */
+	#startScrollAnimation(contentHeight) {
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-secondary'));
+		
+		if (!primaryList || !secondaryList) return;
+		
+		// Calculate duration based on content height and speed
+		const gapSize = 12; // var(--spacing-sm) in pixels
+		const adjustedHeight = contentHeight + gapSize;
+		const duration = (adjustedHeight / this.#scrollSpeed) * 1000;
+		
+		const keyframes = [
+			{ transform: 'translateY(0)' },
+			{ transform: `translateY(-${adjustedHeight}px)` }
+		];
+		
+		const options = {
+			duration: duration,
+			iterations: Infinity,
+			easing: 'linear'
+		};
+		
+		// Apply animation to both containers
+		primaryList.animate(keyframes, options);
+		secondaryList.animate(keyframes, options);
+		
+		this.#isScrolling = true;
+		
+		// Add scrolling class to disable hover effects
+		const content = this.#containerEl.querySelector('.info-content');
+		if (content) {
+			content.classList.add('scrolling');
+		}
+	}
+
+	/**
+	 * Stop scroll animation
+	 */
+	#stopScrollAnimation() {
+		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-primary'));
+		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-secondary'));
+		
+		if (primaryList) {
+			primaryList.getAnimations().forEach(anim => anim.cancel());
+		}
+		if (secondaryList) {
+			secondaryList.getAnimations().forEach(anim => anim.cancel());
+		}
+		
+		this.#isScrolling = false;
+		
+		// Remove scrolling class
+		const content = this.#containerEl.querySelector('.info-content');
+		if (content) {
+			content.classList.remove('scrolling');
 		}
 	}
 }

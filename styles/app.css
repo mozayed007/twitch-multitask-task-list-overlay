@@ -47,9 +47,24 @@
 	overflow: hidden;
 	height: 100%;
 	border-radius: var(--card-border-radius);
+	transition: all 0.3s ease;
 }
 
-.task-container {}
+/* Dynamic sizing states for task list container */
+#task-list-container.minimized .task-wrapper {
+	min-height: 120px;
+	max-height: 120px;
+}
+
+#task-list-container.single-item .task-wrapper {
+	min-height: 180px;
+	max-height: 180px;
+}
+
+#task-list-container.expanded .task-wrapper {
+	min-height: 500px;
+	max-height: 500px;
+}
 
 .card {
 	border-left: 1px solid rgba(255, 255, 255, 0.1);

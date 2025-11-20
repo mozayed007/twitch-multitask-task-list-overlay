@@ -46,9 +46,24 @@ export default class App {
 	 * @returns {void}
 	 */
 	renderTaskList() {
-		if (this.userList.users.length === 0) {
+		const taskListContainer = document.getElementById('task-list-container');
+		const userCount = this.userList.users.length;
+		
+		// Apply dynamic sizing based on user count
+		taskListContainer.classList.remove('minimized', 'single-item', 'expanded');
+		
+		if (userCount === 0) {
+			// Minimized state - no users
+			taskListContainer.classList.add('minimized');
 			return;
+		} else if (userCount === 1) {
+			// Single user state
+			taskListContainer.classList.add('single-item');
+		} else if (userCount >= 5) {
+			// Expanded state - 5 or more users with scroll
+			taskListContainer.classList.add('expanded');
 		}
+		// For 2-4 users, use default sizing (no class)
 		const fragment = document.createDocumentFragment();
 		this.userList.getAllUsers().forEach((user) => {
 			const cardEl = createUserCard(user);
