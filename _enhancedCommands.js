@@ -10,7 +10,7 @@ const _enhancedCommands = {
         modOnly: true
     },
 
-  // Layout Commands (Mod/Broadcaster only)
+    // Layout Commands (Mod/Broadcaster only)
     layout: {
         commands: ['!layout'],
         description: 'Change the layout composition',
@@ -19,20 +19,20 @@ const _enhancedCommands = {
     },
 
     resetPanel: {
-                commands: ['!resetpanel'],
-                description: 'Reset a draggable panel position',
-                usage: '!resetpanel [panel] (layout)',
-                modOnly: true
-        },
+        commands: ['!resetpanel'],
+        description: 'Reset a draggable panel position',
+        usage: '!resetpanel [panel] (layout)',
+        modOnly: true
+    },
 
     resetLayout: {
-                commands: ['!resetlayout'],
-                description: 'Reset all panel positions for a layout',
-                usage: '!resetlayout (layout-name)',
-                modOnly: true
-        },
+        commands: ['!resetlayout'],
+        description: 'Reset all panel positions for a layout',
+        usage: '!resetlayout (layout-name)',
+        modOnly: true
+    },
 
-  // Backlog Commands (Everyone)
+    // Backlog Commands (Everyone)
     backlog: {
         commands: ['!backlog'],
         description: 'Manage personal task backlog',
@@ -46,7 +46,7 @@ const _enhancedCommands = {
         }
     },
 
-  // Viewer Info Commands (Everyone)
+    // Viewer Info Commands (Everyone)
     setInfo: {
         commands: ['!setinfo'],
         description: 'Set personal information',
@@ -61,16 +61,44 @@ const _enhancedCommands = {
         modOnly: false
     },
 
-  // Timer Commands (Mod/Broadcaster only)
+    // Timer Commands (Mod/Broadcaster only)
     pomodoro: {
         commands: ['!pomo', '!pomodoro'],
-        description: 'Start a pomodoro timer',
-        usage: '!pomo [focus-minutes]/[break-minutes]',
+        description: 'Start a pomodoro cycle',
+        usage: '!pomo [focus]/[break]/[sessions]',
         modOnly: true
     },
 
+    pomoPause: {
+        commands: ['!pomopause'],
+        description: 'Pause the current timer',
+        usage: '!pomopause',
+        modOnly: true
+    },
+
+    pomoResume: {
+        commands: ['!pomoresume'],
+        description: 'Resume a paused timer',
+        usage: '!pomoresume',
+        modOnly: true
+    },
+
+    pomoReset: {
+        commands: ['!pomoreset'],
+        description: 'Reset timer and clear all sessions',
+        usage: '!pomoreset',
+        modOnly: true
+    },
+
+    pomoStatus: {
+        commands: ['!pomostatus'],
+        description: 'Get current timer status',
+        usage: '!pomostatus',
+        modOnly: false
+    },
+
     stopTimer: {
-        commands: ['!stoptimer'],
+        commands: ['!stoptimer', '!pomostop'],
         description: 'Stop the current timer',
         usage: '!stoptimer',
         modOnly: true

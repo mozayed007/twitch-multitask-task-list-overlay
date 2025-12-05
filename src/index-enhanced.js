@@ -36,14 +36,6 @@ const panelHandleSelectors = {
 	infoPanel: '.info-header'
 };
 
-// Track selected panel for resizing
-let selectedPanel = null;
-
-// Track grid overlay visibility and resize handles
-let gridOverlayVisible = false;
-let resizeHandlesActive = false;
-const resizeHandleCleanups = new Map();
-
 window.addEventListener("load", () => {
 	let storeName = "userList";
 	if (_settings.testMode) {
@@ -61,13 +53,10 @@ window.addEventListener("load", () => {
 	backlogPanel = new BacklogPanel('backlog-container');
 	infoPanel = new InfoPanel('info-panel-container');
 	layoutManager = new LayoutManager('app');
-	
-	// Delay to ensure panels are fully positioned before attaching drag handlers
-	setTimeout(() => {
-		setupPanelDraggables();
-		// Retry after another delay to catch any panels that weren't ready
-		setTimeout(() => setupPanelDraggables(), 200);
-	}, 100);
+	setupPanelDraggables();
+
+	// Setup theme switcher UI
+	setupThemeSwitcher();
 
 	// Setup keyboard shortcuts
 	setupKeyboardShortcuts();
@@ -75,7 +64,7 @@ window.addEventListener("load", () => {
 	// Handle chat commands
 	client.on("command", (data) => {
 		const { user, command, message, flags, extra } = data;
-		
+
 		// Try enhanced commands first
 		const enhancedResponse = handleEnhancedCommands(user, command, message, flags, extra);
 		if (enhancedResponse) {
@@ -91,7 +80,7 @@ window.addEventListener("load", () => {
 		const response = app.chatHandler(user, command, message, flags, extra);
 		if (!response.error) {
 			client.say(response.message, extra.messageId);
-			
+
 			// Update viewer activity in info panel
 			const taskCount = app.userList.getUser(user)?.getTasks().length || 0;
 			infoPanel.updateViewerActivity(user, taskCount);
@@ -168,7 +157,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		const themeKey = rawMessage.toLowerCase();
 		const success = themeManager.applyTheme(themeKey);
 		return {
-			message: success 
+			message: success
 				? `${prefix}Theme changed to ${rawMessage}! 🎨`
 				: `${prefix}Theme "${rawMessage}" not found.`,
 			error: !success
@@ -295,9 +284,9 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 					error: true
 				};
 			}
-			const item = backlogPanel.addItem(content, username);
+			const item = backlogPanel.addItem(content);
 			return {
-				message: item 
+				message: item
 					? `${prefix}@${username} Added "${content}" to backlog! 📋`
 					: `${prefix}@${username} Backlog is full!`,
 				error: !item
@@ -395,7 +384,6 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		};
 	}
 
-	// Pomodoro timer commands (mod only)
 	// Check specific subcommands first before the generic !pomo command
 	if (cmd === '!pomopause') {
 		if (!isMod) {
@@ -458,14 +446,14 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		const mins = Math.floor(state.currentSeconds / 60);
 		const secs = state.currentSeconds % 60;
 		const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
-		const status = state.isRunning ? 'Running' : state.isPaused ? 'Paused' : 'Stopped';
-		
+		const statusStr = state.isRunning ? 'Running' : state.isPaused ? 'Paused' : 'Stopped';
 		return {
-			message: `${prefix}Timer: ${status} | ${state.mode} mode | ${timeStr} | Session ${state.currentSession}/${state.totalSessions} 📊`,
+			message: `${prefix}Timer: ${statusStr} | ${state.mode} mode | ${timeStr} | Session ${state.currentSession}/${state.totalSessions} 📊`,
 			error: false
 		};
 	}
 
+	// Pomodoro timer commands (mod only)
 	if (cmd === '!pomo' || cmd === '!pomodoro') {
 		if (!isMod) {
 			return {
@@ -478,7 +466,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		const focusTime = Math.max(1, parseInt(parts[0], 10) || 25);
 		const breakTime = Math.max(1, parseInt(parts[1], 10) || 5);
 		const sessions = Math.max(1, Math.min(12, parseInt(parts[2], 10) || 4));
-		
+
 		circularTimer.startCycle(focusTime, breakTime, sessions, (mode, current, total) => {
 			if (mode === 'focus') {
 				client.say(`${prefix}Focus session ${current} complete! Time for a break ☕`);
@@ -535,23 +523,16 @@ function makeDraggable(element, handle, options = {}) {
 		: bounds;
 
 	dragHandle.style.cursor = 'move';
-	dragHandle.style.touchAction = 'none';
-
-	console.log(`Making draggable:`, { element, dragHandle, strategy, bounds });
 
 	const dragStart = (e) => {
-		// Handle both mouse and touch events
-		if (e.type === 'mousedown' && e.button !== 0) return; // Only respond to primary button
+		if (e.button !== 0) return; // Only respond to primary button
+		if (e.target instanceof HTMLButtonElement || e.target.closest('button')) {
+			return;
+		}
 
-		// Prevent default to avoid text selection and other browser behaviors
-		e.preventDefault();
 		isDragging = true;
 		element.classList.add('dragging');
 		document.body.classList.add('overlay-dragging');
-
-		// Get coordinates based on event type
-		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
 
 		if (strategy === 'absolute') {
 			const elementRect = element.getBoundingClientRect();
@@ -559,8 +540,8 @@ function makeDraggable(element, handle, options = {}) {
 				? boundsEl.getBoundingClientRect()
 				: { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
 
-			pointerOffsetX = clientX - elementRect.left;
-			pointerOffsetY = clientY - elementRect.top;
+			pointerOffsetX = e.clientX - elementRect.left;
+			pointerOffsetY = e.clientY - elementRect.top;
 			offsetX = elementRect.left - containerRect.left;
 			offsetY = elementRect.top - containerRect.top;
 			lastPosition = { left: offsetX, top: offsetY };
@@ -569,8 +550,8 @@ function makeDraggable(element, handle, options = {}) {
 			const matrix = new DOMMatrix(style.transform);
 			offsetX = matrix.m41;
 			offsetY = matrix.m42;
-			initialX = clientX - offsetX;
-			initialY = clientY - offsetY;
+			initialX = e.clientX - offsetX;
+			initialY = e.clientY - offsetY;
 		}
 
 		onDragStart?.();
@@ -580,18 +561,14 @@ function makeDraggable(element, handle, options = {}) {
 		if (!isDragging) return;
 		e.preventDefault();
 
-		// Get coordinates based on event type
-		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-
 		if (strategy === 'absolute') {
 			const containerRect = boundsEl
 				? boundsEl.getBoundingClientRect()
 				: { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
 			const elementRect = element.getBoundingClientRect();
 
-			let newLeft = clientX - containerRect.left - pointerOffsetX;
-			let newTop = clientY - containerRect.top - pointerOffsetY;
+			let newLeft = e.clientX - containerRect.left - pointerOffsetX;
+			let newTop = e.clientY - containerRect.top - pointerOffsetY;
 
 			const maxLeft = Math.max(0, containerRect.width - elementRect.width);
 			const maxTop = Math.max(0, containerRect.height - elementRect.height);
@@ -603,8 +580,8 @@ function makeDraggable(element, handle, options = {}) {
 			element.style.top = `${Math.round(newTop)}px`;
 			lastPosition = { left: newLeft, top: newTop };
 		} else {
-			currentX = clientX - initialX;
-			currentY = clientY - initialY;
+			currentX = e.clientX - initialX;
+			currentY = e.clientY - initialY;
 
 			offsetX = currentX;
 			offsetY = currentY;
@@ -627,23 +604,14 @@ function makeDraggable(element, handle, options = {}) {
 		onDragEnd?.({ left: Math.round(lastPosition.left), top: Math.round(lastPosition.top) });
 	};
 
-	// Mouse events
 	dragHandle.addEventListener('mousedown', dragStart);
 	document.addEventListener('mousemove', drag);
 	document.addEventListener('mouseup', dragEnd);
-
-	// Touch events for mobile/tablet support
-	dragHandle.addEventListener('touchstart', dragStart, { passive: false });
-	document.addEventListener('touchmove', drag, { passive: false });
-	document.addEventListener('touchend', dragEnd);
 
 	return () => {
 		dragHandle.removeEventListener('mousedown', dragStart);
 		document.removeEventListener('mousemove', drag);
 		document.removeEventListener('mouseup', dragEnd);
-		dragHandle.removeEventListener('touchstart', dragStart);
-		document.removeEventListener('touchmove', drag);
-		document.removeEventListener('touchend', dragEnd);
 		element.classList.remove('dragging');
 		document.body.classList.remove('overlay-dragging');
 	};
@@ -657,15 +625,10 @@ function setupPanelDraggables() {
 	const container = document.getElementById('app');
 	if (!container) return;
 
-	console.log('Setting up panel draggables...');
 	const activePanels = new Set();
-	const panels = container.querySelectorAll('.draggable-panel');
-	console.log(`Found ${panels.length} draggable panels`);
-	
-	panels.forEach(panel => {
+	container.querySelectorAll('.draggable-panel').forEach(panel => {
 		const panelEl = /** @type {HTMLElement} */ (panel);
 		const panelKey = panelEl.dataset.panel;
-		console.log(`Processing panel: ${panelKey}`, panelEl);
 		if (!panelKey) return;
 		activePanels.add(panelKey);
 
@@ -680,10 +643,11 @@ function setupPanelDraggables() {
 			return;
 		}
 
-		// Use the entire panel as drag handle for better UX
-		let handleEl = panelEl;
-		
-		const cleanup = makeDraggable(panelEl, handleEl, {
+		const handleSelector = panelHandleSelectors[panelKey];
+		const handleEl = handleSelector
+			? /** @type {HTMLElement|null} */ (panelEl.querySelector(handleSelector))
+			: null;
+		const cleanup = makeDraggable(panelEl, handleEl || panelEl, {
 			strategy: 'absolute',
 			bounds: container,
 			onDragEnd: (position) => {
@@ -691,18 +655,7 @@ function setupPanelDraggables() {
 			}
 		});
 
-		// Add click handler to select panel for resizing
-		panelEl.addEventListener('click', (e) => {
-			// Don't select if clicking interactive elements
-			const target = /** @type {HTMLElement} */ (e.target);
-			if (target.tagName === 'BUTTON' || target.tagName === 'INPUT') {
-				return;
-			}
-			selectPanel(panelEl, panelKey);
-		});
-
 		panelDragCleanups.set(panelKey, cleanup);
-		console.log(`Draggable setup complete for panel: ${panelKey}`);
 	});
 
 	// Remove drag handlers for panels that no longer exist
@@ -716,21 +669,41 @@ function setupPanelDraggables() {
 	stalePanels.forEach(key => panelDragCleanups.delete(key));
 }
 
-window.addEventListener('layoutChanged', () => {
-	// Add small delay to ensure panels are fully positioned before making them draggable
-	setTimeout(() => setupPanelDraggables(), 50);
-});
+window.addEventListener('layoutChanged', () => setupPanelDraggables());
 
-let resizeAnimationFrame = null;
-window.addEventListener('resize', () => {
-	if (!layoutManager) return;
-	if (resizeAnimationFrame) cancelAnimationFrame(resizeAnimationFrame);
-	resizeAnimationFrame = requestAnimationFrame(() => {
-		resizeAnimationFrame = null;
-		layoutManager.refreshLayout();
+/**
+ * Setup theme switcher UI
+ */
+function setupThemeSwitcher() {
+	const toggleBtn = document.getElementById('theme-toggle');
+	if (!toggleBtn) return;
+
+	let menuOpen = false;
+	let menuEl = null;
+
+	toggleBtn.addEventListener('click', () => {
+		if (menuOpen && menuEl) {
+			menuEl.remove();
+			menuEl = null;
+			menuOpen = false;
+		} else {
+			menuEl = createThemeMenu();
+			document.body.appendChild(menuEl);
+			makeDraggable(menuEl);
+			menuOpen = true;
+		}
 	});
-});
 
+	// Close menu when clicking outside
+	document.addEventListener('click', (e) => {
+		const target = /** @type {Node} */ (e.target);
+		if (menuOpen && menuEl && !toggleBtn.contains(target) && !menuEl.contains(target)) {
+			menuEl.remove();
+			menuEl = null;
+			menuOpen = false;
+		}
+	});
+}
 
 /**
  * Create theme menu
@@ -739,7 +712,7 @@ window.addEventListener('resize', () => {
 function createThemeMenu() {
 	const menu = document.createElement('div');
 	menu.className = 'theme-menu';
-	
+
 	const currentTheme = themeManager.getCurrentTheme();
 	const themes = themeManager.getAvailableThemes();
 
@@ -765,7 +738,7 @@ function createThemeMenu() {
 		btn.addEventListener('click', () => {
 			const themeName = btn.getAttribute('data-theme');
 			themeManager.applyTheme(themeName);
-			
+
 			// Update active state
 			menu.querySelectorAll('.theme-item').forEach(b => b.classList.remove('active'));
 			btn.classList.add('active');
@@ -779,114 +752,19 @@ function createThemeMenu() {
  * Setup keyboard shortcuts
  */
 function setupKeyboardShortcuts() {
-	// Ensure document has focus for keyboard events
-	document.addEventListener('DOMContentLoaded', () => {
-		document.body.focus();
-		document.body.setAttribute('tabindex', '0');
-	});
-
-	// Add click handler to ensure focus when interacting with the overlay
-	document.addEventListener('click', () => {
-		document.body.focus();
-	});
-
-	const handleKeyDown = (e) => {
-		console.log('Key pressed:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey, 'Shift:', e.shiftKey);
-		
-		// + key = Increase size of selected panel
-		if ((e.key === '+' || e.key === '=' || e.key === 'Add') && !e.altKey && !e.ctrlKey && !e.shiftKey) {
-			if (selectedPanel) {
-				e.preventDefault();
-				e.stopPropagation();
-				resizeSelectedPanel(1.1); // Increase by 10%
-				return;
-			}
-		}
-
-		// - key = Decrease size of selected panel
-		if ((e.key === '-' || e.key === '_' || e.key === 'Subtract') && !e.altKey && !e.ctrlKey && !e.shiftKey) {
-			if (selectedPanel) {
-				e.preventDefault();
-				e.stopPropagation();
-				resizeSelectedPanel(0.9); // Decrease by 10%
-				return;
-			}
-		}
-		
-		// Alt + L = Show layout selector
-		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'l') {
+	document.addEventListener('keydown', (e) => {
+		// Ctrl/Cmd + Shift + L = Show layout selector
+		if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
 			e.preventDefault();
-			e.stopPropagation();
 			showLayoutSelector();
-			return;
 		}
 
-		// Alt + G = Toggle grid overlay and resize handles
-		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'g') {
+		// Ctrl/Cmd + Shift + T = Show theme menu
+		if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
 			e.preventDefault();
-			e.stopPropagation();
-			toggleGridOverlay();
-			return;
+			document.getElementById('theme-toggle')?.click();
 		}
-
-		// Alt + T = Show theme menu
-		if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 't') {
-			e.preventDefault();
-			e.stopPropagation();
-			
-			// Close existing theme menu if open
-			const existingMenu = document.querySelector('.theme-menu');
-			if (existingMenu) {
-				existingMenu.remove();
-				return;
-			}
-			
-			// Create and show theme menu
-			const menu = createThemeMenu();
-			document.body.appendChild(menu);
-			const header = /** @type {HTMLElement|null} */ (menu.querySelector('.theme-menu-header'));
-			makeDraggable(menu, header, { strategy: 'absolute' });
-			return;
-		}
-
-		// Escape key to close any open menus/overlays or deselect panel
-		if (e.key === 'Escape') {
-			e.preventDefault();
-			e.stopPropagation();
-			
-			// Hide grid overlay first
-			if (gridOverlayVisible) {
-				hideGridOverlay();
-				return;
-			}
-			
-			// Deselect panel
-			if (selectedPanel) {
-				deselectPanel();
-				return;
-			}
-			
-			// Close theme menu if open
-			const themeMenu = document.querySelector('.theme-menu');
-			if (themeMenu) {
-				themeMenu.remove();
-				return;
-			}
-			
-			// Close layout selector if open
-			const layoutSelector = document.querySelector('.layout-selector');
-			if (layoutSelector) {
-				layoutSelector.remove();
-				return;
-			}
-		}
-	};
-
-	// Add keyboard event listener with capture to ensure it gets processed
-	document.addEventListener('keydown', handleKeyDown, true);
-	
-	// Also add to window for backup
-	window.addEventListener('keydown', handleKeyDown, true);
+	});
 }
 
 /**
@@ -902,384 +780,13 @@ function showLayoutSelector() {
 
 	const selector = layoutManager.createLayoutSelector();
 	document.body.appendChild(selector);
-	
+
 	// Make the selector draggable by its header
 	const header = selector.querySelector('.layout-selector-header');
 	if (header) {
-		makeDraggable(selector, header, { strategy: 'absolute' });
+		makeDraggable(selector, header);
 	}
 }
-
-/**
- * Select a panel for resizing
- * @param {HTMLElement} panelEl - Panel element
- * @param {string} panelKey - Panel key identifier
- */
-function selectPanel(panelEl, panelKey) {
-	// Deselect previous panel
-	deselectPanel();
-	
-	// Select new panel
-	selectedPanel = { element: panelEl, key: panelKey };
-	panelEl.classList.add('panel-selected');
-	console.log(`Panel selected: ${panelKey}`);
-}
-
-/**
- * Deselect the currently selected panel
- */
-function deselectPanel() {
-	if (selectedPanel) {
-		selectedPanel.element.classList.remove('panel-selected');
-		selectedPanel = null;
-		console.log('Panel deselected');
-	}
-}
-
-/**
- * Resize the selected panel while maintaining center position and aspect ratio
- * @param {number} scaleFactor - Scale factor (e.g., 1.1 for 10% increase, 0.9 for 10% decrease)
- */
-function resizeSelectedPanel(scaleFactor) {
-	if (!selectedPanel || !layoutManager) return;
-	
-	const { element, key } = selectedPanel;
-	const rect = element.getBoundingClientRect();
-	const container = document.getElementById('app');
-	if (!container) return;
-	
-	const containerRect = container.getBoundingClientRect();
-	
-	// Get current dimensions
-	const currentWidth = rect.width;
-	const currentHeight = rect.height;
-	
-	// Calculate new dimensions (maintaining aspect ratio)
-	const newWidth = Math.round(currentWidth * scaleFactor);
-	const newHeight = Math.round(currentHeight * scaleFactor);
-	
-	// Get current position (relative to container)
-	const currentLeft = rect.left - containerRect.left;
-	const currentTop = rect.top - containerRect.top;
-	
-	// Calculate center point
-	const centerX = currentLeft + currentWidth / 2;
-	const centerY = currentTop + currentHeight / 2;
-	
-	// Calculate new position to maintain center
-	let newLeft = centerX - newWidth / 2;
-	let newTop = centerY - newHeight / 2;
-	
-	// Clamp to container bounds
-	const maxLeft = Math.max(0, containerRect.width - newWidth);
-	const maxTop = Math.max(0, containerRect.height - newHeight);
-	newLeft = Math.max(0, Math.min(maxLeft, newLeft));
-	newTop = Math.max(0, Math.min(maxTop, newTop));
-	
-	// Apply new size
-	element.style.width = `${newWidth}px`;
-	element.style.height = `${newHeight}px`;
-	
-	// Apply new position
-	element.style.left = `${Math.round(newLeft)}px`;
-	element.style.top = `${Math.round(newTop)}px`;
-	
-	// Save to layout manager
-	const layoutName = layoutManager.getCurrentLayout();
-	layoutManager.savePanelSize(layoutName, key, {
-		width: newWidth,
-		height: newHeight
-	});
-	layoutManager.savePanelPosition(layoutName, key, {
-		left: newLeft,
-		top: newTop
-	});
-	
-	console.log(`Resized ${key}: ${currentWidth}x${currentHeight} -> ${newWidth}x${newHeight}`);
-}
-
-/**
- * Toggle grid overlay and resize handles
- */
-function toggleGridOverlay() {
-	if (gridOverlayVisible) {
-		hideGridOverlay();
-	} else {
-		showGridOverlay();
-	}
-}
-
-/**
- * Show grid overlay and resize handles
- */
-function showGridOverlay() {
-	if (gridOverlayVisible) return;
-	
-	gridOverlayVisible = true;
-	
-	// Create grid overlay element
-	const gridOverlay = document.createElement('div');
-	gridOverlay.id = 'grid-overlay';
-	gridOverlay.className = 'grid-overlay';
-	document.body.appendChild(gridOverlay);
-	
-	// Add resize handles to all panels
-	addResizeHandles();
-	
-	console.log('Grid overlay shown');
-}
-
-/**
- * Hide grid overlay and resize handles
- */
-function hideGridOverlay() {
-	if (!gridOverlayVisible) return;
-	
-	gridOverlayVisible = false;
-	
-	// Remove grid overlay element
-	const gridOverlay = document.getElementById('grid-overlay');
-	if (gridOverlay) {
-		gridOverlay.remove();
-	}
-	
-	// Remove resize handles from all panels
-	removeResizeHandles();
-	
-	console.log('Grid overlay hidden');
-}
-
-/**
- * Add resize handles to all draggable panels
- */
-function addResizeHandles() {
-	if (resizeHandlesActive) return;
-	
-	resizeHandlesActive = true;
-	
-	const panels = document.querySelectorAll('.draggable-panel');
-	panels.forEach(panelEl => {
-		const panel = /** @type {HTMLElement} */ (panelEl);
-		const panelKey = panel.dataset.panel;
-		if (!panelKey) return;
-		
-		// Create 8 resize handles (corners and edges)
-		const handles = [
-			{ name: 'nw', cursor: 'nwse-resize', position: 'top-left' },
-			{ name: 'n', cursor: 'ns-resize', position: 'top-center' },
-			{ name: 'ne', cursor: 'nesw-resize', position: 'top-right' },
-			{ name: 'e', cursor: 'ew-resize', position: 'middle-right' },
-			{ name: 'se', cursor: 'nwse-resize', position: 'bottom-right' },
-			{ name: 's', cursor: 'ns-resize', position: 'bottom-center' },
-			{ name: 'sw', cursor: 'nesw-resize', position: 'bottom-left' },
-			{ name: 'w', cursor: 'ew-resize', position: 'middle-left' }
-		];
-		
-		handles.forEach(({ name, cursor, position }) => {
-			const handle = document.createElement('div');
-			handle.className = `resize-handle resize-handle-${name}`;
-			handle.dataset.direction = name;
-			handle.style.cursor = cursor;
-			panel.appendChild(handle);
-			
-			// Make this handle draggable for resizing
-			const cleanup = makeResizable(panel, handle, name, panelKey);
-			
-			// Store cleanup function
-			if (!resizeHandleCleanups.has(panelKey)) {
-				resizeHandleCleanups.set(panelKey, []);
-			}
-			resizeHandleCleanups.get(panelKey).push(cleanup);
-		});
-	});
-	
-	console.log('Resize handles added to all panels');
-}
-
-/**
- * Remove resize handles from all panels
- */
-function removeResizeHandles() {
-	if (!resizeHandlesActive) return;
-	
-	resizeHandlesActive = false;
-	
-	// Call all cleanup functions
-	resizeHandleCleanups.forEach(cleanups => {
-		cleanups.forEach(cleanup => cleanup());
-	});
-	resizeHandleCleanups.clear();
-	
-	// Remove all resize handle elements
-	const handles = document.querySelectorAll('.resize-handle');
-	handles.forEach(handle => handle.remove());
-	
-	console.log('Resize handles removed from all panels');
-}
-
-/**
- * Make a panel resizable by dragging a handle
- * @param {HTMLElement} panel - Panel element
- * @param {HTMLElement} handle - Resize handle element
- * @param {string} direction - Direction of resize (n, s, e, w, ne, nw, se, sw)
- * @param {string} panelKey - Panel key identifier
- * @returns {() => void} Cleanup function
- */
-function makeResizable(panel, handle, direction, panelKey) {
-	let isResizing = false;
-	let startX = 0;
-	let startY = 0;
-	let startWidth = 0;
-	let startHeight = 0;
-	let startLeft = 0;
-	let startTop = 0;
-	
-	const resizeStart = (e) => {
-		// Handle both mouse and touch events
-		if (e.type === 'mousedown' && e.button !== 0) return;
-		
-		e.preventDefault();
-		e.stopPropagation();
-		isResizing = true;
-		
-		// Get coordinates based on event type
-		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-		
-		startX = clientX;
-		startY = clientY;
-		
-		const rect = panel.getBoundingClientRect();
-		startWidth = rect.width;
-		startHeight = rect.height;
-		startLeft = panel.offsetLeft;
-		startTop = panel.offsetTop;
-		
-		panel.classList.add('resizing');
-		document.body.classList.add('overlay-resizing');
-	};
-	
-	const resize = (e) => {
-		if (!isResizing) return;
-		e.preventDefault();
-		
-		// Get coordinates based on event type
-		const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-		const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-		
-		const deltaX = clientX - startX;
-		const deltaY = clientY - startY;
-		
-		let newWidth = startWidth;
-		let newHeight = startHeight;
-		let newLeft = startLeft;
-		let newTop = startTop;
-		
-		// Calculate new dimensions based on direction
-		if (direction.includes('e')) {
-			newWidth = Math.max(100, startWidth + deltaX);
-		}
-		if (direction.includes('w')) {
-			newWidth = Math.max(100, startWidth - deltaX);
-			newLeft = startLeft + (startWidth - newWidth);
-		}
-		if (direction.includes('s')) {
-			newHeight = Math.max(100, startHeight + deltaY);
-		}
-		if (direction.includes('n')) {
-			newHeight = Math.max(100, startHeight - deltaY);
-			newTop = startTop + (startHeight - newHeight);
-		}
-		
-		// Get container bounds for clamping
-		const container = document.getElementById('app');
-		if (container) {
-			const containerRect = container.getBoundingClientRect();
-			
-			// Clamp to container bounds
-			if (newLeft < 0) {
-				newWidth += newLeft;
-				newLeft = 0;
-			}
-			if (newTop < 0) {
-				newHeight += newTop;
-				newTop = 0;
-			}
-			if (newLeft + newWidth > containerRect.width) {
-				newWidth = containerRect.width - newLeft;
-			}
-			if (newTop + newHeight > containerRect.height) {
-				newHeight = containerRect.height - newTop;
-			}
-		}
-		
-		// Apply new dimensions and position
-		panel.style.width = `${Math.round(newWidth)}px`;
-		panel.style.height = `${Math.round(newHeight)}px`;
-		panel.style.left = `${Math.round(newLeft)}px`;
-		panel.style.top = `${Math.round(newTop)}px`;
-	};
-	
-	const resizeEnd = () => {
-		if (!isResizing) return;
-		isResizing = false;
-		
-		panel.classList.remove('resizing');
-		document.body.classList.remove('overlay-resizing');
-		
-		// Save to layout manager
-		if (layoutManager) {
-			const layoutName = layoutManager.getCurrentLayout();
-			const rect = panel.getBoundingClientRect();
-			
-			layoutManager.savePanelSize(layoutName, panelKey, {
-				width: Math.round(rect.width),
-				height: Math.round(rect.height)
-			});
-			layoutManager.savePanelPosition(layoutName, panelKey, {
-				left: Math.round(panel.offsetLeft),
-				top: Math.round(panel.offsetTop)
-			});
-			
-			console.log(`Panel ${panelKey} resized: ${Math.round(rect.width)}x${Math.round(rect.height)}`);
-		}
-	};
-	
-	// Mouse events
-	handle.addEventListener('mousedown', resizeStart);
-	document.addEventListener('mousemove', resize);
-	document.addEventListener('mouseup', resizeEnd);
-	
-	// Touch events
-	handle.addEventListener('touchstart', resizeStart, { passive: false });
-	document.addEventListener('touchmove', resize, { passive: false });
-	document.addEventListener('touchend', resizeEnd);
-	
-	// Return cleanup function
-	return () => {
-		handle.removeEventListener('mousedown', resizeStart);
-		document.removeEventListener('mousemove', resize);
-		document.removeEventListener('mouseup', resizeEnd);
-		handle.removeEventListener('touchstart', resizeStart);
-		document.removeEventListener('touchmove', resize);
-		document.removeEventListener('touchend', resizeEnd);
-	};
-}
-
-// Deselect panel when clicking outside
-document.addEventListener('click', (e) => {
-	if (!selectedPanel) return;
-	
-	const target = /** @type {HTMLElement} */ (e.target);
-	// Check if click is outside the selected panel
-	if (!selectedPanel.element.contains(target)) {
-		// Don't deselect if clicking on menu items
-		if (target.closest('.theme-menu') || target.closest('.layout-selector')) {
-			return;
-		}
-		deselectPanel();
-	}
-});
 
 // Export for debugging
 if (typeof window !== 'undefined') {
@@ -1290,9 +797,6 @@ if (typeof window !== 'undefined') {
 		circularTimer,
 		backlogPanel,
 		infoPanel,
-		layoutManager,
-		selectPanel,
-		deselectPanel,
-		resizeSelectedPanel
+		layoutManager
 	};
 }
