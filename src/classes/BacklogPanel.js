@@ -259,6 +259,29 @@ export default class BacklogPanel {
 	}
 
 	/**
+	 * Get all items created by a specific user
+	 * @param {string} username - The username to filter by (case-insensitive)
+	 * @returns {Array} Items created by the user
+	 */
+	getItemsByUser(username) {
+		const lowerUsername = username.toLowerCase();
+		return this.#backlogItems.filter(
+			item => item.creator && item.creator.toLowerCase() === lowerUsername
+		);
+	}
+
+	/**
+	 * Get a user's item by their own 1-based index (relative to their own items)
+	 * @param {string} username - The username
+	 * @param {number} index - 1-based index within the user's own items
+	 * @returns {Object|null} Item or null
+	 */
+	getUserItemByIndex(username, index) {
+		const userItems = this.getItemsByUser(username);
+		return userItems[index - 1] || null;
+	}
+
+	/**
 	 * Sort backlog by priority (high to low) then by date
 	 */
 	#sortBacklog() {

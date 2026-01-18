@@ -127,6 +127,9 @@ export default class CircularTimer {
 			return;
 		}
 
+		// Stop any existing interval first
+		this.stop();
+
 		this.#mode = 'focus';
 		this.#currentSession++;
 		this.#totalSeconds = this.#focusDuration * 60;
@@ -137,13 +140,18 @@ export default class CircularTimer {
 		this.updatePomoCount(this.#currentSession, this.#totalSessions);
 
 		this.#intervalId = setInterval(() => this.#tick(), 1000);
-		this.#tick();
+		this.#updateDisplay();
+		this.#updateProgressRing(100);
+		this.#saveState();
 	}
 
 	/**
 	 * Start a break session
 	 */
 	#startBreak() {
+		// Stop any existing interval first
+		this.stop();
+
 		const isLongBreak = this.#currentSession % this.#sessionsBeforeLongBreak === 0;
 		const breakDuration = isLongBreak ? this.#longBreakDuration : this.#breakDuration;
 
@@ -155,7 +163,9 @@ export default class CircularTimer {
 		this.#updateModeUI();
 
 		this.#intervalId = setInterval(() => this.#tick(), 1000);
-		this.#tick();
+		this.#updateDisplay();
+		this.#updateProgressRing(100);
+		this.#saveState();
 	}
 
 	/**
@@ -176,7 +186,8 @@ export default class CircularTimer {
 		this.#updateModeUI();
 
 		this.#intervalId = setInterval(() => this.#tick(), 1000);
-		this.#tick();
+		this.#updateDisplay();
+		this.#updateProgressRing(100);
 	}
 
 	/**

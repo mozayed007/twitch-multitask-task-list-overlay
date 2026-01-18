@@ -300,10 +300,20 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 					error: true
 				};
 			}
-			const item = backlogPanel.getItemByIndex(index);
+			// Mods/broadcasters can manage any item by global index
+			// Regular viewers can only manage their own items by their personal index
+			let item;
+			if (isMod) {
+				item = backlogPanel.getItemByIndex(index);
+			} else {
+				item = backlogPanel.getUserItemByIndex(username, index);
+			}
 			if (!item) {
+				const notFoundMsg = isMod
+					? `${prefix}@${username} Backlog item ${index} not found.`
+					: `${prefix}@${username} You don't have a backlog item #${index}.`;
 				return {
-					message: `${prefix}@${username} Backlog item ${index} not found.`,
+					message: notFoundMsg,
 					error: true
 				};
 			}
