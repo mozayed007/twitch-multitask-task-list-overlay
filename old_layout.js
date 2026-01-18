@@ -27,12 +27,12 @@ export default class LayoutManager {
 					position: { top: 120, left: 80 },
 					size: { width: 320, height: 320, minWidth: 280 }
 				},
-				taskList: { enabled: false },
-				backlog: {
+				taskList: {
 					enabled: true,
-					position: { top: 5, left: 460 },
+					position: { top: 100, left: 460 },
 					size: { width: 700, minWidth: 520, minHeight: 420 }
 				},
+				backlog: { enabled: false },
 				infoPanel: { enabled: false }
 			}
 		},
@@ -47,11 +47,15 @@ export default class LayoutManager {
 					position: { top: 120, left: 80 },
 					size: { width: 320, height: 320 }
 				},
-				taskList: { enabled: false },
+				taskList: {
+					enabled: true,
+					position: { top: 100, left: 440 },
+					size: { width: 320, minHeight: 480 }
+				},
 				backlog: {
 					enabled: true,
-					position: { top: 15, left: 440 },
-					size: { width: 320, minHeight: 480 }
+					position: { top: 100, left: 800 },
+					size: { width: 320, minHeight: 420 }
 				},
 				infoPanel: { enabled: false }
 			}
@@ -67,7 +71,11 @@ export default class LayoutManager {
 					position: { top: 60, left: 780 },
 					size: { width: 360, height: 360 }
 				},
-				taskList: { enabled: false },
+				taskList: {
+					enabled: true,
+					position: { top: 460, left: 540 },
+					size: { width: 280, minHeight: 420 }
+				},
 				backlog: {
 					enabled: true,
 					position: { top: 460, left: 220 },
@@ -75,7 +83,7 @@ export default class LayoutManager {
 				},
 				infoPanel: {
 					enabled: true,
-					position: { top: 460, left: 540 },
+					position: { top: 460, left: 860 },
 					size: { width: 280, minHeight: 420 }
 				}
 			}
@@ -107,12 +115,12 @@ export default class LayoutManager {
 					position: { top: 100, left: 760 },
 					size: { width: 360, height: 360 }
 				},
-				taskList: { enabled: false },
-				backlog: {
+				taskList: {
 					enabled: true,
-					position: { top: 480, left: 700 },
+					position: { top: 520, left: 700 },
 					size: { width: 520, minHeight: 420 }
 				},
+				backlog: { enabled: false },
 				infoPanel: { enabled: false }
 			}
 		},
@@ -127,11 +135,15 @@ export default class LayoutManager {
 					position: { top: 80, left: 80 },
 					size: { width: 320, height: 320 }
 				},
-				taskList: { enabled: false },
+				taskList: {
+					enabled: true,
+					position: { top: 80, left: 460 },
+					size: { width: 360, minHeight: 480 }
+				},
 				backlog: {
 					enabled: true,
-					position: { top: 15, left: 460 },
-					size: { width: 360, minHeight: 480 }
+					position: { top: 620, left: 80 },
+					size: { width: 360, minHeight: 360 }
 				},
 				infoPanel: {
 					enabled: true,
@@ -404,7 +416,7 @@ export default class LayoutManager {
 			element.style.zIndex = config.zIndex ?? 10;
 			element.dataset.panel = componentKey;
 			element.style.transform = 'none';
-
+			
 			// Debug: Log panel setup
 			console.log(`Setting up panel ${componentKey}:`, {
 				display: element.style.display,
@@ -434,7 +446,7 @@ export default class LayoutManager {
 		// Check for saved size first
 		const savedSize = layoutName && componentKey ? this.#getSavedSize(layoutName, componentKey) : null;
 		const finalSize = savedSize ? { ...size, ...savedSize } : size;
-
+		
 		const props = ['width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'];
 		props.forEach(prop => {
 			if (finalSize[prop] !== undefined) {

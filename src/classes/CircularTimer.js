@@ -5,6 +5,7 @@
 export default class CircularTimer {
 	#timerEl;
 	#progressRing;
+	#orbitRing;
 	#timeDisplay;
 	#labelDisplay;
 	#iconDisplay;
@@ -14,7 +15,7 @@ export default class CircularTimer {
 	#mode = 'focus'; // 'focus' or 'break'
 	#onComplete = null;
 	#isPaused = false;
-	
+
 	// Session tracking
 	#currentSession = 0;
 	#totalSessions = 4;
@@ -22,7 +23,7 @@ export default class CircularTimer {
 	#breakDuration = 5;
 	#longBreakDuration = 15;
 	#sessionsBeforeLongBreak = 4;
-	
+
 	// State persistence
 	#stateKey = 'pomoTimer.state';
 
@@ -45,6 +46,9 @@ export default class CircularTimer {
 	#initializeTimer() {
 		this.#timerEl.innerHTML = `
 			<div class="circular-timer">
+				<div class="timer-orbit-ring">
+					<div class="timer-orbit-planet"></div>
+				</div>
 				<svg class="timer-svg" viewBox="0 0 200 200">
 					<!-- Background circle -->
 					<circle
@@ -85,6 +89,7 @@ export default class CircularTimer {
 
 		// Cache DOM elements
 		this.#progressRing = this.#timerEl.querySelector('.timer-progress-ring');
+		this.#orbitRing = this.#timerEl.querySelector('.timer-orbit-ring');
 		this.#timeDisplay = this.#timerEl.querySelector('.timer-time');
 		this.#labelDisplay = this.#timerEl.querySelector('.timer-label');
 		this.#iconDisplay = this.#timerEl.querySelector('.timer-icon');
@@ -102,17 +107,17 @@ export default class CircularTimer {
 	 */
 	startCycle(focusMinutes = 25, breakMinutes = 5, sessions = 4, onComplete = null) {
 		this.stop();
-		
+
 		this.#focusDuration = focusMinutes;
 		this.#breakDuration = breakMinutes;
 		this.#totalSessions = sessions;
 		this.#currentSession = 0;
 		this.#onComplete = onComplete;
-		
+
 		this.#startSession();
 		this.#saveState();
 	}
-	
+
 	/**
 	 * Start a single session (focus or break)
 	 */
@@ -121,34 +126,34 @@ export default class CircularTimer {
 			this.#handleCycleComplete();
 			return;
 		}
-		
+
 		this.#mode = 'focus';
 		this.#currentSession++;
 		this.#totalSeconds = this.#focusDuration * 60;
 		this.#currentSeconds = this.#totalSeconds;
 		this.#isPaused = false;
-		
+
 		this.#updateModeUI();
 		this.updatePomoCount(this.#currentSession, this.#totalSessions);
-		
+
 		this.#intervalId = setInterval(() => this.#tick(), 1000);
 		this.#tick();
 	}
-	
+
 	/**
 	 * Start a break session
 	 */
 	#startBreak() {
 		const isLongBreak = this.#currentSession % this.#sessionsBeforeLongBreak === 0;
 		const breakDuration = isLongBreak ? this.#longBreakDuration : this.#breakDuration;
-		
+
 		this.#mode = isLongBreak ? 'longbreak' : 'break';
 		this.#totalSeconds = breakDuration * 60;
 		this.#currentSeconds = this.#totalSeconds;
 		this.#isPaused = false;
-		
+
 		this.#updateModeUI();
-		
+
 		this.#intervalId = setInterval(() => this.#tick(), 1000);
 		this.#tick();
 	}
@@ -161,7 +166,7 @@ export default class CircularTimer {
 	 */
 	start(minutes, mode = 'focus', onComplete = null) {
 		this.stop();
-		
+
 		this.#mode = mode;
 		this.#totalSeconds = minutes * 60;
 		this.#currentSeconds = this.#totalSeconds;
@@ -182,6 +187,10 @@ export default class CircularTimer {
 			clearInterval(this.#intervalId);
 			this.#intervalId = null;
 		}
+		this.#timerEl.classList.remove('timer-running');
+		if (this.#orbitRing) {
+			this.#orbitRing.style.opacity = '0';
+		}
 	}
 
 	/**
@@ -192,6 +201,10 @@ export default class CircularTimer {
 			clearInterval(this.#intervalId);
 			this.#intervalId = null;
 			this.#isPaused = true;
+			this.#timerEl.classList.remove('timer-running');
+			if (this.#orbitRing) {
+				this.#orbitRing.style.opacity = '0';
+			}
 			this.#saveState();
 		}
 	}
@@ -203,6 +216,10 @@ export default class CircularTimer {
 		if (!this.#intervalId && this.#currentSeconds > 0 && this.#isPaused) {
 			this.#isPaused = false;
 			this.#intervalId = setInterval(() => this.#tick(), 1000);
+			this.#timerEl.classList.add('timer-running');
+			this.#updateProgressRing(
+				((this.#totalSeconds - this.#currentSeconds) / this.#totalSeconds) * 100
+			);
 			this.#saveState();
 		}
 	}
@@ -216,6 +233,7 @@ export default class CircularTimer {
 		this.#totalSeconds = 0;
 		this.#currentSession = 0;
 		this.#isPaused = false;
+		this.#timerEl.classList.remove('timer-running');
 		this.#updateDisplay();
 		this.#updateProgressRing(0);
 		this.#labelDisplay.textContent = 'Ready';
@@ -235,9 +253,9 @@ export default class CircularTimer {
 
 		this.#currentSeconds--;
 		this.#updateDisplay();
-		this.#updateProgressRing(
-			((this.#totalSeconds - this.#currentSeconds) / this.#totalSeconds) * 100
-		);
+		// Use remaining time percentage for "decaying" effect
+		const remainingPercent = (this.#currentSeconds / this.#totalSeconds) * 100;
+		this.#updateProgressRing(remainingPercent);
 
 		// Flash at final seconds
 		if (this.#currentSeconds <= 3 && this.#currentSeconds > 0) {
@@ -265,6 +283,16 @@ export default class CircularTimer {
 		const offset = circumference - (percent / 100) * circumference;
 		this.#progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
 		this.#progressRing.style.strokeDashoffset = offset;
+
+		// Update orbit ring rotation to follow the progress tip
+		if (this.#orbitRing) {
+			const degrees = (percent / 100) * 360;
+			// Centering transform + rotation synchronization
+			this.#orbitRing.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+
+			// Constant high opacity while running for better visibility
+			this.#orbitRing.style.opacity = '0.7';
+		}
 	}
 
 	/**
@@ -276,14 +304,15 @@ export default class CircularTimer {
 			break: { label: 'Short Break', icon: '☕', class: 'timer-break-mode' },
 			longbreak: { label: 'Long Break', icon: '🌴', class: 'timer-longbreak-mode' }
 		};
-		
+
 		const config = modeConfig[this.#mode] || modeConfig.focus;
-		
+
 		this.#labelDisplay.textContent = config.label;
 		this.#iconDisplay.innerHTML = `<i class="icon-${this.#mode}">${config.icon}</i>`;
-		
+
 		this.#timerEl.classList.remove('timer-focus-mode', 'timer-break-mode', 'timer-longbreak-mode');
 		this.#timerEl.classList.add(config.class);
+		this.#timerEl.classList.add('timer-running');
 	}
 
 	/**
@@ -292,7 +321,7 @@ export default class CircularTimer {
 	#handleComplete() {
 		this.#timerEl.classList.remove('timer-pulse');
 		this.#timerEl.classList.add('timer-complete');
-		
+
 		setTimeout(() => {
 			this.#timerEl.classList.remove('timer-complete');
 		}, 2000);
@@ -304,21 +333,21 @@ export default class CircularTimer {
 			// Break ended, start next session
 			setTimeout(() => this.#startSession(), 2000);
 		}
-		
+
 		if (this.#onComplete) {
 			this.#onComplete(this.#mode, this.#currentSession, this.#totalSessions);
 		}
-		
+
 		this.#saveState();
 	}
-	
+
 	/**
 	 * Handle full cycle completion
 	 */
 	#handleCycleComplete() {
 		this.reset();
 		this.#labelDisplay.textContent = 'Cycle Complete! 🎉';
-		
+
 		if (this.#onComplete) {
 			this.#onComplete('cycle_complete', this.#totalSessions, this.#totalSessions);
 		}
@@ -353,7 +382,7 @@ export default class CircularTimer {
 			breakDuration: this.#breakDuration
 		};
 	}
-	
+
 	/**
 	 * Save state to localStorage
 	 */
@@ -364,7 +393,7 @@ export default class CircularTimer {
 			console.warn('Failed to save timer state:', error);
 		}
 	}
-	
+
 	/**
 	 * Clear saved state
 	 */
@@ -375,7 +404,7 @@ export default class CircularTimer {
 			console.warn('Failed to clear timer state:', error);
 		}
 	}
-	
+
 	/**
 	 * Restore state from localStorage
 	 */
@@ -393,11 +422,11 @@ export default class CircularTimer {
 					this.#focusDuration = state.focusDuration;
 					this.#breakDuration = state.breakDuration;
 					this.#isPaused = state.isPaused;
-					
+
 					this.#updateDisplay();
 					this.#updateModeUI();
 					this.updatePomoCount(this.#currentSession, this.#totalSessions);
-					
+
 					if (state.isRunning) {
 						this.#intervalId = setInterval(() => this.#tick(), 1000);
 					}

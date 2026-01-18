@@ -8,6 +8,7 @@ export default class BacklogPanel {
 	#containerEl;
 	#storageKey = 'taskBacklog';
 	#maxItems = 50;
+	#onRefresh = null;
 	#scrollAnimation = null;
 	#isScrolling = false;
 	#scrollSpeed = 15;
@@ -26,6 +27,14 @@ export default class BacklogPanel {
 		this.#loadFromStorage();
 		this.#initializePanel();
 		this.render();
+	}
+
+	/**
+	 * Set callback for when backlog changes
+	 * @param {Function} callback 
+	 */
+	setOnRefresh(callback) {
+		this.#onRefresh = callback;
 	}
 
 	/**
@@ -54,6 +63,10 @@ export default class BacklogPanel {
 				</div>
 				<div class="backlog-content-wrapper">
 					<div class="backlog-content">
+						<!-- Streamer Tasks Section -->
+						<div class="streamer-tasks-container"></div>
+						
+						<div class="backlog-list-header">Viewer Backlog</div>
 						<div class="backlog-list backlog-list-primary"></div>
 						<div class="backlog-list backlog-list-secondary"></div>
 						<div class="backlog-empty">
@@ -84,7 +97,7 @@ export default class BacklogPanel {
 			'!backlog remove #',
 			'!backlog clear (mods)'
 		];
-		
+
 		const typewriterEl = this.#containerEl.querySelector('.backlog-cmd-typewriter');
 		if (!typewriterEl) return;
 
@@ -113,7 +126,7 @@ export default class BacklogPanel {
 				if (charIndex === currentCommand.length) {
 					isPaused = true;
 				}
-				
+
 				setTimeout(type, isPaused ? 0 : 80); // Typing speed
 			} else {
 				// Deleting
@@ -219,12 +232,12 @@ export default class BacklogPanel {
 		const initialLength = this.#backlogItems.length;
 		this.#backlogItems = this.#backlogItems.filter(item => !item.completed);
 		const clearedCount = initialLength - this.#backlogItems.length;
-		
+
 		if (clearedCount > 0) {
 			this.#saveToStorage();
 			this.render();
 		}
-		
+
 		return clearedCount;
 	}
 
@@ -272,47 +285,68 @@ export default class BacklogPanel {
 		const emptyEl = this.#containerEl.querySelector('.backlog-empty');
 		const countEl = this.#containerEl.querySelector('.backlog-count');
 		const panelEl = this.#containerEl.querySelector('.backlog-panel');
+		const streamerContainer = this.#containerEl.querySelector('.streamer-tasks-container');
 
 		// Update count
 		const activeCount = this.#backlogItems.filter(item => !item.completed).length;
 		countEl.textContent = `${activeCount} task${activeCount !== 1 ? 's' : ''}`;
 
-		// Apply dynamic sizing based on item count
-		panelEl.classList.remove('minimized', 'single-item', 'expanded');
+		// Notify listeners of refresh first to ensure integrated streamer tasks 
+		// are updated even if the viewer backlog is empty.
+		if (this.#onRefresh) {
+			this.#onRefresh();
+		}
+
+		// Count streamer tasks (from the integrated container)
+		const streamerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
+		const viewerTaskCount = this.#backlogItems.length;
 		
-		if (this.#backlogItems.length === 0) {
-			// Minimized state - no items
+		// Calculate total visible tasks
+		const totalVisibleTasks = streamerTaskCount + viewerTaskCount;
+		
+		// Max visible without scrolling: 3 streamer + 5 viewer = 8 total
+		const maxStreamerVisible = 3;
+		const maxViewerVisible = 5;
+		const maxTotalVisible = maxStreamerVisible + maxViewerVisible;
+
+		// Apply dynamic sizing classes based on TOTAL content (backlog + streamer tasks)
+		panelEl.classList.remove('minimized', 'few-items', 'medium-content', 'expanded');
+
+		if (totalVisibleTasks === 0) {
 			panelEl.classList.add('minimized');
 			primaryListEl.classList.add('hidden');
 			secondaryListEl.classList.add('hidden');
 			emptyEl.classList.remove('hidden');
-			this.#stopScrollAnimation();
-			return;
-		} else if (this.#backlogItems.length === 1) {
-			// Single item state
-			panelEl.classList.add('single-item');
-		} else if (this.#backlogItems.length >= 5) {
-			// Expanded state - 5 or more items with scroll
+		} else if (totalVisibleTasks <= 3) {
+			// Very few items - minimal size
+			panelEl.classList.add('few-items');
+			primaryListEl.classList.remove('hidden');
+			emptyEl.classList.add('hidden');
+		} else if (totalVisibleTasks <= maxTotalVisible) {
+			// Medium content - show all without scrolling
+			panelEl.classList.add('medium-content');
+			primaryListEl.classList.remove('hidden');
+			emptyEl.classList.add('hidden');
+		} else {
+			// Expanded - scrolling will be active
 			panelEl.classList.add('expanded');
+			primaryListEl.classList.remove('hidden');
+			emptyEl.classList.add('hidden');
 		}
-		// For 2-4 items, use default sizing (no class)
-
-		primaryListEl.classList.remove('hidden');
-		emptyEl.classList.add('hidden');
 
 		// Render items in both containers
 		const itemsHtml = this.#backlogItems
 			.map((item, index) => this.#renderItem(item, index + 1))
 			.join('');
-		
+
 		primaryListEl.innerHTML = itemsHtml;
 		secondaryListEl.innerHTML = itemsHtml;
 
 		// Add event listeners to both containers
 		this.#addEventListeners(primaryListEl);
 		this.#addEventListeners(secondaryListEl);
-		
-		// Start scroll animation if needed
+
+		// Start scroll animation if needed (only when exceeding visible limits)
 		setTimeout(() => this.#updateScrollAnimation(), 100);
 	}
 
@@ -348,11 +382,20 @@ export default class BacklogPanel {
 	#updateScrollAnimation() {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
-		
+		const streamerContainer = this.#containerEl.querySelector('.streamer-tasks-container');
+
 		if (!primaryList) return;
+
+		// Count streamer tasks
+		const streamerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
+		const viewerTaskCount = this.#backlogItems.length;
+		const totalTasks = streamerTaskCount + viewerTaskCount;
 		
-		// Only start scrolling if we have MORE than 5 items
-		if (this.#backlogItems.length > 5 && !this.#isScrolling) {
+		// Max visible without scrolling: 3 streamer + 5 viewer = 8 total
+		const maxTotalVisible = 8;
+
+		// Only start scrolling if we have MORE than the max visible items
+		if (totalTasks > maxTotalVisible && !this.#isScrolling) {
 			const contentHeight = primaryList.scrollHeight;
 			secondaryList.style.display = 'flex';
 			this.#startScrollAnimation(contentHeight);
@@ -369,31 +412,31 @@ export default class BacklogPanel {
 	#startScrollAnimation(contentHeight) {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
-		
+
 		if (!primaryList || !secondaryList) return;
-		
+
 		// Calculate duration based on content height and speed
 		const gapSize = 12; // var(--spacing-sm) in pixels
 		const adjustedHeight = contentHeight + gapSize;
 		const duration = (adjustedHeight / this.#scrollSpeed) * 1000;
-		
+
 		const keyframes = [
 			{ transform: 'translateY(0)' },
 			{ transform: `translateY(-${adjustedHeight}px)` }
 		];
-		
+
 		const options = {
 			duration: duration,
 			iterations: Infinity,
 			easing: 'linear'
 		};
-		
+
 		// Apply animation to both containers
 		primaryList.animate(keyframes, options);
 		secondaryList.animate(keyframes, options);
-		
+
 		this.#isScrolling = true;
-		
+
 		// Add scrolling class to disable hover effects
 		const content = this.#containerEl.querySelector('.backlog-content');
 		if (content) {
@@ -407,16 +450,16 @@ export default class BacklogPanel {
 	#stopScrollAnimation() {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
-		
+
 		if (primaryList) {
 			primaryList.getAnimations().forEach(anim => anim.cancel());
 		}
 		if (secondaryList) {
 			secondaryList.getAnimations().forEach(anim => anim.cancel());
 		}
-		
+
 		this.#isScrolling = false;
-		
+
 		// Remove scrolling class
 		const content = this.#containerEl.querySelector('.backlog-content');
 		if (content) {
@@ -433,7 +476,7 @@ export default class BacklogPanel {
 	#renderItem(item, index) {
 		const checkIcon = item.completed ? '✅' : '⬜';
 		const creatorName = item.creator || 'Unknown';
-		
+
 		return `
 			<div class="backlog-item ${item.completed ? 'completed' : ''}" data-id="${item.id}">
 				<div class="backlog-item-header">

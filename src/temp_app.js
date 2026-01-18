@@ -18,7 +18,6 @@ export default class App {
 	#maxTasksPerUser;
 	#headerFeature;
 	#headerCustomText;
-	#backlogPanel = null;
 
 	/**
 	 * @constructor
@@ -31,19 +30,6 @@ export default class App {
 		this.#maxTasksPerUser = _settings.maxTasksPerUser;
 		this.#headerFeature = _settings.headerFeature;
 		this.#headerCustomText = _settings.headerCustomText;
-	}
-
-	/**
-	 * Set the backlog panel instance
-	 * @param {Object} backlogPanel
-	 */
-	setBacklogPanel(backlogPanel) {
-		this.#backlogPanel = backlogPanel;
-		// Re-render task list when backlog changes
-		backlogPanel.setOnRefresh(() => {
-			this.renderTaskList();
-		});
-		this.renderTaskList();
 	}
 
 	/**
@@ -60,19 +46,9 @@ export default class App {
 	 * @returns {void}
 	 */
 	renderTaskList() {
-		// Target all potential containers
-		const primaryContainer = document.querySelector(".task-container.primary");
-		const secondaryContainer = document.querySelector(".task-container.secondary");
-		const integratedContainer = document.querySelector('.streamer-tasks-container');
-
 		if (this.userList.users.length === 0) {
-			if (primaryContainer) primaryContainer.innerHTML = "";
-			if (secondaryContainer) secondaryContainer.innerHTML = "";
-			if (integratedContainer) integratedContainer.innerHTML = "";
-			this.renderTaskCount();
 			return;
 		}
-
 		const fragment = document.createDocumentFragment();
 		this.userList.getAllUsers().forEach((user) => {
 			const cardEl = createUserCard(user);
@@ -92,24 +68,20 @@ export default class App {
 			});
 			fragment.appendChild(cardEl);
 		});
+		const primaryClone = fragment.cloneNode(true);
+		const primaryContainer = document.querySelector(
+			".task-container.primary"
+		);
+		primaryContainer.innerHTML = "";
+		primaryContainer.appendChild(primaryClone);
 
-		if (primaryContainer) {
-			primaryContainer.innerHTML = "";
-			primaryContainer.appendChild(fragment.cloneNode(true));
-		}
+		const secondaryClone = fragment.cloneNode(true);
+		const secondaryContainer = document.querySelector(
+			".task-container.secondary"
+		);
+		secondaryContainer.innerHTML = "";
+		secondaryContainer.appendChild(secondaryClone);
 
-		if (secondaryContainer) {
-			secondaryContainer.innerHTML = "";
-			secondaryContainer.appendChild(fragment.cloneNode(true));
-		}
-
-		// Support integrated dashboard/compact layout container
-		if (integratedContainer) {
-			integratedContainer.innerHTML = "";
-			integratedContainer.appendChild(fragment.cloneNode(true));
-		}
-
-		this.renderTaskCount();
 		animateScroll();
 	}
 
@@ -135,12 +107,11 @@ export default class App {
 	 * @returns {void}
 	 */
 	renderTaskCount() {
-		const completedTasksCount = this.userList.tasksCompleted;
-		const totalTasksCount = this.userList.totalTasks;
+		let completedTasksCount = this.userList.tasksCompleted;
+		let totalTasksCount = this.userList.totalTasks;
+		/** @type {HTMLElement} */
 		const totalTasksElement = document.querySelector(".task-count");
-		if (totalTasksElement) {
-			totalTasksElement.textContent = `${completedTasksCount}/${totalTasksCount}`;
-		}
+		totalTasksElement.innerText = `${completedTasksCount}/${totalTasksCount}`;
 	}
 
 	/**
@@ -449,7 +420,15 @@ export default class App {
 	}
 
 	clearListFromDOM() {
-		this.renderTaskList();
+		const primaryContainer = document.querySelector(
+			".task-container.primary"
+		);
+		const secondaryContainer = document.querySelector(
+			".task-container.secondary"
+		);
+		primaryContainer.innerHTML = "";
+		secondaryContainer.innerHTML = "";
+		this.renderTaskCount();
 	}
 
 	/**
@@ -459,7 +438,36 @@ export default class App {
 	 * @returns {void}
 	 */
 	addTaskToDOM(user, task) {
-		this.renderTaskList();
+		const primaryContainer = document.querySelector(
+			".task-container.primary"
+		);
+		const secondaryContainer = document.querySelector(
+			".task-container.secondary"
+		);
+		const userCardEls = document.querySelectorAll(
+			`[data-user="${user.username}"]`
+		);
+		if (userCardEls.length === 0) {
+			const userCard = createUserCard(user);
+			const clonedUserCard = userCard.cloneNode(true);
+			primaryContainer.appendChild(userCard);
+			secondaryContainer.appendChild(clonedUserCard);
+		}
+		const taskElement = document.createElement("li");
+		taskElement.classList.add("task");
+		taskElement.dataset.taskId = `${task.id}`;
+		taskElement.innerText = task.description;
+		const cloneTaskElement = taskElement.cloneNode(true);
+
+		primaryContainer
+			.querySelector(`[data-user="${user.username}"] .tasks`)
+			.appendChild(taskElement);
+		secondaryContainer
+			.querySelector(`[data-user="${user.username}"] .tasks`)
+			.appendChild(cloneTaskElement);
+
+		this.renderTaskCount();
+		animateScroll();
 	}
 
 	/**
@@ -468,7 +476,13 @@ export default class App {
 	 * @returns {void}
 	 */
 	editTaskFromDOM(task) {
-		this.renderTaskList();
+		/** @type {NodeListOf<HTMLElement>} */
+		const taskElements = document.querySelectorAll(
+			`[data-task-id="${task.id}"]`
+		);
+		for (const taskElement of taskElements) {
+			taskElement.innerText = task.description;
+		}
 	}
 
 	/**
@@ -477,7 +491,14 @@ export default class App {
 	 * @returns {void}
 	 */
 	completeTaskFromDOM(taskId) {
-		this.renderTaskList();
+		const taskElements = document.querySelectorAll(
+			`[data-task-id="${taskId}"]`
+		);
+		for (const taskElement of taskElements) {
+			taskElement.classList.add("done");
+			taskElement.classList.remove("focus");
+		}
+		this.renderTaskCount();
 	}
 
 	/**
@@ -487,7 +508,13 @@ export default class App {
 	 * @returns {void}
 	 */
 	focusTaskFromDOM(username, taskId) {
-		this.renderTaskList();
+		document.querySelectorAll(`[data-user="${username}"] .task`).forEach(task => {
+			task.classList.remove("focus");
+		});
+
+		document.querySelectorAll(`[data-task-id="${taskId}"]`).forEach(task => {
+			task.classList.add("focus");
+		});
 	}
 
 	/**
@@ -496,7 +523,19 @@ export default class App {
 	 * @returns {void}
 	 */
 	deleteTaskFromDOM(taskId) {
-		this.renderTaskList();
+		const taskElements = document.querySelectorAll(
+			`[data-task-id="${taskId}"]`
+		);
+		for (const taskElement of taskElements) {
+			if (taskElement.parentElement.children.length === 1) {
+				// remove the user card if there is only one task
+				taskElement.parentElement.parentElement.remove();
+			}
+			else {
+				taskElement.remove();
+			}
+		}
+		this.renderTaskCount();
 	}
 
 	/**
@@ -505,7 +544,15 @@ export default class App {
 	 * @returns {void}
 	 */
 	deleteUserFromDOM(user) {
-		this.renderTaskList();
+		// remove user card and reduce total tasks count
+		const { username, tasks } = user;
+		const userCardEls = document.querySelectorAll(
+			`[data-user="${username}"]`
+		);
+		for (let card of userCardEls) {
+			card.remove();
+		}
+		this.renderTaskCount();
 	}
 }
 

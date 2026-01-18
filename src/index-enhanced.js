@@ -5,8 +5,8 @@ import { loadTestUsers } from "./twitch/loadTestUsers.js";
 import ThemeManager from "./classes/ThemeManager.js";
 import CircularTimer from "./classes/CircularTimer.js";
 import BacklogPanel from "./classes/BacklogPanel.js";
-import InfoPanel from "./classes/InfoPanel.js";
 import LayoutManager from "./classes/LayoutManager.js";
+import GoalPanel from "./classes/GoalPanel.js";
 
 const {
 	twitch_channel, twitch_oauth, twitch_username
@@ -24,8 +24,8 @@ let app;
 let themeManager;
 let circularTimer;
 let backlogPanel;
-let infoPanel;
 let layoutManager;
+let goalPanel;
 
 /** @type {Map<string, () => void>} */
 const panelDragCleanups = new Map();
@@ -33,7 +33,7 @@ const panelHandleSelectors = {
 	timer: '.circular-timer',
 	taskList: '.header',
 	backlog: '.backlog-header',
-	infoPanel: '.info-header'
+	goal: '.goal-panel'
 };
 
 window.addEventListener("load", () => {
@@ -51,7 +51,10 @@ window.addEventListener("load", () => {
 	themeManager = new ThemeManager();
 	circularTimer = new CircularTimer('timer-container');
 	backlogPanel = new BacklogPanel('backlog-container');
-	infoPanel = new InfoPanel('info-panel-container');
+	app.setBacklogPanel(backlogPanel);
+
+	goalPanel = new GoalPanel('goal-container');
+
 	layoutManager = new LayoutManager('app');
 	setupPanelDraggables();
 
@@ -80,10 +83,6 @@ window.addEventListener("load", () => {
 		const response = app.chatHandler(user, command, message, flags, extra);
 		if (!response.error) {
 			client.say(response.message, extra.messageId);
-
-			// Update viewer activity in info panel
-			const taskCount = app.userList.getUser(user)?.getTasks().length || 0;
-			infoPanel.updateViewerActivity(user, taskCount);
 		} else {
 			console.error(response.message);
 		}
@@ -284,7 +283,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 					error: true
 				};
 			}
-			const item = backlogPanel.addItem(content);
+			const item = backlogPanel.addItem(content, username);
 			return {
 				message: item
 					? `${prefix}@${username} Added "${content}" to backlog! 📋`
@@ -342,46 +341,85 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		};
 	}
 
-	// Viewer info commands
-	if (cmd === '!setinfo') {
-		const parts = rawMessage.split(/\s+/);
-		if (parts.length < 2) {
+	// Goal commands (mod only)
+	if (cmd === '!goal') {
+		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Usage: !setinfo [field] [value] (e.g., !setinfo goal Graduate)`,
-				error: false
-			};
-		}
-		const field = parts[0];
-		const value = rawMessage.slice(field.length).trim();
-		if (!value) {
-			return {
-				message: `${prefix}@${username} Provide a value for ${field}.`,
+				message: `${prefix}@${username} Only moderators can manage goals.`,
 				error: true
 			};
 		}
-		infoPanel.setViewerInfo(username, field, value);
-		return {
-			message: `${prefix}@${username} Set ${field} to "${value}"! 📝`,
-			error: false
-		};
-	}
+		const parts = rawMessage.length ? rawMessage.split(/\s+/) : [];
+		const action = parts[0]?.toLowerCase();
+		const params = parts.slice(1);
 
-	if (cmd === '!getinfo') {
-		const targetUser = rawMessage || username;
-		const viewerData = infoPanel.getViewerInfo(targetUser);
-		if (!viewerData || Object.keys(viewerData.info).length === 0) {
+		if (!action) {
 			return {
-				message: `${prefix}@${username} No info found for ${targetUser}.`,
+				message: `${prefix}Usage: !goal set [title] [target] [current] | !goal add [n] | !goal reset | !goal hide/show`,
 				error: false
 			};
 		}
-		const infoStr = Object.entries(viewerData.info)
-			.map(([k, v]) => `${k}: ${v}`)
-			.join(', ');
-		return {
-			message: `${prefix}@${username} ${targetUser}'s info: ${infoStr}`,
-			error: false
-		};
+
+		if (action === 'set') {
+			if (params.length < 2) {
+				return {
+					message: `${prefix}Usage: !goal set [title] [target] [optional: current]`,
+					error: true
+				};
+			}
+			// Title is everything except the last 1 or 2 numbers
+			let target, current = 0, title;
+			const lastParam = params[params.length - 1];
+			const secondLastParam = params[params.length - 2];
+
+			if (params.length >= 3 && !isNaN(Number(lastParam)) && !isNaN(Number(secondLastParam))) {
+				current = parseInt(params.pop());
+				target = parseInt(params.pop());
+				title = params.join(' ');
+			} else {
+				target = parseInt(params.pop());
+				title = params.join(' ');
+			}
+
+			goalPanel.setGoal(title, target, current);
+			return {
+				message: `${prefix}Goal set: ${title} (${current}/${target})! 🎯`,
+				error: false
+			};
+		}
+
+		if (action === 'add' || action === 'remove') {
+			const amount = parseInt(params[0]) || 1;
+			goalPanel.updateProgress(action === 'add' ? amount : -amount);
+			return {
+				message: `${prefix}Goal updated! 📈`,
+				error: false
+			};
+		}
+
+		if (action === 'reset') {
+			goalPanel.reset();
+			return {
+				message: `${prefix}Goal progress reset! 🔄`,
+				error: false
+			};
+		}
+
+		if (action === 'hide') {
+			goalPanel.hide();
+			return {
+				message: `${prefix}Goal tracker hidden.`,
+				error: false
+			};
+		}
+
+		if (action === 'show') {
+			goalPanel.setGoal(); // This will reactivate with existing data
+			return {
+				message: `${prefix}Goal tracker visible.`,
+				error: false
+			};
+		}
 	}
 
 	// Check specific subcommands first before the generic !pomo command
@@ -796,7 +834,7 @@ if (typeof window !== 'undefined') {
 		themeManager,
 		circularTimer,
 		backlogPanel,
-		infoPanel,
+		goalPanel,
 		layoutManager
 	};
 }

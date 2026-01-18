@@ -35,18 +35,14 @@ export default class InfoPanel {
 		this.#containerEl.innerHTML = `
 			<div class="info-panel">
 				<div class="info-header">
-					<h3 class="info-title">
-						<span class="info-icon">👥</span>
-						Viewer Info
-					</h3>
 					<div class="info-stats">
 						<span class="stat-item">
-							<span class="stat-label">Active:</span>
 							<span class="stat-value active-count">0</span>
+							<span class="stat-label">Active</span>
 						</span>
 						<span class="stat-item">
-							<span class="stat-label">Total:</span>
 							<span class="stat-value total-count">0</span>
+							<span class="stat-label">Total</span>
 						</span>
 					</div>
 				</div>
@@ -55,8 +51,7 @@ export default class InfoPanel {
 						<div class="info-list info-list-primary"></div>
 						<div class="info-list info-list-secondary"></div>
 						<div class="info-empty">
-							<p>No viewer data yet</p>
-							<p class="info-hint">Viewers can set info with !setinfo [field] [value]</p>
+							<p>No viewer data</p>
 						</div>
 					</div>
 				</div>
@@ -246,15 +241,16 @@ export default class InfoPanel {
 
 		return `
 			<div class="viewer-card ${isActive ? 'active' : 'inactive'}">
-				<div class="viewer-header">
-					<span class="viewer-name">${this.#escapeHtml(username)}</span>
-					<span class="viewer-status ${isActive ? 'status-active' : 'status-inactive'}">
-						${isActive ? '🟢' : '⚫'}
-					</span>
-				</div>
-				<div class="viewer-meta">
-					<span class="viewer-tasks">📝 ${taskCount} task${taskCount !== 1 ? 's' : ''}</span>
-					<span class="viewer-time">⏰ ${timeAgo}</span>
+				<div class="viewer-card-main">
+					<div class="viewer-header">
+						<span class="viewer-name">${this.#escapeHtml(username)}</span>
+						<span class="viewer-status-dot ${isActive ? 'active' : 'inactive'}"></span>
+					</div>
+					<div class="viewer-meta">
+						<span class="viewer-tasks">${taskCount} tasks</span>
+						<span class="viewer-separator">•</span>
+						<span class="viewer-time">${timeAgo}</span>
+					</div>
 				</div>
 				${infoItems ? `<div class="viewer-info">${infoItems}</div>` : ''}
 			</div>
