@@ -21,7 +21,7 @@
 
 Full-featured Pomodoro timer with session tracking, pause/resume, and state persistence.
 
-**Commands (Moderator Only):**
+**Commands (Broadcaster/Moderator Only):**
 
 - `!pomo` or `!pomodoro` - Start default cycle (25min/5min × 4 sessions)
 - `!pomo 50/10` - Custom focus/break times
@@ -48,7 +48,8 @@ Separate task backlog for **all viewers** - distinct from the broadcaster's main
 - `!backlog add [task]` - Add item to your personal backlog
 - `!backlog done [number]` - Mark backlog item complete
 - `!backlog remove [number]` - Remove item from backlog
-- `!backlog clear` - Clear your entire backlog
+- `!backlog clear` - Clear your own completed items
+- `!backlog clear all` (Broadcaster/Mod Only) - Wipes EVERY item in the backlog
 
 **Features:**
 
@@ -59,7 +60,7 @@ Separate task backlog for **all viewers** - distinct from the broadcaster's main
 
 ### 🎨 Advanced Theme System (20 Premium Themes)
 
-**Commands (Moderator Only):**
+**Commands (Broadcaster/Moderator Only):**
 
 - `!theme` - List all available themes
 - `!theme [name]` - Switch to specific theme
@@ -82,7 +83,7 @@ Separate task backlog for **all viewers** - distinct from the broadcaster's main
 
 ### 📐 Layout Management System (6 Preset Layouts)
 
-**Commands (Moderator Only):**
+**Commands (Broadcaster/Moderator Only):**
 
 - `!layout` - List all available layouts
 - `!layout [name]` - Switch to specific layout

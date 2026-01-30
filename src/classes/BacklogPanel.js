@@ -242,6 +242,22 @@ export default class BacklogPanel {
 	}
 
 	/**
+	 * Clear all items (regardless of completion)
+	 * @returns {number} Number of items cleared
+	 */
+	clearAll() {
+		const count = this.#backlogItems.length;
+		this.#backlogItems = [];
+
+		if (count > 0) {
+			this.#saveToStorage();
+			this.render();
+		}
+
+		return count;
+	}
+
+	/**
 	 * Get all backlog items
 	 * @returns {Array} Backlog items
 	 */

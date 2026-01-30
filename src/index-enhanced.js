@@ -140,7 +140,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!theme') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can change themes.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can change themes.`,
 				error: true
 			};
 		}
@@ -167,7 +167,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!layout') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can change layouts.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can change layouts.`,
 				error: true
 			};
 		}
@@ -200,7 +200,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!resetpanel') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can reset panel positions.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can reset panel positions.`,
 				error: true
 			};
 		}
@@ -241,7 +241,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!resetlayout') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can reset layouts.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can reset layouts.`,
 				error: true
 			};
 		}
@@ -334,10 +334,19 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		if (action === 'clear') {
 			if (!isMod) {
 				return {
-					message: `${prefix}@${username} Only moderators can clear the backlog.`,
+					message: `${prefix}@${username} Only broadcasters and moderators can clear the backlog.`,
 					error: true
 				};
 			}
+
+			if (content.toLowerCase() === 'all') {
+				const count = backlogPanel.clearAll();
+				return {
+					message: `${prefix}Cleared ALL ${count} backlog items! 🗑️`,
+					error: false
+				};
+			}
+
 			const count = backlogPanel.clearCompleted();
 			return {
 				message: `${prefix}Cleared ${count} completed backlog item${count !== 1 ? 's' : ''}!`,
@@ -355,7 +364,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!goal') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can manage goals.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can manage goals.`,
 				error: true
 			};
 		}
@@ -436,7 +445,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!pomopause') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can control the timer.`,
 				error: true
 			};
 		}
@@ -450,7 +459,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!pomoresume') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can control the timer.`,
 				error: true
 			};
 		}
@@ -464,7 +473,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!pomostop' || cmd === '!stoptimer') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can control the timer.`,
 				error: true
 			};
 		}
@@ -478,7 +487,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!pomoreset') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can control the timer.`,
 				error: true
 			};
 		}
@@ -505,7 +514,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	if (cmd === '!pomo' || cmd === '!pomodoro') {
 		if (!isMod) {
 			return {
-				message: `${prefix}@${username} Only moderators can control the timer.`,
+				message: `${prefix}@${username} Only broadcasters and moderators can control the timer.`,
 				error: true
 			};
 		}

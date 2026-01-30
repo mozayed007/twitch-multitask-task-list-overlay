@@ -4,7 +4,7 @@ Complete list of all available chat commands for the interactive task list overl
 
 ---
 
-## 🎨 Theme & Layout Commands (Mod Only)
+## 🎨 Theme & Layout Commands (Broadcaster/Mod Only)
 
 ### Theme Commands
 
@@ -46,7 +46,7 @@ Complete list of all available chat commands for the interactive task list overl
 
 ---
 
-## ⏱️ Pomodoro Timer Commands (Mod Only)
+## ⏱️ Pomodoro Timer Commands (Broadcaster/Mod Only)
 
 ### Start/Control Timer
 
@@ -107,9 +107,13 @@ Complete list of all available chat commands for the interactive task list overl
 
 - `!backlog remove 2` - Delete item #2 from backlog
 
-**`!backlog clear`** (Mod Only) - Clear all completed backlog items
+**`!backlog clear`** (Broadcaster/Mod Only) - Clear completed backlog items
 
 - Removes all items marked as done
+
+**`!backlog clear all`** (Broadcaster/Mod Only) - Clear EVERY item in the backlog
+
+- Wipes the entire viewer backlog list clean
 
 **`!backlog`** - Show usage help
 
