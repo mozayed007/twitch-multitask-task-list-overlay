@@ -4,6 +4,16 @@ coverage/
 # Dependency directories
 node_modules/
 
+# Python environments
+venv/
+env/
+ENV/
+.venv/
+
+# Conda environments
+conda-meta/
+envs/
+
 # dotenv environment variable files
 .env
 .env.local

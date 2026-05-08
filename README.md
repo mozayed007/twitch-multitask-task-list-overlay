@@ -174,6 +174,7 @@ Viewers can create, edit, mark as done, and delete tasks from the list. This Tas
   - [Download App](#download-app)
   - [Get Twitch oAuth](#get-twitch-oauth)
   - [Setup in OBS](#setup-in-obs)
+  - [Python Backend Setup (Optional)](#python-backend-setup-optional)
 - [Customization settings](#customization-settings)
   - [App Behavior Settings](#behavior-settings)
   - [Styles Settings](#styles-settings)
@@ -251,6 +252,56 @@ twitch_channel = "Jujoco_Dev",
 4. **Done!** - Select OK to save!. Read the [Customization settings](#customization-settings) section to customize the MultiTask list widget and connect it to your Twitch chat.
 
 ![OBS Browser Source configuration example](./images/obs-source-example.png)
+
+### Python Backend Setup (Optional)
+
+The project includes a FastAPI backend for persistent storage and advanced features. This is optional - the main overlay works without it.
+
+#### Using Conda (Recommended)
+
+1. **Install Conda/Miniconda** if you haven't already:
+   - Download from [https://docs.conda.io/en/latest/miniconda.html](https://docs.conda.io/en/latest/miniconda.html)
+
+2. **Create the conda environment** from the project root:
+   ```bash
+   conda env create -f environment.yml
+   ```
+
+3. **Activate the environment**:
+   - **Windows**: `conda activate twitch-task-overlay`
+   - **Mac/Linux**: `source activate twitch-task-overlay`
+
+4. **Run the backend server**:
+   ```bash
+   cd backend
+   python main.py
+   ```
+
+   The API will be available at `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`
+
+#### Using pip (Alternative)
+
+If you prefer not to use conda:
+
+1. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Activate the environment**:
+   - **Windows**: `venv\Scripts\activate`
+   - **Mac/Linux**: `source venv/bin/activate`
+
+3. **Install dependencies**:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+
+4. **Run the backend server**:
+   ```bash
+   python main.py
+   ```
 
 ## Customization settings
 

@@ -1,0 +1,12 @@
+name: twitch-task-overlay
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - fastapi==0.104.1
+    - uvicorn==0.24.0
+    - pydantic==2.5.0
+    - python-multipart==0.0.6
