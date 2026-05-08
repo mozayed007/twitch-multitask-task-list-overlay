@@ -35,9 +35,17 @@ export default class Task {
 			throw new Error(`Task description must be of type string`);
 		}
 		description = description.trim();
-		if (description.length === 0) {
-			throw new Error("Task description invalid");
+
+		// Length validation
+		if (description.length < 1 || description.length > 500) {
+			throw new Error("Task description must be between 1 and 500 characters");
 		}
+
+		// Forbidden characters check (XSS prevention)
+		if (/[<>"'&]/.test(description)) {
+			throw new Error("Task description contains invalid characters");
+		}
+
 		return description;
 	}
 

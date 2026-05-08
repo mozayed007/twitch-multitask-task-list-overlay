@@ -111,3 +111,40 @@
 	text-decoration-line: var(--task-done-text-decoration, none);
 	font-style: var(--task-done-font-style, italic);
 }
+
+/* Scroll Animation Keyframes */
+@keyframes scrollUp {
+	0% {
+		transform: translateY(0);
+	}
+	100% {
+		transform: translateY(calc(var(--scroll-height) * -1));
+	}
+}
+
+/* Scroll Animation Classes */
+.backlog-list-primary.scrolling,
+.backlog-list-secondary.scrolling,
+.info-list-primary.scrolling,
+.info-list-secondary.scrolling {
+	animation: scrollUp var(--scroll-duration) linear infinite;
+	will-change: transform;
+}
+
+/* Pause animation when page is hidden */
+@media (prefers-reduced-motion: reduce) {
+	.backlog-list-primary.scrolling,
+	.backlog-list-secondary.scrolling,
+	.info-list-primary.scrolling,
+	.info-list-secondary.scrolling {
+		animation-play-state: paused;
+	}
+}
+
+/* Pause animation when tab is not visible */
+document.hidden .backlog-list-primary.scrolling,
+document.hidden .backlog-list-secondary.scrolling,
+document.hidden .info-list-primary.scrolling,
+document.hidden .info-list-secondary.scrolling {
+	animation-play-state: paused;
+}

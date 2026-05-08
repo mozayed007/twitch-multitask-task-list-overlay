@@ -38,9 +38,22 @@ export default class User {
 			throw new Error("Username must be of type string");
 		}
 		username = username.trim();
-		if (username.length === 0) {
-			throw new Error("Username invalid");
+
+		// Length validation
+		if (username.length < 3 || username.length > 25) {
+			throw new Error("Username must be between 3 and 25 characters");
 		}
+
+		// Character validation - allow alphanumeric, underscores, hyphens
+		if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+			throw new Error("Username can only contain letters, numbers, underscores, and hyphens");
+		}
+
+		// Forbidden characters check (XSS prevention)
+		if (/[<>"'&]/.test(username)) {
+			throw new Error("Username contains invalid characters");
+		}
+
 		return username;
 	}
 

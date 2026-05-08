@@ -7,6 +7,7 @@ import CircularTimer from "./classes/CircularTimer.js";
 import BacklogPanel from "./classes/BacklogPanel.js";
 import LayoutManager from "./classes/LayoutManager.js";
 import GoalPanel from "./classes/GoalPanel.js";
+import { runMigrations } from "./utils/storageMigration.js";
 
 const {
 	twitch_channel, twitch_oauth, twitch_username
@@ -37,6 +38,9 @@ const panelHandleSelectors = {
 };
 
 window.addEventListener("load", () => {
+	// Run storage migrations first
+	runMigrations();
+
 	let storeName = "userList";
 	if (_settings.testMode) {
 		console.log("Test mode enabled");
@@ -63,6 +67,9 @@ window.addEventListener("load", () => {
 
 	// Setup keyboard shortcuts
 	setupKeyboardShortcuts();
+
+	// Setup page visibility API for pausing animations
+	setupPageVisibility();
 
 	// Handle chat commands
 	client.on("command", (data) => {
@@ -843,6 +850,30 @@ function showLayoutSelector() {
 	if (header) {
 		makeDraggable(selector, header);
 	}
+}
+
+/**
+ * Setup Page Visibility API to pause animations when tab is hidden
+ */
+function setupPageVisibility() {
+	document.addEventListener('visibilitychange', () => {
+		const scrollingElements = document.querySelectorAll(
+			'.backlog-list-primary.scrolling, .backlog-list-secondary.scrolling, ' +
+			'.info-list-primary.scrolling, .info-list-secondary.scrolling'
+		);
+
+		if (document.hidden) {
+			// Pause all scroll animations when tab is hidden
+			scrollingElements.forEach(el => {
+				el.style.animationPlayState = 'paused';
+			});
+		} else {
+			// Resume animations when tab is visible
+			scrollingElements.forEach(el => {
+				el.style.animationPlayState = 'running';
+			});
+		}
+	});
 }
 
 // Export for debugging

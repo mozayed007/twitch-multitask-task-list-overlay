@@ -13,6 +13,17 @@ export default class InfoPanel {
 	#scrollSpeed = 15;
 
 	/**
+	 * Escape HTML to prevent XSS attacks
+	 * @param {string} text - Text to escape
+	 * @returns {string} Escaped text
+	 */
+	#escapeHtml(text) {
+		const div = document.createElement('div');
+		div.textContent = text;
+		return div.innerHTML;
+	}
+
+	/**
 	 * @constructor
 	 * @param {string} containerId - ID of the container element
 	 */
@@ -67,23 +78,28 @@ export default class InfoPanel {
 	 * @returns {boolean} Success status
 	 */
 	setViewerInfo(username, field, value) {
-		if (!this.#viewerData.has(username)) {
+		// Escape all user input to prevent XSS attacks
+		const safeUsername = this.#escapeHtml(username);
+		const safeField = this.#escapeHtml(field);
+		const safeValue = this.#escapeHtml(value);
+
+		if (!this.#viewerData.has(safeUsername)) {
 			if (this.#viewerData.size >= this.#maxViewers) {
 				// Remove oldest inactive viewer
 				this.#removeOldestInactive();
 			}
-			this.#viewerData.set(username, {
-				username,
+			this.#viewerData.set(safeUsername, {
+				username: safeUsername,
 				info: {},
 				lastActive: Date.now(),
 				taskCount: 0
 			});
 		}
 
-		const viewer = this.#viewerData.get(username);
-		viewer.info[field] = value;
+		const viewer = this.#viewerData.get(safeUsername);
+		viewer.info[safeField] = safeValue;
 		viewer.lastActive = Date.now();
-		
+
 		this.#saveToStorage();
 		this.render();
 		return true;
@@ -104,19 +120,22 @@ export default class InfoPanel {
 	 * @param {number} taskCount - Current task count
 	 */
 	updateViewerActivity(username, taskCount = 0) {
-		if (!this.#viewerData.has(username)) {
-			this.#viewerData.set(username, {
-				username,
+		// Escape username to prevent XSS attacks
+		const safeUsername = this.#escapeHtml(username);
+
+		if (!this.#viewerData.has(safeUsername)) {
+			this.#viewerData.set(safeUsername, {
+				username: safeUsername,
 				info: {},
 				lastActive: Date.now(),
 				taskCount
 			});
 		} else {
-			const viewer = this.#viewerData.get(username);
+			const viewer = this.#viewerData.get(safeUsername);
 			viewer.lastActive = Date.now();
 			viewer.taskCount = taskCount;
 		}
-		
+
 		this.#saveToStorage();
 		this.render();
 	}
@@ -264,7 +283,7 @@ export default class InfoPanel {
 	 */
 	#formatTimeAgo(timestamp) {
 		const seconds = Math.floor((Date.now() - timestamp) / 1000);
-		
+
 		if (seconds < 60) return 'just now';
 		if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
 		if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -272,25 +291,42 @@ export default class InfoPanel {
 	}
 
 	/**
-	 * Escape HTML to prevent XSS
-	 * @param {string} text - Text to escape
-	 * @returns {string} Escaped text
-	 */
-	#escapeHtml(text) {
-		const div = document.createElement('div');
-		div.textContent = text;
-		return div.innerHTML;
-	}
-
-	/**
-	 * Save viewer data to localStorage
+	 * Save viewer data to localStorage with quota handling
 	 */
 	#saveToStorage() {
 		try {
 			const data = Array.from(this.#viewerData.entries());
 			localStorage.setItem(this.#storageKey, JSON.stringify(data));
 		} catch (error) {
-			console.error('Failed to save viewer data:', error);
+			if (error.name === 'QuotaExceededError') {
+				console.warn('Storage quota exceeded, attempting cleanup...');
+				// Try to remove oldest inactive viewers first
+				this.#removeOldestInactive();
+				try {
+					const data = Array.from(this.#viewerData.entries());
+					localStorage.setItem(this.#storageKey, JSON.stringify(data));
+					return;
+				} catch (retryError) {
+					console.error('Still unable to save after cleanup:', retryError);
+				}
+				// If still failing, remove more viewers
+				if (this.#viewerData.size > 50) {
+					const viewers = this.getAllViewers();
+					const toRemove = viewers.slice(0, 25);
+					toRemove.forEach(v => this.#viewerData.delete(v.username));
+					console.warn(`Removed ${toRemove.length} viewers, retrying save...`);
+					try {
+						const data = Array.from(this.#viewerData.entries());
+						localStorage.setItem(this.#storageKey, JSON.stringify(data));
+						return;
+					} catch (retryError) {
+						console.error('Unable to save even after removing viewers:', retryError);
+					}
+				}
+				console.error('Failed to save viewer data: storage quota exceeded and cleanup failed');
+			} else {
+				console.error('Failed to save viewer data:', error);
+			}
 		}
 	}
 
@@ -331,37 +367,32 @@ export default class InfoPanel {
 	}
 
 	/**
-	 * Start infinite scroll animation
+	 * Start infinite scroll animation using CSS
 	 * @param {number} contentHeight - Height of content to scroll
 	 */
 	#startScrollAnimation(contentHeight) {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-secondary'));
-		
+
 		if (!primaryList || !secondaryList) return;
-		
+
 		// Calculate duration based on content height and speed
 		const gapSize = 12; // var(--spacing-sm) in pixels
 		const adjustedHeight = contentHeight + gapSize;
 		const duration = (adjustedHeight / this.#scrollSpeed) * 1000;
-		
-		const keyframes = [
-			{ transform: 'translateY(0)' },
-			{ transform: `translateY(-${adjustedHeight}px)` }
-		];
-		
-		const options = {
-			duration: duration,
-			iterations: Infinity,
-			easing: 'linear'
-		};
-		
-		// Apply animation to both containers
-		primaryList.animate(keyframes, options);
-		secondaryList.animate(keyframes, options);
-		
+
+		// Set CSS custom properties for animation
+		primaryList.style.setProperty('--scroll-height', `${adjustedHeight}px`);
+		primaryList.style.setProperty('--scroll-duration', `${duration}ms`);
+		secondaryList.style.setProperty('--scroll-height', `${adjustedHeight}px`);
+		secondaryList.style.setProperty('--scroll-duration', `${duration}ms`);
+
+		// Add scrolling class to trigger CSS animation
+		primaryList.classList.add('scrolling');
+		secondaryList.classList.add('scrolling');
+
 		this.#isScrolling = true;
-		
+
 		// Add scrolling class to disable hover effects
 		const content = this.#containerEl.querySelector('.info-content');
 		if (content) {
@@ -375,16 +406,21 @@ export default class InfoPanel {
 	#stopScrollAnimation() {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.info-list-secondary'));
-		
+
+		// Remove scrolling class to stop CSS animation
 		if (primaryList) {
-			primaryList.getAnimations().forEach(anim => anim.cancel());
+			primaryList.classList.remove('scrolling');
+			primaryList.style.removeProperty('--scroll-height');
+			primaryList.style.removeProperty('--scroll-duration');
 		}
 		if (secondaryList) {
-			secondaryList.getAnimations().forEach(anim => anim.cancel());
+			secondaryList.classList.remove('scrolling');
+			secondaryList.style.removeProperty('--scroll-height');
+			secondaryList.style.removeProperty('--scroll-duration');
 		}
-		
+
 		this.#isScrolling = false;
-		
+
 		// Remove scrolling class
 		const content = this.#containerEl.querySelector('.info-content');
 		if (content) {

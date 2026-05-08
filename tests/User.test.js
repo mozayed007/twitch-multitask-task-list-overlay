@@ -16,7 +16,7 @@ describe("User", () => {
 		});
 
 		test("should throw an error if the username is invalid", () => {
-			expect(() => user.validateUsername("")).toThrow("Username invalid");
+			expect(() => user.validateUsername("")).toThrow("Username must be between 3 and 25 characters");
 		});
 
 		test("should throw an Error if username is not a string", () => {

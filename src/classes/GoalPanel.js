@@ -102,7 +102,22 @@ export default class GoalPanel {
 	}
 
 	#saveState() {
-		localStorage.setItem(this.#stateKey, JSON.stringify(this.#goalData));
+		try {
+			localStorage.setItem(this.#stateKey, JSON.stringify(this.#goalData));
+		} catch (error) {
+			if (error.name === 'QuotaExceededError') {
+				console.warn('Storage quota exceeded, clearing goal state');
+				// Goal data is small, just clear it
+				this.#goalData = {
+					title: 'Stream Goal',
+					current: 0,
+					target: 100,
+					active: false
+				};
+			} else {
+				console.error('Failed to save goal state:', error);
+			}
+		}
 	}
 
 	#loadState() {

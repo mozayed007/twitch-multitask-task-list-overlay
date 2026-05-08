@@ -453,59 +453,129 @@ export default class App {
 	}
 
 	/**
-	 * Add the task to the DOM
+	 * Add the task to the DOM with targeted update
 	 * @param {User} user
 	 * @param {{description: string, id: string}} task
 	 * @returns {void}
 	 */
 	addTaskToDOM(user, task) {
-		this.renderTaskList();
+		// Targeted DOM update - only add the new task
+		const cardEl = document.querySelector(`.card[data-user="${user.username}"]`);
+		if (!cardEl) {
+			// Card doesn't exist, do full render
+			this.renderTaskList();
+			return;
+		}
+
+		const list = cardEl.querySelector("ol");
+		const listItem = document.createElement("li");
+		listItem.classList.add("task");
+		listItem.dataset.taskId = `${task.id}`;
+		listItem.innerText = task.description;
+		list.appendChild(listItem);
+
+		// Update task count
+		this.renderTaskCount();
+		animateScroll();
 	}
 
 	/**
-	 * Edit the task description in the DOM
+	 * Edit the task description in the DOM with targeted update
 	 * @param {{description: string, id: string}} task
 	 * @returns {void}
 	 */
 	editTaskFromDOM(task) {
-		this.renderTaskList();
+		// Targeted DOM update - only update the specific task
+		const taskEl = document.querySelector(`.task[data-task-id="${task.id}"]`);
+		if (taskEl) {
+			taskEl.innerText = task.description;
+		} else {
+			// Task not found, do full render
+			this.renderTaskList();
+		}
 	}
 
 	/**
-	 * Complete the task in the DOM
+	 * Complete the task in the DOM with targeted update
 	 * @param {string} taskId
 	 * @returns {void}
 	 */
 	completeTaskFromDOM(taskId) {
-		this.renderTaskList();
+		// Targeted DOM update - only update the specific task
+		const taskEl = document.querySelector(`.task[data-task-id="${taskId}"]`);
+		if (taskEl) {
+			taskEl.classList.add("done");
+			this.renderTaskCount();
+		} else {
+			// Task not found, do full render
+			this.renderTaskList();
+		}
 	}
 
 	/**
-	 * Mark task as focused in the DOM.
+	 * Mark task as focused in the DOM with targeted update
 	 * @param {string} username
 	 * @param {string} taskId
 	 * @returns {void}
 	 */
 	focusTaskFromDOM(username, taskId) {
-		this.renderTaskList();
+		// Targeted DOM update - only update focus status
+		const cardEl = document.querySelector(`.card[data-user="${username}"]`);
+		if (!cardEl) {
+			this.renderTaskList();
+			return;
+		}
+
+		// Remove focus from all tasks in the user's card
+		cardEl.querySelectorAll(".task").forEach(task => {
+			task.classList.remove("focus");
+		});
+
+		// Add focus to the specific task
+		const taskEl = cardEl.querySelector(`.task[data-task-id="${taskId}"]`);
+		if (taskEl) {
+			taskEl.classList.add("focus");
+		}
 	}
 
 	/**
-	 * Delete the task in the DOM
+	 * Delete the task in the DOM with targeted update
 	 * @param {string} taskId
 	 * @returns {void}
 	 */
 	deleteTaskFromDOM(taskId) {
-		this.renderTaskList();
+		// Targeted DOM update - only remove the specific task
+		const taskEl = document.querySelector(`.task[data-task-id="${taskId}"]`);
+		if (taskEl) {
+			taskEl.remove();
+			this.renderTaskCount();
+
+			// Check if user's card is now empty
+			const cardEl = taskEl.closest(".card");
+			if (cardEl && cardEl.querySelector("ol").children.length === 0) {
+				cardEl.remove();
+			}
+		} else {
+			// Task not found, do full render
+			this.renderTaskList();
+		}
 	}
 
 	/**
-	 * Delete the user in the DOM
+	 * Delete the user in the DOM with targeted update
 	 * @param {User} user
 	 * @returns {void}
 	 */
 	deleteUserFromDOM(user) {
-		this.renderTaskList();
+		// Targeted DOM update - only remove the specific user's card
+		const cardEl = document.querySelector(`.card[data-user="${user.username}"]`);
+		if (cardEl) {
+			cardEl.remove();
+			this.renderTaskCount();
+		} else {
+			// User not found, do full render
+			this.renderTaskList();
+		}
 	}
 }
 

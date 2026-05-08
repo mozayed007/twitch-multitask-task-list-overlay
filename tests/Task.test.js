@@ -26,7 +26,7 @@ describe("Task", () => {
 
 		it("should throw an error if the description is invalid", () => {
 			expect(() => task.validateDescription("")).toThrow(
-				"Task description invalid"
+				"Task description must be between 1 and 500 characters"
 			);
 		});
 

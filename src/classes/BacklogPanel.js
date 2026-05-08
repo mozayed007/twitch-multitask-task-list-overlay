@@ -14,6 +14,17 @@ export default class BacklogPanel {
 	#scrollSpeed = 15;
 
 	/**
+	 * Escape HTML to prevent XSS attacks
+	 * @param {string} text - Text to escape
+	 * @returns {string} Escaped text
+	 */
+	#escapeHtml(text) {
+		const div = document.createElement('div');
+		div.textContent = text;
+		return div.innerHTML;
+	}
+
+	/**
 	 * @constructor
 	 * @param {string} containerId - ID of the container element
 	 */
@@ -42,34 +53,34 @@ export default class BacklogPanel {
 	 */
 	#initializePanel() {
 		this.#containerEl.innerHTML = `
-			<div class="backlog-panel">
+			<div class="backlog-panel" role="region" aria-label="Task backlog panel">
 				<div class="backlog-header">
 					<div class="backlog-header-top">
 						<h3 class="backlog-title">
-							<span class="backlog-icon">📋</span>
+							<span class="backlog-icon" aria-hidden="true">📋</span>
 							Task Backlog
 						</h3>
 						<div class="backlog-controls">
-							<span class="backlog-count">0 tasks</span>
-							<button class="backlog-btn backlog-clear-btn" title="Clear completed">
-								<span>🗑️</span>
+							<span class="backlog-count" aria-live="polite" aria-label="Number of tasks">0 tasks</span>
+							<button class="backlog-btn backlog-clear-btn" title="Clear completed" aria-label="Clear completed tasks">
+								<span aria-hidden="true">🗑️</span>
 							</button>
 						</div>
 					</div>
-					<div class="backlog-commands-hint">
+					<div class="backlog-commands-hint" aria-live="polite">
 						<span class="backlog-cmd-label">COMMANDS:</span>
-						<span class="backlog-cmd-typewriter"></span>
+						<span class="backlog-cmd-typewriter" aria-label="Available commands"></span>
 					</div>
 				</div>
 				<div class="backlog-content-wrapper">
 					<div class="backlog-content">
 						<!-- Streamer Tasks Section -->
-						<div class="streamer-tasks-container"></div>
-						
-						<div class="backlog-list-header">Viewer Backlog</div>
-						<div class="backlog-list backlog-list-primary"></div>
-						<div class="backlog-list backlog-list-secondary"></div>
-						<div class="backlog-empty">
+						<div class="streamer-tasks-container" role="list" aria-label="Streamer tasks"></div>
+
+						<div class="backlog-list-header" role="heading" aria-level="4">Viewer Backlog</div>
+						<div class="backlog-list backlog-list-primary" role="list" aria-label="Viewer backlog items"></div>
+						<div class="backlog-list backlog-list-secondary" role="list" aria-hidden="true"></div>
+						<div class="backlog-empty" role="status" aria-live="polite">
 							<p>No tasks in backlog</p>
 							<p class="backlog-hint">Use !backlog add [task] to add tasks</p>
 						</div>
@@ -160,10 +171,11 @@ export default class BacklogPanel {
 			return null;
 		}
 
+		// Escape all user input to prevent XSS attacks
 		const item = {
 			id: Date.now().toString(),
-			description,
-			creator,
+			description: this.#escapeHtml(description),
+			creator: this.#escapeHtml(creator),
 			priority: Math.max(1, Math.min(5, priority)),
 			completed: false,
 			createdAt: new Date().toISOString()
@@ -445,7 +457,7 @@ export default class BacklogPanel {
 	}
 
 	/**
-	 * Start infinite scroll animation
+	 * Start infinite scroll animation using CSS
 	 * @param {number} contentHeight - Height of content to scroll
 	 */
 	#startScrollAnimation(contentHeight) {
@@ -459,20 +471,15 @@ export default class BacklogPanel {
 		const adjustedHeight = contentHeight + gapSize;
 		const duration = (adjustedHeight / this.#scrollSpeed) * 1000;
 
-		const keyframes = [
-			{ transform: 'translateY(0)' },
-			{ transform: `translateY(-${adjustedHeight}px)` }
-		];
+		// Set CSS custom properties for animation
+		primaryList.style.setProperty('--scroll-height', `${adjustedHeight}px`);
+		primaryList.style.setProperty('--scroll-duration', `${duration}ms`);
+		secondaryList.style.setProperty('--scroll-height', `${adjustedHeight}px`);
+		secondaryList.style.setProperty('--scroll-duration', `${duration}ms`);
 
-		const options = {
-			duration: duration,
-			iterations: Infinity,
-			easing: 'linear'
-		};
-
-		// Apply animation to both containers
-		primaryList.animate(keyframes, options);
-		secondaryList.animate(keyframes, options);
+		// Add scrolling class to trigger CSS animation
+		primaryList.classList.add('scrolling');
+		secondaryList.classList.add('scrolling');
 
 		this.#isScrolling = true;
 
@@ -490,11 +497,16 @@ export default class BacklogPanel {
 		const primaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-primary'));
 		const secondaryList = /** @type {HTMLElement} */ (this.#containerEl.querySelector('.backlog-list-secondary'));
 
+		// Remove scrolling class to stop CSS animation
 		if (primaryList) {
-			primaryList.getAnimations().forEach(anim => anim.cancel());
+			primaryList.classList.remove('scrolling');
+			primaryList.style.removeProperty('--scroll-height');
+			primaryList.style.removeProperty('--scroll-duration');
 		}
 		if (secondaryList) {
-			secondaryList.getAnimations().forEach(anim => anim.cancel());
+			secondaryList.classList.remove('scrolling');
+			secondaryList.style.removeProperty('--scroll-height');
+			secondaryList.style.removeProperty('--scroll-duration');
 		}
 
 		this.#isScrolling = false;
@@ -515,43 +527,63 @@ export default class BacklogPanel {
 	#renderItem(item, index) {
 		const checkIcon = item.completed ? '✅' : '⬜';
 		const creatorName = item.creator || 'Unknown';
+		const statusText = item.completed ? 'completed' : 'not completed';
 
 		return `
-			<div class="backlog-item ${item.completed ? 'completed' : ''}" data-id="${item.id}">
+			<div class="backlog-item ${item.completed ? 'completed' : ''}" data-id="${item.id}" role="listitem" aria-label="Task ${index}: ${item.description}, created by ${creatorName}, ${statusText}">
 				<div class="backlog-item-header">
-					<span class="backlog-item-index">${index}.</span>
-					<span class="backlog-item-creator" title="Created by ${creatorName}">@${this.#escapeHtml(creatorName)}</span>
+					<span class="backlog-item-index" aria-hidden="true">${index}.</span>
+					<span class="backlog-item-creator" title="Created by ${creatorName}">@${creatorName}</span>
 				</div>
 				<div class="backlog-item-body">
-					<button class="backlog-item-check" title="${item.completed ? 'Mark incomplete' : 'Mark complete'}">
-						${checkIcon}
+					<button class="backlog-item-check" title="${item.completed ? 'Mark incomplete' : 'Mark complete'}" aria-label="${item.completed ? 'Mark task as incomplete' : 'Mark task as complete'}">
+						<span aria-hidden="true">${checkIcon}</span>
 					</button>
-					<span class="backlog-item-text">${this.#escapeHtml(item.description)}</span>
+					<span class="backlog-item-text">${item.description}</span>
 				</div>
-				<button class="backlog-item-delete" title="Delete">🗑️</button>
+				<button class="backlog-item-delete" title="Delete" aria-label="Delete task ${index}" aria-describedby="task-${item.id}">
+					<span aria-hidden="true">🗑️</span>
+				</button>
 			</div>
 		`;
 	}
 
 	/**
-	 * Escape HTML to prevent XSS
-	 * @param {string} text - Text to escape
-	 * @returns {string} Escaped text
-	 */
-	#escapeHtml(text) {
-		const div = document.createElement('div');
-		div.textContent = text;
-		return div.innerHTML;
-	}
-
-	/**
-	 * Save backlog to localStorage
+	 * Save backlog to localStorage with quota handling
 	 */
 	#saveToStorage() {
 		try {
 			localStorage.setItem(this.#storageKey, JSON.stringify(this.#backlogItems));
 		} catch (error) {
-			console.error('Failed to save backlog:', error);
+			if (error.name === 'QuotaExceededError') {
+				console.warn('Storage quota exceeded, attempting cleanup...');
+				// Try to clear completed items first
+				const clearedCount = this.clearCompleted();
+				if (clearedCount > 0) {
+					console.warn(`Cleared ${clearedCount} completed items, retrying save...`);
+					try {
+						localStorage.setItem(this.#storageKey, JSON.stringify(this.#backlogItems));
+						return;
+					} catch (retryError) {
+						console.error('Still unable to save after cleanup:', retryError);
+					}
+				}
+				// If still failing, remove oldest items
+				if (this.#backlogItems.length > 10) {
+					const removedCount = Math.floor(this.#backlogItems.length / 4);
+					this.#backlogItems.splice(0, removedCount);
+					console.warn(`Removed ${removedCount} oldest items, retrying save...`);
+					try {
+						localStorage.setItem(this.#storageKey, JSON.stringify(this.#backlogItems));
+						return;
+					} catch (retryError) {
+						console.error('Unable to save even after removing old items:', retryError);
+					}
+				}
+				console.error('Failed to save backlog: storage quota exceeded and cleanup failed');
+			} else {
+				console.error('Failed to save backlog:', error);
+			}
 		}
 	}
 

@@ -69,11 +69,43 @@ export default class UserList {
 	}
 
 	/**
-	 * Commit userList changes to local storage
+	 * Commit userList changes to local storage with quota handling
 	 * @returns {void}
 	 */
 	#commitToLocalStorage() {
-		localStorage.setItem(this.#localStoreName, JSON.stringify(this.users));
+		try {
+			localStorage.setItem(this.#localStoreName, JSON.stringify(this.users));
+		} catch (error) {
+			if (error.name === 'QuotaExceededError') {
+				console.warn('Storage quota exceeded, attempting cleanup...');
+				// Try to clear completed tasks first
+				const clearedTasks = this.clearDoneTasks();
+				if (clearedTasks.length > 0) {
+					console.warn(`Cleared ${clearedTasks.length} completed tasks, retrying save...`);
+					try {
+						localStorage.setItem(this.#localStoreName, JSON.stringify(this.users));
+						return;
+					} catch (retryError) {
+						console.error('Still unable to save after cleanup:', retryError);
+					}
+				}
+				// If still failing, remove users with no tasks
+				const usersWithTasks = this.users.filter(u => u.getTasks().length > 0);
+				if (usersWithTasks.length < this.users.length) {
+					console.warn(`Removed ${this.users.length - usersWithTasks.length} users with no tasks`);
+					this.users = usersWithTasks;
+					try {
+						localStorage.setItem(this.#localStoreName, JSON.stringify(this.users));
+						return;
+					} catch (retryError) {
+						console.error('Unable to save even after cleanup:', retryError);
+					}
+				}
+				console.error('Failed to save user list: storage quota exceeded and cleanup failed');
+			} else {
+				console.error('Failed to commit to localStorage:', error);
+			}
+		}
 	}
 
 	/**

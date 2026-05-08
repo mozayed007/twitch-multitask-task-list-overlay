@@ -38,6 +38,7 @@ export default class CircularTimer {
 			return;
 		}
 		this.#initializeTimer();
+		this.restoreState();
 	}
 
 	/**
@@ -45,11 +46,11 @@ export default class CircularTimer {
 	 */
 	#initializeTimer() {
 		this.#timerEl.innerHTML = `
-			<div class="circular-timer">
-				<div class="timer-orbit-ring">
+			<div class="circular-timer" role="timer" aria-live="polite" aria-label="Pomodoro timer">
+				<div class="timer-orbit-ring" aria-hidden="true">
 					<div class="timer-orbit-planet"></div>
 				</div>
-				<svg class="timer-svg" viewBox="0 0 200 200">
+				<svg class="timer-svg" viewBox="0 0 200 200" aria-hidden="true">
 					<!-- Background circle -->
 					<circle
 						class="timer-bg-circle"
@@ -74,12 +75,12 @@ export default class CircularTimer {
 					/>
 				</svg>
 				<div class="timer-content">
-					<div class="timer-icon">
+					<div class="timer-icon" aria-hidden="true">
 						<i class="icon-work">📚</i>
 					</div>
-					<div class="timer-time">00:00</div>
-					<div class="timer-label">Ready</div>
-					<div class="timer-pomo-count">
+					<div class="timer-time" aria-live="polite" aria-label="Time remaining">00:00</div>
+					<div class="timer-label" aria-live="polite">Ready</div>
+					<div class="timer-pomo-count" aria-live="polite" aria-label="Pomodoro session count">
 						<span class="pomo-text">Pomo</span>
 						<span class="pomo-number">0 / 4</span>
 					</div>
@@ -120,6 +121,7 @@ export default class CircularTimer {
 
 	/**
 	 * Start a single session (focus or break)
+	 * @private
 	 */
 	#startSession() {
 		if (this.#currentSession >= this.#totalSessions) {
@@ -146,7 +148,8 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Start a break session
+	 * Start a break session (short or long break)
+	 * @private
 	 */
 	#startBreak() {
 		// Stop any existing interval first
@@ -253,7 +256,9 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Timer tick handler
+	 * Timer tick handler - called every second
+	 * Decrements timer and updates UI
+	 * @private
 	 */
 	#tick() {
 		if (this.#currentSeconds <= 0) {
@@ -275,7 +280,8 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Update time display
+	 * Update time display with current minutes and seconds
+	 * @private
 	 */
 	#updateDisplay() {
 		const minutes = Math.floor(this.#currentSeconds / 60)
@@ -286,8 +292,9 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Update progress ring
+	 * Update progress ring SVG based on percentage
 	 * @param {number} percent - Progress percentage (0-100)
+	 * @private
 	 */
 	#updateProgressRing(percent) {
 		const circumference = 2 * Math.PI * 85; // radius = 85
@@ -307,7 +314,9 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Update UI based on timer mode
+	 * Update UI based on timer mode (focus/break/longbreak)
+	 * Updates labels, icons, and CSS classes
+	 * @private
 	 */
 	#updateModeUI() {
 		const modeConfig = {
@@ -328,6 +337,8 @@ export default class CircularTimer {
 
 	/**
 	 * Handle timer completion
+	 * Triggers completion animation and transitions to next phase
+	 * @private
 	 */
 	#handleComplete() {
 		this.#timerEl.classList.remove('timer-pulse');
@@ -353,7 +364,9 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Handle full cycle completion
+	 * Handle full Pomodoro cycle completion
+	 * Resets timer and shows completion message
+	 * @private
 	 */
 	#handleCycleComplete() {
 		this.reset();
@@ -395,13 +408,19 @@ export default class CircularTimer {
 	}
 
 	/**
-	 * Save state to localStorage
+	 * Save state to localStorage with quota handling
 	 */
 	#saveState() {
 		try {
 			localStorage.setItem(this.#stateKey, JSON.stringify(this.getState()));
 		} catch (error) {
-			console.warn('Failed to save timer state:', error);
+			if (error.name === 'QuotaExceededError') {
+				console.warn('Storage quota exceeded, clearing timer state');
+				// Timer state is not critical, just clear it
+				this.#clearState();
+			} else {
+				console.warn('Failed to save timer state:', error);
+			}
 		}
 	}
 
