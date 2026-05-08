@@ -49,6 +49,23 @@ describe("App.chatHandler", () => {
 				ADDITIONAL: "credit",
 			},
 		};
+		const broadcasterUser = {
+			username: "streamerUser",
+			flags: {
+				broadcaster: true,
+				mod: false,
+			},
+			extra: { userColor: "#FF00FF" },
+			command: {
+				ADDTASK: "task",
+				EDITTASK: "edit",
+				DONETASK: "done",
+				DELETETASK: "delete",
+				CHECKTASK: "check",
+				HELP: "help",
+				ADDITIONAL: "credit",
+			},
+		};
 		const botResponsePrefix = "🤖💬 ";
 
 		beforeEach(() => {
@@ -59,6 +76,9 @@ describe("App.chatHandler", () => {
 
 			userList.createUser(adminUser.username, { userColor: "#FF0000" });
 			userList.addUserTasks(adminUser.username, ["task1", "task2"]);
+
+			userList.createUser(broadcasterUser.username, { userColor: "#FF00FF" });
+			userList.addUserTasks(broadcasterUser.username, ["task1", "task2", "task3"]);
 		});
 
 		describe("Admin commands", () => {
@@ -100,7 +120,7 @@ describe("App.chatHandler", () => {
 						chatUser.flags,
 						chatUser.extra
 					);
-					expect(userList.users.length).toBe(2);
+					expect(userList.users.length).toBe(3);
 					expect(response.message).toBe(
 						botResponsePrefix + "Invalid command: command not found. Try !help"
 					);
@@ -130,7 +150,7 @@ describe("App.chatHandler", () => {
 					adminUser.flags,
 					adminUser.extra
 				);
-				expect(userList.users.length).toBe(1);
+				expect(userList.users.length).toBe(2);
 				expect(response.message).toBe(
 					botResponsePrefix + "All tasks for joeTheUser have been cleared"
 				);
@@ -171,10 +191,10 @@ describe("App.chatHandler", () => {
 				test("should create a new user if the user does not exist and add their task", () => {
 					const response = app.chatHandler(
 						"newUser22",
-						chatUser.command.ADDTASK,
+						broadcasterUser.command.ADDTASK,
 						"newTask",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 
 					expect(response.error).toBe(false);
@@ -185,11 +205,11 @@ describe("App.chatHandler", () => {
 
 				test("should return a success message showing the added tasks", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.ADDTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.ADDTASK,
 						"newTask",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(false);
 					expect(response.message).toBe(
@@ -199,11 +219,11 @@ describe("App.chatHandler", () => {
 
 				test("should accept multiple, comma separated, tasks", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.ADDTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.ADDTASK,
 						"newTask, newTask2",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(false);
 					expect(response.message).toBe(
@@ -213,11 +233,11 @@ describe("App.chatHandler", () => {
 
 				test("should letting the user know they reached max task limit", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.ADDTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.ADDTASK,
 						"newTask4, newTask5, newTask6, newTask7, newTask8, newTask9, newTask10, newTask11",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(false);
 					expect(response.message).toBe(
@@ -227,11 +247,11 @@ describe("App.chatHandler", () => {
 
 				test("should error if the message is empty", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.ADDTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.ADDTASK,
 						"",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(true);
 					expect(response.message).toBe(
@@ -243,11 +263,11 @@ describe("App.chatHandler", () => {
 			describe("!edit command", () => {
 				test("should indicating the edited task number", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.EDITTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.EDITTASK,
 						"2 editedTask",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(false);
 					expect(response.message).toBe(
@@ -257,11 +277,11 @@ describe("App.chatHandler", () => {
 
 				test("should error if the message is empty", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.EDITTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.EDITTASK,
 						"",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(true);
 					expect(response.message).toBe(
@@ -271,11 +291,11 @@ describe("App.chatHandler", () => {
 
 				test("should error if the task number is missing", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.EDITTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.EDITTASK,
 						"edited Task",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
 					expect(response.error).toBe(true);
 					expect(response.message).toBe(
@@ -285,12 +305,13 @@ describe("App.chatHandler", () => {
 
 				test("should error if task description is missing", () => {
 					const response = app.chatHandler(
-						chatUser.username,
-						chatUser.command.EDITTASK,
+						broadcasterUser.username,
+						broadcasterUser.command.EDITTASK,
 						"2",
-						chatUser.flags,
-						chatUser.extra
+						broadcasterUser.flags,
+						broadcasterUser.extra
 					);
+					expect(response.error).toBe(true);
 					expect(response.message).toBe(
 						botResponsePrefix + 'Invalid command: Task number or description format is invalid. Try !help'
 					);
