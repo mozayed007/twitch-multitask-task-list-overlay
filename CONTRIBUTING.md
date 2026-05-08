@@ -40,20 +40,25 @@ If you want to contribute code, you can do so by following these 3 steps:
 
 1. **Make Your Changes**: Make the necessary changes in your fork's files.
 
-2. **Run the Tests**: Make sure all tests pass.
-
+2. **Install Dependencies** (if needed):
     ```bash
-    pnpm test  or  npm run test
+    npm install
     ```
 
-3. **Commit Your Changes**: Write clear and concise commit messages.
+3. **Run the Tests**: Make sure all tests pass.
+
+    ```bash
+    npm test
+    ```
+
+4. **Commit Your Changes**: Write clear and concise commit messages.
 
     ```bash
     git add .
     git commit -m "feat(translation): add Ukrainian translation for the app"
     ```
 
-4. **Push Your Changes**: Push your changes to Your fork on GitHub.
+5. **Push Your Changes**: Push your changes to Your fork on GitHub.
 
     ```bash
     git push origin feat/my-feature
@@ -103,11 +108,16 @@ The `<type>` and `<short summary>` fields are mandatory, the `(<scope>)` field i
 
 ## Code of Conduct
 
-Everyone is invited to participate in the community and related projects:
+Everyone is invited to participate in the community and related projects.
 I want to create a welcoming and friendly environment.
-Harassment of participants or other unethical and unprofessional behavior will not be tolerated in this spaces.
-Check out the [Contributor Covenant](CODE_OF_CONDUCT.md) for more in-depth information.
+Harassment of participants or other unethical and unprofessional behavior will not be tolerated in these spaces.
+
+**Our Community Guidelines:**
+- Be respectful and inclusive
+- Welcome newcomers and help them learn
+- Focus on constructive feedback
+- Assume good intentions
 
 ## Thank You
 
-Thank you - :) Jujoco! 🎉
+Thank you for your interest in contributing! 🎉

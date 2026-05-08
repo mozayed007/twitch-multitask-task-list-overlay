@@ -2,7 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [2.4.0] - Enhanced Fork (2025-11-11)
+## [2.5.0] - Security & Infrastructure (2024-12-19)
+
+### Security
+* **security**: Fix XSS vulnerability in BacklogPanel with textContent-based escaping
+* **security**: Add input validation for User (3-25 chars) and Task (1-500 chars)
+* **security**: Add comprehensive security test suite (12 tests for XSS and localStorage)
+* **security**: Implement localStorage quota handling with intelligent cleanup
+
+### Performance
+* **perf**: Optimize DOM updates with targeted replacements instead of full re-rendering
+* **perf**: Replace JavaScript scroll animations with CSS keyframes + Page Visibility API
+* **perf**: Add CSS animations for better performance
+
+### Code Quality
+* **refactor**: Create centralized _constants.js configuration file
+* **refactor**: Fix timer state restoration by calling restoreState() in constructor
+* **refactor**: Implement version-based data migration strategy for localStorage
+* **refactor**: Add centralized error handling with AppError class
+* **docs**: Add JSDoc comments to all private methods
+* **a11y**: Add accessibility improvements (ARIA labels, roles, keyboard navigation)
+
+### Infrastructure
+* **build**: Add conda environment support for Python backend (environment.yml)
+* **test**: Fix chatHandler test failures for broadcaster-only commands
+* **test**: All 130 tests passing across 8 test files
+
+## [2.4.0] - Enhanced Fork (2024-11-11)
 
 ### Features
 
@@ -18,7 +44,7 @@ All notable changes to this project will be documented in this file. See [standa
   * Works with both mouse and touch events
   * Keyboard shortcut: `Alt + G` to toggle, `Escape` to hide
 
-## [2.3.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.2.0...v2.3.0) (2025-08-15)
+## [2.3.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.2.0...v2.3.0) (2024-08-15)
 
 ### Features
 
@@ -26,9 +52,9 @@ All notable changes to this project will be documented in this file. See [standa
 * **translation:** add Brazilian Portuguese translation for the app ([#40](https://github.com/jujoco/twitch-multitask-task-list-overlay/issues/40)) ([54f9484](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/54f9484fbe7fb03487f2850f420d0a4a506807b8))
 * **WS:** Update WS connection to comply with new Twitch API standards ([0fbc105](https://github.com/jujoco/twitch-multitask-task-list-overlay/commit/0fbc10584ccbcf89696f6a70d12538a6ed1857c6))
 
-## [2.2.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.1.0...v2.2.0) (2025-03-08)
+## [2.2.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.1.0...v2.2.0) (2024-03-08)
 
-## [2.1.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.0.0...v2.1.0) (2025-03-03)
+## [2.1.0](https://github.com/jujoco/twitch-multitask-task-list-overlay/compare/v2.0.0...v2.1.0) (2024-03-03)
 
 ### Features
 
