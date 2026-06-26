@@ -49,6 +49,14 @@ coverage/
 # Authentication credentials
 _auth.js
 _auth.js.example
+*_auth.local.js
+auth.local.js
+token*.json
+*token*.local.json
+*secret*.json
+*.pem
+*.key
+*.cert
 
 # =============================================================================
 # Build Outputs
@@ -97,3 +105,8 @@ temp/
 *.tmp
 .cache/
 .worktrees/
+
+# =============================================================================
+# Deployment Metadata
+# =============================================================================
+.vercel/

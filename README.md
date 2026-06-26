@@ -1,583 +1,224 @@
-# Twitch Chatbot Multitask Task List Overlay
+# Twitch Multitask Overlay
 
-![Live overlay sample showing task list in action](./images/live-sample.png)
+A Twitch chat productivity overlay for streamers who run focused work, study, coding, planning, or community task sessions.
 
-![Customization options and theme examples](./images/customize-sample.png)
+The overlay gives the broadcaster a controlled main task list, a Pomodoro session timer, viewer backlogs, profile notes, themes, layouts, and draggable panels designed for OBS browser sources.
 
-> **📌 This is a fork** of the original project by [Jujoco](https://github.com/jujoco/twitch-multitask-task-list-overlay) with enhanced features including:
->
-> - 🎯 Advanced Pomodoro Timer with session tracking
-> - 📋 Personal backlog system for viewers
-> - 🎨 Theme & layout management system
-> - 🖱️ Draggable UI panels
-> - ⌨️ Keyboard shortcuts
-> - 👥 Viewer info profiles
->
-> **Original Repository:** [jujoco/twitch-multitask-task-list-overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay)
+## What It Does
 
-## ✨ Enhanced Features in This Fork
+- Runs as a local OBS browser overlay.
+- Connects to Twitch chat through `_auth.js`.
+- Lets the broadcaster manage the visible stream task list.
+- Lets viewers manage their own personal backlog.
+- Provides Pomodoro focus sessions with pause, resume, reset, and status commands.
+- Supports themes, preset layouts, draggable panels, and manual resizing.
+- Saves timer state, panel positions, viewer backlog, and profile data locally.
+- Includes an optional FastAPI backend for persistent storage and API-driven features.
+- Ships with tests for task handling, chat handling, validation, storage, and security behavior.
 
-### 🎯 Advanced Pomodoro Timer System
+## Current Feature Set
 
-Full-featured Pomodoro timer with session tracking, pause/resume, and state persistence.
+### Pomodoro Timer
 
-**Commands (Broadcaster/Moderator Only):**
+- `!pomo` and `!pomodoro` start a default 25/5 cycle.
+- Custom cycles support `!pomo 50/10` and `!pomo 25/5/6`.
+- Sessions can be paused, resumed, reset, stopped, and queried.
+- Timer state survives page refreshes.
+- Focus and break transitions are announced in chat.
 
-- `!pomo` or `!pomodoro` - Start default cycle (25min/5min × 4 sessions)
-- `!pomo 50/10` - Custom focus/break times
-- `!pomo 25/5/6` - Custom with session count (max 12)
-- `!pomopause` / `!pomoresume` - Pause and resume timer
-- `!pomostop` or `!stoptimer` - Stop timer completely
-- `!pomoreset` - Reset all session progress
-- `!pomostatus` - Get current timer status
+### Main Stream Task List
 
-**Features:**
+- The main task list is for the broadcaster workflow.
+- Broadcaster task commands include add, edit, done, delete, focus, check, and clear.
+- Viewer task management is routed to the backlog system instead of the main stream list.
 
-- ✅ Session tracking (Session 2/4)
-- ✅ Auto-progression through focus → break cycles
-- ✅ Long breaks every 4 sessions (15min default)
-- ✅ State persistence (survives page refresh)
-- ✅ Chat announcements for completions
+### Viewer Backlog
 
-### 📋 Personal Backlog System
+- Each viewer gets a personal backlog.
+- Viewers can add, complete, remove, and review their own backlog items.
+- Broadcasters and moderators can clear completed backlog items or clear all backlog data.
 
-Separate task backlog for **all viewers** - distinct from the broadcaster's main task list.
+### Viewer Info Profiles
 
-**Commands (Everyone):**
+- Viewers can save custom profile fields with `!setinfo`.
+- Viewers can read profile fields with `!getinfo`.
+- Useful fields include timezone, current goal, preferred language, and active project.
 
-- `!backlog add [task]` - Add item to your personal backlog
-- `!backlog done [number]` - Mark backlog item complete
-- `!backlog remove [number]` - Remove item from backlog
-- `!backlog clear` - Clear your own completed items
-- `!backlog clear all` (Broadcaster/Mod Only) - Wipes EVERY item in the backlog
+### Themes And Layouts
 
-**Features:**
+- Themes are loaded from `themes.json`.
+- Layout presets include `compact`, `split`, `fullOverlay`, `minimal`, `timerWithTasks`, and `dashboard`.
+- Panels can be dragged into custom positions.
+- `Alt + G` opens the grid and resize handles.
+- Panel positions and sizes persist per layout.
 
-- ✅ Per-user backlog storage
-- ✅ Independent from main task list
-- ✅ Personal task management for viewers
-- ✅ Full CRUD operations
+### Security, Quality, And Infrastructure
 
-### 🎨 Advanced Theme System (20 Premium Themes)
+Recent project work added:
 
-**Commands (Broadcaster/Moderator Only):**
+- XSS hardening for backlog rendering.
+- User and task input validation.
+- localStorage quota handling and cleanup.
+- Versioned localStorage migration.
+- Centralized constants and error handling.
+- Accessibility improvements.
+- CSS-based animation improvements.
+- Conda environment support for the Python backend.
+- A broader automated test suite.
 
-- `!theme` - List all available themes
-- `!theme [name]` - Switch to specific theme
+See [CHANGELOG.md](./CHANGELOG.md) for the detailed feature log.
 
-**Theme Categories:**
+## Quick Start
 
-- **Coding:** Code Dark Pro, Code Light Clean, Terminal Matrix, Studio Slate
-- **Gaming:** Gaming RGB, Neon Nights, Cyberpunk
-- **Professional:** Streamer Pro Clean, Clean Chrome, Minimal White, Daybreak Light
-- **Creative:** Ocean Breeze, Sunset Glow, Forest Green, Aurora Drift, Ember Forge, Nocturne Gold, Zen Garden, Soft Pastel
-- **Classic:** Midnight Blue
+### 1. Install Dependencies
 
-**Features:**
-
-- ✅ 20 carefully crafted themes
-- ✅ 15-20% higher opacity for better visibility
-- ✅ Optimized for dark/light backgrounds
-- ✅ Scene-appropriate styling
-- ✅ Instant theme switching
-
-### 📐 Layout Management System (6 Preset Layouts)
-
-**Commands (Broadcaster/Moderator Only):**
-
-- `!layout` - List all available layouts
-- `!layout [name]` - Switch to specific layout
-- `!resetpanel [panel]` - Reset panel position
-- `!resetlayout [name]` - Reset all panels in layout
-
-**Available Layouts:**
-
-- `compact` - Timer and tasks side-by-side
-- `split` - Timer left, tasks center, backlog right
-- `fullOverlay` - Balanced dashboard with all panels
-- `minimal` - Single timer focus
-- `timerWithTasks` - Timer stacked above tasks
-- `dashboard` - Comprehensive work/study layout
-
-**Features:**
-
-- ✅ 6 preset layouts for different streaming scenarios
-- ✅ Drag and reposition any panel
-- ✅ Manual panel resizing in all directions (Alt + G for grid overlay)
-- ✅ Position and size persistence (saved per layout)
-- ✅ Quick layout switching
-
-### 👥 Viewer Info Profiles System
-
-Store and retrieve custom information about your viewers.
-
-**Commands (Everyone):**
-
-- `!setinfo [key] [value]` - Store custom info (e.g., timezone, goals)
-- `!getinfo [username] [key]` - Retrieve stored info
-
-**Features:**
-
-- ✅ Persistent viewer data storage
-- ✅ Custom key-value pairs
-- ✅ Great for community engagement
-
-### ⌨️ Keyboard Shortcuts
-
-Quick access to overlay features without typing commands:
-
-- `Alt + G` - Toggle grid overlay with resize handles (drag handles to resize panels in all directions)
-- `Alt + T` - Toggle theme selector
-- `Alt + L` - Toggle layout selector  
-- `Escape` - Close open panels/grid overlay
-
-### 🔒 Broadcaster-Only Task List
-
-Main task list (`!task` commands) is now **broadcaster-only**. Viewers are automatically redirected to use `!backlog` commands for their personal task management.
-
-**For full command documentation, see [COMMANDS.md](./COMMANDS.md)**
-
----
-
-## What and Why?
-
-A TaskList widget for Twitch TV which allows users to interact with the broadcaster's stream.
-Viewers can create, edit, mark as done, and delete tasks from the list. This TaskList widget is designed to help streamers and their viewers to keep track of tasks, goals, or objectives during a stream. It is easy to use, and fast to setup. The TaskList widget is designed to be used in OBS or other streaming software.
-
-## App Features ✨
-
-- Free to use
-- Easy setup
-- Easy to customize
-- Fast performance & super lightweight (19 kB bundle size)
-- No coding required
-- Customizable Multi-language support
-- No third-party database required
-- User features
-  - user can create multiple tasks
-  - user can focus on a task
-  - user can edit tasks
-  - user can mark tasks as done
-  - user can delete tasks from their list
-- Supports multiple languages translations
-  - EN - English
-  - ES - Español
-  - FR - française
-  - JP - 日本語
-  - UA - українська
-  - DE - German
-  - PT_BR - Portuguese (Brazilian)
-
-## Table of Contents
-
-- [Installation Instructions](#installation-instructions)
-  - [Download App](#download-app)
-  - [Get Twitch oAuth](#get-twitch-oauth)
-  - [Setup in OBS](#setup-in-obs)
-  - [Python Backend Setup (Optional)](#python-backend-setup-optional)
-- [Customization settings](#customization-settings)
-  - [App Behavior Settings](#behavior-settings)
-  - [Styles Settings](#styles-settings)
-- [Commands](#commands)
-  - [Commands for Everyone](#commands-for-everyone)
-  - [Commands for Broadcasters and Moderators](#commands-for-broadcasters-and-moderators)
-- [Aliases](#aliases)
-  - [User Commands](#user-commands)
-- [Credits](#credits)
-
-## Installation Instructions
-
-### Download App
-
-1. **Downloading this App** - Download App by clicking on the green `Code` button and selecting `Download ZIP`.
-
-2. **Unzip the Download** - Once the download is complete, unzip (aka open) the downloaded file to a location on your computer where you can easily access it and remember where it is.
-
-### Get Twitch oAuth
-
-1. **Log in to Twitch Developer Console**
-
-   - Open and log into [https://dev.twitch.tv/console](https://dev.twitch.tv/console) using your web browser.
-   - Log in using your bot account or your main Twitch account.
-
-2. **Register The App with Twitch**
-
-   - Once logged in, Click the **"Register Your Application"** button.
-   - Enter a unique name for your application in the **Name** field. (e.g., "TaskListBot123")
-   - In the **OAuth Redirect URLs** field, enter `http://localhost`
-   - In the **Category** field, select **"Chat Bot"**.
-   - For the **Client Type**, select **"Public"**.
-   - Click the **"Create"** button to complete the registration.
-   - Once the App is registered, you will see a **Client ID**. Copy this ID and save it for later. (do not share this ID with anyone)
-
-3. **Generate an OAuth Access Token**
-
-   - Copy the following URL and replace the `YOUR-APP-CLIENT-ID` with the **Client ID** from your registered app you had made in the previous step.
-
-    ```txt
-    https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=YOUR-APP-CLIENT-ID&redirect_uri=http://localhost&scope=chat:read+chat:edit+user:bot
-    ```
-
-   - Open your browser and enter the URL containing your **Client ID** into the address bar. See [Twitch Authorize page Example](./images/twitch-authorize.png)
-   - After granting Authorization, you'll be redirected to a blank page which will show an error message. This is normal.
-   - The blank page will contain a URL in the address bar. This URL contains the access token you need. See [Access Token Example](./images/access-token-page.png)
-   - Copy the token from the URL (it follows `#access_token=` and ends just before `&scope`).
-   - Save this token in a safe place for the next step.
-
-4. **Setup Your \_auth.js File**
-
-   - Navigate to the location where you unzipped the downloaded files.
-   - Copy `_auth.js.example` to `_auth.js` (this file is gitignored to protect your credentials)
-   - Open the `_auth.js` file in a text editor. (Notepad works, but I recommend downloading VS Code to make it easier to read and edit the file.)
-   - Replace `your_oauth_token_here` with the access token you copied from the previous step.
-   - Replace `your_bot_username` with your Twitch main username or bot username.
-   - Replace `your_channel_name` with your Twitch channel name.
-
-When you are done, it should look something like this:
-
-```js
-twitch_oauth = "138kjl2a0r3dpaf93as4d1fz",
-twitch_username = "JujocoBot",
-twitch_channel = "Jujoco_Dev",
+```powershell
+npm install
 ```
 
-### Setup in OBS
+### 2. Configure Twitch Auth
 
-1. **Setup a Browser Source in OBS** - Open OBS and add a new `Browser Source` to your scene. Name it `TaskList overlay` or something you can easily remember.
+Copy the example auth file:
 
-2. **Select the Local file checkbox** - In the Browser Source settings, select `Local file` and then `Browse` to the location where you unzipped the downloaded files. Select the `index.html` file and click `Open`.
+```powershell
+Copy-Item _auth.js.example _auth.js
+```
 
-3. **Set the Width and Height** - Next, in the Browser Source, set the width and height. I recommend 1920px width and 1080px height. Adjust as needed.
+Edit `_auth.js`:
 
-4. **Done!** - Select OK to save!. Read the [Customization settings](#customization-settings) section to customize the MultiTask list widget and connect it to your Twitch chat.
+```js
+const _authConfig = {
+  twitch_oauth: "oauth:your_oauth_token_here",
+  twitch_username: "your_bot_username",
+  twitch_channel: "your_channel_name",
+};
+```
 
-![OBS Browser Source configuration example](./images/obs-source-example.png)
+The token needs Twitch chat read and chat send permissions.
 
-### Python Backend Setup (Optional)
+### 3. Build The Overlay
 
-The project includes a FastAPI backend for persistent storage and advanced features. This is optional - the main overlay works without it.
+```powershell
+npm run build
+```
 
-#### Using Conda (Recommended)
+### 4. Add It To OBS
 
-1. **Install Conda/Miniconda** if you haven't already:
-   - Download from [https://docs.conda.io/en/latest/miniconda.html](https://docs.conda.io/en/latest/miniconda.html)
+1. Add a new Browser Source.
+2. Enable Local File.
+3. Select `index.html` from this project.
+4. Use `1920x1080` for a full overlay or a narrower width for a side panel.
+5. Enable browser refresh when the scene becomes active.
 
-2. **Create the conda environment** from the project root:
-   ```bash
-   conda env create -f environment.yml
-   ```
+Detailed OBS notes are in [OBS_SETUP.md](./OBS_SETUP.md).
 
-3. **Activate the environment**:
-   - **Windows**: `conda activate twitch-task-overlay`
-   - **Mac/Linux**: `source activate twitch-task-overlay`
+## Optional Backend
 
-4. **Run the backend server**:
-   ```bash
-   cd backend
-   python main.py
-   ```
+The overlay works without the backend.
 
-   The API will be available at `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`
+Use the backend when you want SQLite-backed persistence, API access, viewer statistics, or server-side backlog/profile storage.
 
-#### Using pip (Alternative)
+### Conda
 
-If you prefer not to use conda:
+```powershell
+conda env create -f environment.yml
+conda activate twitch-task-overlay
+Set-Location backend
+python main.py
+```
 
-1. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   ```
+### pip
 
-2. **Activate the environment**:
-   - **Windows**: `venv\Scripts\activate`
-   - **Mac/Linux**: `source venv/bin/activate`
+```powershell
+Set-Location backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py
+```
 
-3. **Install dependencies**:
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
+The backend runs at `http://localhost:8000`.
 
-4. **Run the backend server**:
-   ```bash
-   python main.py
-   ```
+API docs are available at `http://localhost:8000/docs`.
 
-## Customization settings
+## Command Overview
 
-> IMPORTANT! — Any changes you make to the `_auth.js, _settings.js, _styles.js, _configAdmin.js, or _configUser.js` will require you to click the `Refresh Cache of Current Page` button in the Browser Source you just created to apply the changes. (see image above, #6.)
+Full command documentation is in [COMMANDS.md](./COMMANDS.md).
 
-### Behavior Settings
+### Everyone
 
-Open the `_settings.js` file and modify the following settings to customized the TaskList behavior. Default values are provided below. If at any point you want to reset the styles to the default values you can find the default values below next to each style name.
+- `!backlog add [task]` adds a personal backlog item.
+- `!backlog done [number]` completes a backlog item.
+- `!backlog remove [number]` removes a backlog item.
+- `!setinfo [field] [value]` saves a profile field.
+- `!getinfo [username]` reads profile info.
+- `!pomostatus` shows timer status.
+- `!help` shows command help.
 
-`languageCode`: Default = **"EN"**
+### Broadcaster
 
-- **"EN"**: English translation
-- **"ES"**: Spanish translation
-- **"FR"**: French translation
-- **"JP"**: Japanese translation
-- **"UA"**: Ukrainian translation
-- **"DE"**: German translation
-- **"PT_BR"**: Brazilian Portuguese translation
-`maxTasksPerUser`: Default = **10**
+- `!task [description]` adds a stream task.
+- `!edit [number] [description]` edits a stream task.
+- `!done [number]` completes a stream task.
+- `!delete [number]` deletes a stream task.
+- `!focus [number]` focuses a stream task.
+- `!clearlist` clears all stream tasks.
+- `!cleardone` clears completed stream tasks.
 
-- **number**: A value between 1 - 20.
+### Broadcaster And Moderators
 
-`scrollSpeed`: Default = **20**
+- `!pomo [focus]/[break]/[sessions]` starts a Pomodoro cycle.
+- `!pomopause` pauses the timer.
+- `!pomoresume` resumes the timer.
+- `!pomostop` or `!stoptimer` stops the timer.
+- `!pomoreset` resets timer progress.
+- `!theme [name]` changes the active theme.
+- `!layout [name]` changes the active layout.
+- `!resetpanel [panel] [layout]` resets a panel position.
+- `!resetlayout [name]` resets a layout.
+- `!backlog clear` clears completed backlog items.
+- `!backlog clear all` clears every backlog item.
 
-- **number**: A value between 1 - 50.
+## Keyboard Shortcuts
 
-`showUsernameColor`: Default = **true**
+- `Alt + G` toggles the grid and panel resize handles.
+- `Alt + T` opens the theme menu.
+- `Alt + L` opens the layout menu.
+- `Escape` closes menus and hides the grid.
 
-- **true**: will shows the user's twitch chat color
-- **false**: will show the color you set in the `username-color` style
+## Configuration Files
 
-`headerFeature`: Default = "timer"
+- `_auth.js` stores Twitch credentials. Do not commit real tokens.
+- `_settings.js` controls behavior such as language, task limits, scrolling, and test mode.
+- `_styles.js` controls legacy visual defaults.
+- `_configAdmin.js` and `_configUser.js` define command permissions and aliases.
+- `_enhancedCommands.js` defines the newer command groups.
+- `themes.json` stores theme definitions.
+- `src/classes/LayoutManager.js` stores layout presets.
 
-Enable one will disable the others.
+## Development
 
-- **"timer"**: Display a timer in the header
-- **"text"**: Display a custom text in the header
-- **"commands"**: Display commands tips in the header
-- **"tasks-only"**: Display only the tasks count in the header
+```powershell
+npm run dev
+npm run build
+npm test
+npm run test:coverage
+```
 
-`headerCustomText`: Default = "Custom Text"
+The project requires Node.js 20 or newer.
 
-HeaderFeature above must be set to "Text"
+## Project Docs
 
-`botResponsePrefix`: Default = "🤖💬 "
+- [COMMANDS.md](./COMMANDS.md) has the complete chat command reference.
+- [SETUP_GUIDE.md](./SETUP_GUIDE.md) has a longer setup walkthrough.
+- [OBS_SETUP.md](./OBS_SETUP.md) has OBS-specific setup notes.
+- [backend/README.md](./backend/README.md) documents the optional API server.
+- [CHANGELOG.md](./CHANGELOG.md) tracks notable changes.
 
-The prefix that the bot will use to respond to the user in the chat.
+## License
 
-`testMode`: Default = **false**
+MIT.
 
-- **false**: turn OFF test mode.
-- **true**: turn ON test mode.
+## Acknowledgement
 
-Use this to test the TaskList without affecting the real task list and visually see the style changes you make. When test mode is OFF, the TaskList will work as normal and remove any test tasks.
-
-### Styles Settings
-
-Open the `_styles.js` file and modify the following settings to customized the TaskList appearance. Default values are provided below. If at any point you want to reset the styles to the default values you can find the default values below next to each style name.
-
-#### Font Family - more available @ <https://fonts.google.com>
-
-- headerFontFamily: "Roboto Mono"
-- cardFontFamily: "Roboto Mono"
-
-#### App Styles
-
-- appBorderRadius: Default = **"5px"**
-- appPadding: Default = **"8px"**
-- appBackgroundImage: Default = **"url(../images/transparent-image.png)"**
-- appBackgroundColor: Default = **"rgba(0, 0, 0, 0)"**
-
-#### Header Styles
-
-- headerDisplay: Default = **"flex"**
-- headerBorderRadius: Default = **"6px"**
-- headerMarginBottom: Default = **"6px"**
-- headerBackgroundColor: Default = **"rgba(0, 0, 0, 0.7)"**
-- headerFontSize: Default = **"20px"**
-- headerFontColor: Default = **"#FFFFFF"**
-- headerFontWeight: Default = **"normal"**
-
-#### Card Styles
-
-- cardGapBetween: Default = **"6px"**
-- cardBorderRadius: Default = **"6px"**
-- cardBackgroundColor: Default = **"rgba(0, 0, 0, 0.7)"**
-
-#### Username Styles
-
-- usernameFontSize: Default = **"18px"**
-- usernameColor: Default = **"#FFFFFF"**
-- usernameFontWeight: Default = **"normal"**
-
-#### Task Styles
-
-- taskFontSize: Default = **"16px"**
-- taskFontColor: Default = **"#FFFFFF"**
-- taskFontWeight: Default = **"normal"**
-- taskDoneFontColor: Default = **"#aaaaaa"**
-- taskDoneFontStyle: Default = **"#italic"**
-- taskDoneTextDecoration: Default = **"line-through"**
-- taskFocusFontColor: Default = **"#111111"**
-- taskFocusBackgroundColor: Default = **"rgba(255, 255, 255, 0.7)"**
-- taskFocusBorderRadius: Default = **"8px"**
-
-## Commands
-
-### Commands for Everyone
-
-- `!task` or `!add` - Add task(s) (multiple tasks must be separated by a comma)
-
-  - example: `!task read ch 3`
-  - example: `!task prep for exam, walk cat, clean room`
-
-- `!focus` - Focus on a specific task
-
-  - example: `!focus 1`
-  - example: `!focus 3`
-
-- `!edit` - Edit a single task
-
-  - example: `!edit 1 read ch. 4`
-  - example: `!edit 2 walk bella`
-
-- `!done` - Mark task(s) as done (multiple tasks must be separated by a comma)
-
-  - example: `!done 1`
-  - example: `!done 2, 3`
-
-- `!delete` - Delete task(s) (multiple tasks must be separated by a comma or use `all` to delete all tasks)
-
-  - example: `!delete 1`
-  - example: `!delete 2, 3`
-  - example: `!delete all`
-
-- `!check` - Check your remaining tasks
-
-  - example: `!check`
-
-- `!credit` - Show the credits
-
-  - example: `!credit`
-
-### Commands for Broadcasters and Moderators
-
-- `!timer` - Set the focus and break timer for a session (in minutes)
-
-  - example: `!timer 60/10`
-  - example: `!timer 90/15`
-
-- `!clearlist` - Clear all tasks from the list
-
-  - example: `!clearlist`
-
-- `!cleardone` - Clear all done tasks
-
-  - example: `!cleardone`
-
-- `!clearuser` - Remove all tasks from a User (the username is not case sensitive)
-
-  - example: `!clearuser jujoco_dev` or `Jujoco_Dev`
-
-## Aliases
-
-### User Commands
-
-**add task commands:**
-
-- `!task`
-- `!añadir` (Spanish)
-- `!ajouter` (French)
-- `!追加` (Japanese)
-- `!додати` (Ukrainian)
-- `!aufgabe` (German)
-- `!tarefa` (Brazilian Portuguese)
-
-**focus commands:**
-
-- `!focus`
-- `!enfocar` (Spanish)
-- `!concentrer` (French)
-- `!集中` (Japanese)
-- `!фокус` (Ukrainian)
-- `!fokus` (German)
-- `!focar` (Brazilian Portuguese)
-
-**edit task commands:**
-
-- `!edit`
-- `!editar` (Spanish)
-- `!modifier` (French)
-- `!編集` (Japanese)
-- `!редагувати` (Ukrainian)
-- `!bearbeiten` (German)
-- `!editar` (Brazilian Portuguese)
-
-**complete task commands:**
-
-- `!done`
-- `!hecho` (Spanish)
-- `!terminé` (French)
-- `!完了` (Japanese)
-- `!готово` (Ukrainian)
-- `!erledigt` (German)
-- `!completo` (Brazilian Portuguese)
-
-**delete task commands:**
-
-- `!delete`
-- `!eliminar` (Spanish)
-- `!supprimer` (French)
-- `!削除` (Japanese)
-- `!видалити` (Ukrainian)
-- `!löschen` (German)
-- `!deletar` (Brazilian Portuguese)
-
-**check commands:**
-
-- `!check`
-- `!comprobar` (Spanish)
-- `!vérifier` (French)
-- `!チェック` (Japanese)
-- `!перевірити` (Ukrainian)
-- `!prüfen` (German)
-- `!verificar` (Brazilian Portuguese)
-
-**help commands:**
-
-- `!help`
-- `!ayuda` (Spanish)
-- `!aide` (French)
-- `!ヘルプ` (Japanese)
-- `!допомога` (Ukrainian)
-- `!hilfe` (German)
-- `!ajuda` (Brazilian Portuguese)
-
-**extra commands:**
-
-- `!credit`
-- `!crédito` (Spanish)
-- `!crédit` (French)
-- `!クレジット` (Japanese)
-- `!кредит` (Ukrainian)
-- `!kontakt` (German)
-- `!crédito` (Brazilian Portuguese)
-
-## Credits
-
-### Original Project
-
-**Original Author:** [**@Jujoco_Dev**](https://twitch.tv/Jujoco_Dev)  
-**Original Repository:** [twitch-multitask-task-list-overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay)  
-**Original Contributors:** [Thank you to all the Contributors!](https://github.com/jujoco/twitch-multitask-task-list-overlay/graphs/contributors)
-
-### This Fork
-
-**Maintainer:** [**@mozayed007**](https://github.com/mozayed007)  
-**Fork Repository:** [mozayed007/twitch-multitask-task-list-overlay](https://github.com/mozayed007/twitch-multitask-task-list-overlay)
-
-**Enhanced Features:**
-
-- Advanced Pomodoro Timer with session tracking, pause/resume, and state persistence
-- Personal backlog system for all viewers (separate from broadcaster task list)
-- **20 Premium Themes** with improved visibility (15-20% higher opacity):
-  - **Coding:** Code Dark Pro, Code Light Clean, Terminal Matrix
-  - **Gaming:** Gaming RGB, Neon Nights, Cyberpunk
-  - **Browser:** Clean Chrome, Streamer Pro Clean, Minimal White
-  - **Creative:** Ocean Breeze, Sunset Glow, Aurora Drift, Ember Forge, and more
-- Layout management with 6 preset layouts and draggable panels
-- Manual panel resizing with grid overlay (Alt+G shows 8-directional resize handles)
-- Viewer info profiles system
-- Keyboard shortcuts for quick access (Alt+G for grid, Alt+T for themes, Alt+L for layouts)
-- Broadcaster-only task list restriction
-- Full command documentation in COMMANDS.md
-
----
-
-**License:** MIT  
-**Special Thanks:** To Jujoco for creating the original amazing project that made this possible! 🙏
+This project builds on the initial work from [Jujoco's Twitch Multitask Task List Overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay). Credit and thanks go to Jujoco and the contributors of that project for the foundation.
