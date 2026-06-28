@@ -317,8 +317,7 @@ export default class UserList {
 	deleteUser(username) {
 		const userIndex = this.users.findIndex(
 			(user) => {
-				let regex = RegExp(`^${username}`, 'i');
-				return regex.test(user.username);
+				return user.username.toLowerCase() === username.toLowerCase();
 			}
 		);
 		if (userIndex === -1) {

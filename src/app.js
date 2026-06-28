@@ -275,17 +275,9 @@ export default class App {
 				}
 			}
 
-			// USER COMMANDS (BROADCASTER ONLY - viewers should use !backlog)
+			// USER COMMANDS (viewer tasklist)
 			if (_userConfig.commands.addTask.includes(command)) {
-				// ADD TASK - BROADCASTER ONLY
-				if (!flags.broadcaster) {
-					return respondMessage(
-						"📋 Use !backlog add [task] to manage your personal tasks!",
-						username,
-						"",
-						false
-					);
-				}
+				// ADD TASK
 				if (message === "") {
 					throw new Error("Task description is empty");
 				}
@@ -295,7 +287,13 @@ export default class App {
 						userColor: extra.userColor,
 					});
 
-				const taskDescriptions = message.split(", ");
+				const taskDescriptions = message
+					.split(/\s*,\s*/)
+					.map(task => task.trim())
+					.filter(Boolean);
+				if (taskDescriptions.length === 0) {
+					throw new Error("Task description is empty");
+				}
 				if (
 					user.getTasks().length + taskDescriptions.length >
 					parseInt(this.#maxTasksPerUser.toString(), 10)
@@ -319,15 +317,6 @@ export default class App {
 				}
 			}
 			else if (_userConfig.commands.editTask.includes(command)) {
-				// EDIT TASK - BROADCASTER ONLY
-				if (!flags.broadcaster) {
-					return respondMessage(
-						"📋 Use !backlog commands to manage your personal tasks!",
-						username,
-						"",
-						false
-					);
-				}
 				// EDIT TASK
 				const whiteSpaceIdx = message.search(/(?<=\d)\s/); // number followed by space
 				if (whiteSpaceIdx === -1) {

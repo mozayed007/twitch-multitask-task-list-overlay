@@ -1,6 +1,9 @@
 /**
  * @typedef {Object} AuthConfig
- * @property {string} twitch_oauth - The Twitch oauth token
+ * @property {string} twitch_oauth - The Twitch oauth access token
+ * @property {string} [twitch_refresh_token] - The Twitch oauth refresh token
+ * @property {string} [client_id] - The Twitch app client id
+ * @property {string} [twitch_auth_refresh_url] - The local backend refresh endpoint
  * @property {string} twitch_channel - The Twitch channel
  * @property {string} twitch_username - The Twitch username
  */

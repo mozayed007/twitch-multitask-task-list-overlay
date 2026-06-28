@@ -84,6 +84,15 @@ describe('BacklogPanel Security Tests', () => {
 			expect(item.description).toContain('&amp;');
 		});
 
+		it('should escape HTML when editing task descriptions', () => {
+			const item = backlogPanel.addItem('Original task', 'testUser');
+			const result = backlogPanel.editItem(item.id, '<script>alert("XSS")</script>');
+
+			expect(result).toBe(true);
+			expect(backlogPanel.getItems()[0].description).not.toContain('<script>');
+			expect(backlogPanel.getItems()[0].description).toContain('&lt;');
+		});
+
 		it('should handle null/undefined input gracefully', () => {
 			const item1 = backlogPanel.addItem(null, 'testUser');
 			const item2 = backlogPanel.addItem('test', null);
@@ -132,6 +141,17 @@ describe('BacklogPanel Security Tests', () => {
 
 			expect(item).not.toBeNull();
 			// The description should still be stored (validation is done at the Task class level)
+		});
+
+		it('should create unique ids for items added in quick succession', () => {
+			const items = [
+				backlogPanel.addItem('Task 1', 'testUser'),
+				backlogPanel.addItem('Task 2', 'testUser'),
+				backlogPanel.addItem('Task 3', 'testUser')
+			];
+			const ids = items.map(item => item.id);
+
+			expect(new Set(ids).size).toBe(ids.length);
 		});
 	});
 

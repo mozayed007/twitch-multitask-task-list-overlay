@@ -24,14 +24,14 @@ export default class LayoutManager {
 				timer: {
 					enabled: true,
 					display: 'flex',
-					position: { top: 120, left: 80 },
-					size: { width: 320, height: 320, minWidth: 280 }
+					position: { top: 690, left: 72 },
+					size: { width: 300, height: 300, minWidth: 260, minHeight: 260 }
 				},
 				taskList: { enabled: false },
 				backlog: {
 					enabled: true,
-					position: { top: 5, left: 460 },
-					size: { width: 700, minWidth: 520, minHeight: 420 }
+					position: { top: 90, left: 14 },
+					size: { width: 340, minWidth: 320, minHeight: 240 }
 				},
 				infoPanel: { enabled: false }
 			}
@@ -44,14 +44,14 @@ export default class LayoutManager {
 				timer: {
 					enabled: true,
 					display: 'flex',
-					position: { top: 120, left: 80 },
-					size: { width: 320, height: 320 }
+					position: { top: 690, left: 72 },
+					size: { width: 300, height: 300, minWidth: 260, minHeight: 260 }
 				},
 				taskList: { enabled: false },
 				backlog: {
 					enabled: true,
-					position: { top: 15, left: 440 },
-					size: { width: 320, minHeight: 480 }
+					position: { top: 90, left: 14 },
+					size: { width: 340, minWidth: 320, minHeight: 240 }
 				},
 				infoPanel: { enabled: false }
 			}
@@ -124,14 +124,14 @@ export default class LayoutManager {
 				timer: {
 					enabled: true,
 					display: 'flex',
-					position: { top: 80, left: 80 },
-					size: { width: 320, height: 320 }
+					position: { top: 690, left: 72 },
+					size: { width: 300, height: 300, minWidth: 260, minHeight: 260 }
 				},
 				taskList: { enabled: false },
 				backlog: {
 					enabled: true,
-					position: { top: 15, left: 460 },
-					size: { width: 360, minHeight: 480 }
+					position: { top: 90, left: 14 },
+					size: { width: 340, minWidth: 320, minHeight: 240 }
 				},
 				infoPanel: {
 					enabled: true,

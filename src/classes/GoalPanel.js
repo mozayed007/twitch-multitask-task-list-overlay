@@ -26,14 +26,15 @@ export default class GoalPanel {
 		this.#container.innerHTML = `
 			<div class="goal-panel ${this.#goalData.active ? 'active' : 'hidden'}">
 				<div class="goal-info">
-					<span class="goal-title">${this.#goalData.title}</span>
-					<span class="goal-progress-text">${this.#goalData.current} / ${this.#goalData.target}</span>
+					<span class="goal-title"></span>
+					<span class="goal-progress-text"></span>
 				</div>
 				<div class="goal-bar-container">
 					<div class="goal-bar-fill" style="width: ${this.#calculatePercentage()}%"></div>
 				</div>
 			</div>
 		`;
+		this.render();
 	}
 
 	#calculatePercentage() {

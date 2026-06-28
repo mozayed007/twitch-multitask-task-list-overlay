@@ -8,16 +8,25 @@ import BacklogPanel from "./classes/BacklogPanel.js";
 import LayoutManager from "./classes/LayoutManager.js";
 import GoalPanel from "./classes/GoalPanel.js";
 import { runMigrations } from "./utils/storageMigration.js";
+import { isTokenExpired, resolveTokenConfig, setupTokenRefresh } from "./twitch/tokenRefresh.js";
 
 const {
-	twitch_channel, twitch_oauth, twitch_username
+	twitch_channel, twitch_oauth, twitch_username, twitch_refresh_token, client_id
 } = _authConfig;
+const tokenConfig = resolveTokenConfig({
+	twitch_oauth,
+	twitch_refresh_token,
+	client_id,
+	twitch_auth_refresh_url: _authConfig.twitch_auth_refresh_url,
+});
 
 const twitchIRC = "wss://irc-ws.chat.twitch.tv:443";
 const client = new TwitchChat(twitchIRC, {
 	username: twitch_username,
-	authToken: twitch_oauth,
+	authToken: tokenConfig.accessToken,
 	channel: twitch_channel,
+	refreshToken: tokenConfig.refreshToken,
+	clientId: tokenConfig.clientId,
 });
 
 // Global instances
@@ -36,6 +45,9 @@ const panelHandleSelectors = {
 	backlog: '.backlog-header',
 	goal: '.goal-panel'
 };
+const tasklistHelpMessage = 'Tasklist commands for viewers: !task [task], !edit [number] [new task], !done [number], !delete [number], !focus [number], !check. Examples: !task Review notes, Draft outline; !done 1, 2; !delete 3.';
+const backlogHelpMessage = 'Backlog commands for broadcaster/mods: !backlog add [task], !backlog edit [number] [task], !backlog done [number], !backlog remove [number], !backlog clear/all. Examples: !backlog add Prep intro, Check audio; !backlog edit 1 Prep slides, 2 Check mic; !backlog done 1, 2.';
+const pomoHelpMessage = 'Pomo commands: !pomo [focus]/[break]/[sessions], !pomodoro. Examples: !pomo, !pomo 50/10, !pomo 25/5/6. Controls: !pomopause, !pomoresume, !pomostop, !pomoreset, !pomostatus. Mods control timer; everyone can use !pomostatus.';
 
 window.addEventListener("load", () => {
 	// Run storage migrations first
@@ -95,15 +107,26 @@ window.addEventListener("load", () => {
 		}
 	});
 
-	client.on("oauthError", () => {
-		openModal();
+	const tokenRefresh = setupTokenRefresh({
+		client,
+		clientId: tokenConfig.clientId,
+		refreshToken: tokenConfig.refreshToken,
+		refreshEndpoint: tokenConfig.refreshEndpoint,
+		openModal,
+		onRefreshStart: () => {
+			console.warn("Twitch OAuth token expired. Attempting automatic refresh.");
+		},
 	});
 
 	client.on("oauthSuccess", () => {
 		closeModal();
 	});
 
-	client.connect();
+	if (isTokenExpired(tokenConfig.storedTokenState)) {
+		tokenRefresh.refreshNow();
+	} else {
+		client.connect();
+	}
 	if (_settings.testMode) loadTestUsers(client);
 });
 
@@ -142,6 +165,22 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		}
 		return null;
 	};
+	const parseCommaList = (input) => input
+		.split(',')
+		.map(part => part.trim())
+		.filter(Boolean);
+	const parseIndexList = (input) => parseCommaList(input)
+		.map(part => parseInt(part, 10))
+		.filter(index => !Number.isNaN(index) && index >= 1)
+		.filter((index, position, indexes) => indexes.indexOf(index) === position);
+	const parseBacklogEdits = (input) => parseCommaList(input).map(part => {
+		const match = part.match(/^(\d+)\s+(.+)$/);
+		if (!match) return null;
+		return {
+			index: parseInt(match[1], 10),
+			description: match[2].trim()
+		};
+	}).filter(edit => edit && edit.description);
 
 	// Theme commands (mod only)
 	if (cmd === '!theme') {
@@ -271,14 +310,28 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 	}
 
 	// Backlog commands
+	if (cmd === '!backlog-help') {
+		return {
+			message: `${prefix}${backlogHelpMessage}`,
+			error: false
+		};
+	}
+
 	if (cmd === '!backlog') {
+		if (!isMod) {
+			return {
+				message: `${prefix}@${username} Backlog is for the broadcaster. Use !task [task] for your viewer tasklist.`,
+				error: true
+			};
+		}
+
 		const parts = rawMessage.length ? rawMessage.split(/\s+/) : [];
 		const action = parts[0]?.toLowerCase();
 		const content = parts.slice(1).join(' ');
 
 		if (!action) {
 			return {
-				message: `${prefix}@${username} Usage: !backlog add/done/remove [text/number]`,
+				message: `${prefix}@${username} Usage: !backlog add/edit/done/remove [text/number]`,
 				error: false
 			};
 		}
@@ -290,62 +343,81 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 					error: true
 				};
 			}
-			const item = backlogPanel.addItem(content, username);
+			const descriptions = parseCommaList(content);
+			const addedItems = descriptions
+				.map(description => backlogPanel.addItem(description, username))
+				.filter(Boolean);
 			return {
-				message: item
-					? `${prefix}@${username} Added "${content}" to backlog! 📋`
+				message: addedItems.length
+					? `${prefix}@${username} Added ${addedItems.length} backlog item${addedItems.length !== 1 ? 's' : ''}: ${addedItems.map(item => `"${item.description}"`).join(', ')} 📋`
 					: `${prefix}@${username} Backlog is full!`,
-				error: !item
+				error: addedItems.length === 0
+			};
+		}
+
+		if (action === 'edit') {
+			const edits = parseBacklogEdits(content);
+			if (edits.length === 0) {
+				return {
+					message: `${prefix}@${username} Usage: !backlog edit 1 New task, 2 Another task`,
+					error: true
+				};
+			}
+			const updated = [];
+			const missing = [];
+			edits.forEach(({ index, description }) => {
+				const item = backlogPanel.getItemByIndex(index);
+				if (!item) {
+					missing.push(index);
+					return;
+				}
+				if (backlogPanel.editItem(item.id, description)) {
+					updated.push(index);
+				}
+			});
+			return {
+				message: updated.length
+					? `${prefix}@${username} Updated backlog item${updated.length !== 1 ? 's' : ''} ${updated.join(', ')}.${missing.length ? ` Missing: ${missing.join(', ')}.` : ''}`
+					: `${prefix}@${username} Backlog item${missing.length !== 1 ? 's' : ''} ${missing.join(', ')} not found.`,
+				error: updated.length === 0
 			};
 		}
 
 		if (action === 'done' || action === 'remove') {
-			const index = parseInt(content, 10);
-			if (!content || Number.isNaN(index) || index < 1) {
+			const indexes = parseIndexList(content);
+			if (indexes.length === 0) {
 				return {
 					message: `${prefix}@${username} Provide a valid backlog item number.`,
 					error: true
 				};
 			}
-			// Mods/broadcasters can manage any item by global index
-			// Regular viewers can only manage their own items by their personal index
-			let item;
-			if (isMod) {
-				item = backlogPanel.getItemByIndex(index);
-			} else {
-				item = backlogPanel.getUserItemByIndex(username, index);
-			}
-			if (!item) {
-				const notFoundMsg = isMod
-					? `${prefix}@${username} Backlog item ${index} not found.`
-					: `${prefix}@${username} You don't have a backlog item #${index}.`;
-				return {
-					message: notFoundMsg,
-					error: true
-				};
-			}
-			if (action === 'done') {
-				backlogPanel.toggleComplete(item.id);
-				return {
-					message: `${prefix}@${username} Marked backlog item ${index} as done! ✅`,
-					error: false
-				};
-			}
-			backlogPanel.removeItem(item.id);
+			const targets = indexes.map(index => ({
+				index,
+				item: backlogPanel.getItemByIndex(index)
+			}));
+			const changed = [];
+			const missing = [];
+			targets.forEach(({ index, item }) => {
+				if (!item) {
+					missing.push(index);
+					return;
+				}
+				if (action === 'done') {
+					backlogPanel.toggleComplete(item.id);
+				} else {
+					backlogPanel.removeItem(item.id);
+				}
+				changed.push(index);
+			});
 			return {
-				message: `${prefix}@${username} Removed backlog item ${index}! 🗑️`,
-				error: false
+				message: changed.length
+					? `${prefix}@${username} ${action === 'done' ? 'Marked done' : 'Removed'} backlog item${changed.length !== 1 ? 's' : ''} ${changed.join(', ')}.${missing.length ? ` Missing: ${missing.join(', ')}.` : ''}`
+					: `${prefix}@${username} Backlog item${missing.length !== 1 ? 's' : ''} ${missing.join(', ')} not found.`,
+				error: changed.length === 0
 			};
 		}
 
 		if (action === 'clear') {
-			if (!isMod) {
-				return {
-					message: `${prefix}@${username} Only broadcasters and moderators can clear the backlog.`,
-					error: true
-				};
-			}
-
 			if (content.toLowerCase() === 'all') {
 				const count = backlogPanel.clearAll();
 				return {
@@ -362,7 +434,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		}
 
 		return {
-			message: `${prefix}@${username} Usage: !backlog add/done/remove [text/number]`,
+			message: `${prefix}@${username} Usage: !backlog add/edit/done/remove [text/number]`,
 			error: false
 		};
 	}
@@ -448,7 +520,21 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 		}
 	}
 
+	if (cmd === '!tasklist-help') {
+		return {
+			message: `${prefix}${tasklistHelpMessage}`,
+			error: false
+		};
+	}
+
 	// Check specific subcommands first before the generic !pomo command
+	if (cmd === '!pomo-help') {
+		return {
+			message: `${prefix}${pomoHelpMessage}`,
+			error: false
+		};
+	}
+
 	if (cmd === '!pomopause') {
 		if (!isMod) {
 			return {

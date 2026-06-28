@@ -9,11 +9,21 @@ pip install -r requirements.txt
 ```
 
 ### 2. Run Server
+For Twitch token refresh, create `backend/.env` first:
+
+```txt
+TWITCH_CLIENT_ID=your_twitch_app_client_id
+TWITCH_CLIENT_SECRET=your_client_secret
+TWITCH_REDIRECT_URI=http://localhost:8000/auth/callback
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=8000
+```
+
 ```bash
 python main.py
 ```
 
-Server will start at `http://localhost:8000`
+Server will start at `http://127.0.0.1:8000` by default.
 
 ### 3. View API Documentation
 Open browser: `http://localhost:8000/docs`
@@ -47,6 +57,11 @@ Open browser: `http://localhost:8000/docs`
 ### Stats
 - `POST /stats/log` - Log event
 - `GET /stats/summary` - Get statistics
+
+### Twitch Auth
+- `GET /auth/start` - Start one-time local Twitch authorization
+- `GET /auth/callback` - Exchange Twitch authorization code for tokens
+- `POST /auth/refresh` - Refresh an expired Twitch access token
 
 ## Frontend Integration
 
@@ -99,11 +114,12 @@ CMD ["python", "main.py"]
 
 ⚠️ **Important for Production:**
 
-1. **CORS**: Update `allow_origins` in main.py to your domain
-2. **Authentication**: Add API keys or OAuth
-3. **HTTPS**: Use SSL certificates
-4. **Rate Limiting**: Implement rate limiting
-5. **Database**: Consider PostgreSQL for production
+1. **Secrets**: Keep `backend/.env` private. It contains the Twitch Client Secret.
+2. **CORS**: Update `allow_origins` in main.py to your domain.
+3. **Authentication**: Add API keys or OAuth before exposing the backend beyond localhost.
+4. **HTTPS**: Use SSL certificates for remote deployments.
+5. **Rate Limiting**: Implement rate limiting.
+6. **Database**: Consider PostgreSQL for production.
 
 ## Database
 

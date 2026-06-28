@@ -4,11 +4,18 @@ Provides persistent storage and advanced features
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+import os
 import sqlite3
 import json
+import httpx
+from html import escape
+from pathlib import Path
+import secrets
+from urllib.parse import urlencode
 from datetime import datetime
 from contextlib import contextmanager
 
@@ -25,6 +32,22 @@ app.add_middleware(
 
 # Database setup
 DB_PATH = "overlay_data.db"
+ENV_PATH = Path(__file__).with_name(".env")
+OAUTH_STATES = set()
+
+def load_local_env_file():
+    """Load backend/.env for local OBS usage without adding a dependency."""
+    if not ENV_PATH.exists():
+        return
+
+    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+load_local_env_file()
 
 @contextmanager
 def get_db():
@@ -106,6 +129,43 @@ class BacklogItemResponse(BacklogItem):
 class Preference(BaseModel):
     key: str
     value: str
+
+class TokenRefreshRequest(BaseModel):
+    client_id: str
+    refresh_token: str
+
+class TokenRefreshResponse(BaseModel):
+    access_token: str
+    refresh_token: Optional[str] = None
+    expires_in: int
+    token_type: str
+
+def get_twitch_client_secret():
+    client_secret = os.getenv("TWITCH_CLIENT_SECRET")
+    if not client_secret:
+        raise HTTPException(
+            status_code=500,
+            detail="TWITCH_CLIENT_SECRET environment variable is not set"
+        )
+    return client_secret
+
+def get_twitch_client_id():
+    client_id = os.getenv("TWITCH_CLIENT_ID")
+    if not client_id:
+        raise HTTPException(
+            status_code=500,
+            detail="TWITCH_CLIENT_ID environment variable is not set"
+        )
+    return client_id
+
+def get_twitch_redirect_uri():
+    return os.getenv("TWITCH_REDIRECT_URI", "http://localhost:8000/auth/callback")
+
+def get_backend_host():
+    return os.getenv("BACKEND_HOST", "127.0.0.1")
+
+def get_backend_port():
+    return int(os.getenv("BACKEND_PORT", "8000"))
 
 # API Endpoints
 
@@ -368,8 +428,106 @@ async def get_stats_summary():
             "completion_rate": round(completed_backlog / total_backlog * 100, 1) if total_backlog > 0 else 0
         }
 
+@app.get("/auth/start")
+async def start_twitch_auth():
+    """Start a local Twitch authorization flow for initial token setup."""
+    state = secrets.token_urlsafe(32)
+    OAUTH_STATES.add(state)
+    query = urlencode({
+        "client_id": get_twitch_client_id(),
+        "redirect_uri": get_twitch_redirect_uri(),
+        "response_type": "code",
+        "scope": "chat:read chat:edit",
+        "state": state,
+    })
+    return RedirectResponse(f"https://id.twitch.tv/oauth2/authorize?{query}")
+
+@app.get("/auth/callback", response_class=HTMLResponse)
+async def twitch_auth_callback(code: Optional[str] = None, state: Optional[str] = None, error: Optional[str] = None, error_description: Optional[str] = None):
+    """Exchange Twitch's authorization code for initial access and refresh tokens."""
+    if error:
+        detail = error_description or error
+        raise HTTPException(status_code=400, detail=detail)
+    if not code:
+        raise HTTPException(status_code=400, detail="Missing Twitch authorization code")
+    if not state or state not in OAUTH_STATES:
+        raise HTTPException(status_code=400, detail="Invalid Twitch authorization state")
+    OAUTH_STATES.remove(state)
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://id.twitch.tv/oauth2/token",
+            data={
+                "client_id": get_twitch_client_id(),
+                "client_secret": get_twitch_client_secret(),
+                "code": code,
+                "grant_type": "authorization_code",
+                "redirect_uri": get_twitch_redirect_uri(),
+            },
+        )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=response.text
+        )
+
+    token_data = response.json()
+    access_token = escape(token_data["access_token"])
+    refresh_token = escape(token_data["refresh_token"])
+    client_id = escape(get_twitch_client_id())
+
+    return f"""
+    <!doctype html>
+    <html>
+      <head>
+        <title>Twitch Auth Tokens</title>
+        <style>
+          body {{ font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; line-height: 1.5; }}
+          textarea {{ width: 100%; height: 220px; font-family: monospace; }}
+          code {{ background: #eee; padding: 2px 4px; }}
+        </style>
+      </head>
+      <body>
+        <h1>Twitch tokens created</h1>
+        <p>Paste these values into <code>_auth.js</code>. Keep them private.</p>
+        <textarea readonly>twitch_oauth: "oauth:{access_token}",
+twitch_refresh_token: "{refresh_token}",
+client_id: "{client_id}",
+twitch_auth_refresh_url: "http://127.0.0.1:8000/auth/refresh",</textarea>
+        <p>After saving <code>_auth.js</code>, refresh the OBS browser source.</p>
+      </body>
+    </html>
+    """
+
+@app.post("/auth/refresh", response_model=TokenRefreshResponse)
+async def refresh_twitch_token(request: TokenRefreshRequest):
+    """Exchange a Twitch refresh token for a new access token."""
+    client_secret = get_twitch_client_secret()
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://id.twitch.tv/oauth2/token",
+            data={
+                "client_id": request.client_id,
+                "client_secret": client_secret,
+                "grant_type": "refresh_token",
+                "refresh_token": request.refresh_token,
+            },
+        )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=response.text
+        )
+
+    return response.json()
+
 if __name__ == "__main__":
     import uvicorn
     print("🚀 Starting API server...")
-    print("📝 Documentation: http://localhost:8000/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    host = get_backend_host()
+    port = get_backend_port()
+    print(f"📝 Documentation: http://{host}:{port}/docs")
+    uvicorn.run(app, host=host, port=port, log_level="info")

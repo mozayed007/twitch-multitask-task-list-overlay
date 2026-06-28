@@ -2,10 +2,13 @@
 // oAuth access token and channel info - Required
 // ========================================
 // Copy this file to _auth.js and fill in your actual credentials
-// Get your OAuth token from: https://twitchapps.com/tmi/
+// Create your Twitch app at https://dev.twitch.tv/console
 /** @type {AuthConfig} */
 const _authConfig = {
-  twitch_oauth: "oauth:your_oauth_token_here", 
+  twitch_oauth: "oauth:your_oauth_token_here",
+  twitch_refresh_token: "your_refresh_token_here",
+  client_id: "your_twitch_app_client_id",
+  twitch_auth_refresh_url: "http://127.0.0.1:8000/auth/refresh",
   twitch_username: "your_bot_username",
   twitch_channel: "your_channel_name",
 };

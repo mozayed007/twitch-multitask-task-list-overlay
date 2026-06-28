@@ -2,16 +2,25 @@ import App from "./app.js";
 import { closeModal, openModal } from "./modal.js";
 import TwitchChat from "./twitch/TwitchChat.js";
 import { loadTestUsers } from "./twitch/loadTestUsers.js";
+import { isTokenExpired, resolveTokenConfig, setupTokenRefresh } from "./twitch/tokenRefresh.js";
 
 const {
-	twitch_channel, twitch_oauth, twitch_username
+	twitch_channel, twitch_oauth, twitch_username, twitch_refresh_token, client_id
 } = _authConfig;
+const tokenConfig = resolveTokenConfig({
+	twitch_oauth,
+	twitch_refresh_token,
+	client_id,
+	twitch_auth_refresh_url: _authConfig.twitch_auth_refresh_url,
+});
 
 const twitchIRC = "wss://irc-ws.chat.twitch.tv:443";
 const client = new TwitchChat(twitchIRC, {
 	username: twitch_username,
-	authToken: twitch_oauth,
+	authToken: tokenConfig.accessToken,
 	channel: twitch_channel,
+	refreshToken: tokenConfig.refreshToken,
+	clientId: tokenConfig.clientId,
 });
 
 window.addEventListener("load", () => {
@@ -34,14 +43,25 @@ window.addEventListener("load", () => {
 		}
 	});
 
-	client.on("oauthError", () => {
-		openModal();
+	const tokenRefresh = setupTokenRefresh({
+		client,
+		clientId: tokenConfig.clientId,
+		refreshToken: tokenConfig.refreshToken,
+		refreshEndpoint: tokenConfig.refreshEndpoint,
+		openModal,
+		onRefreshStart: () => {
+			console.warn("Twitch OAuth token expired. Attempting automatic refresh.");
+		},
 	});
 
 	client.on("oauthSuccess", () => {
 		closeModal();
 	});
 
-	client.connect();
+	if (isTokenExpired(tokenConfig.storedTokenState)) {
+		tokenRefresh.refreshNow();
+	} else {
+		client.connect();
+	}
 	if (_settings.testMode) loadTestUsers(client);
 });

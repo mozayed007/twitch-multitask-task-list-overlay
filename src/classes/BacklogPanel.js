@@ -1,5 +1,5 @@
 /**
- * BacklogPanel - Manages personal task backlog
+ * BacklogPanel - Manages broadcaster task backlog
  * @class BacklogPanel
  */
 export default class BacklogPanel {
@@ -74,15 +74,15 @@ export default class BacklogPanel {
 				</div>
 				<div class="backlog-content-wrapper">
 					<div class="backlog-content">
-						<!-- Streamer Tasks Section -->
-						<div class="streamer-tasks-container" role="list" aria-label="Streamer tasks"></div>
+						<!-- Viewer Tasks Section -->
+						<div class="streamer-tasks-container" role="list" aria-label="Viewer tasks"></div>
 
-						<div class="backlog-list-header" role="heading" aria-level="4">Viewer Backlog</div>
-						<div class="backlog-list backlog-list-primary" role="list" aria-label="Viewer backlog items"></div>
+						<div class="backlog-list-header" role="heading" aria-level="4">Streamer Backlog</div>
+						<div class="backlog-list backlog-list-primary" role="list" aria-label="Streamer backlog items"></div>
 						<div class="backlog-list backlog-list-secondary" role="list" aria-hidden="true"></div>
 						<div class="backlog-empty" role="status" aria-live="polite">
 							<p>No tasks in backlog</p>
-							<p class="backlog-hint">Use !backlog add [task] to add tasks</p>
+							<p class="backlog-hint">Broadcaster: use !backlog add [task]</p>
 						</div>
 					</div>
 				</div>
@@ -106,7 +106,7 @@ export default class BacklogPanel {
 			'!backlog add [task]',
 			'!backlog done #',
 			'!backlog remove #',
-			'!backlog clear (mods)'
+			'!backlog clear'
 		];
 
 		const typewriterEl = this.#containerEl.querySelector('.backlog-cmd-typewriter');
@@ -173,7 +173,7 @@ export default class BacklogPanel {
 
 		// Escape all user input to prevent XSS attacks
 		const item = {
-			id: Date.now().toString(),
+			id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
 			description: this.#escapeHtml(description),
 			creator: this.#escapeHtml(creator),
 			priority: Math.max(1, Math.min(5, priority)),
@@ -187,6 +187,22 @@ export default class BacklogPanel {
 		this.render();
 
 		return item;
+	}
+
+	/**
+	 * Edit a backlog item description
+	 * @param {string} itemId - Item ID to edit
+	 * @param {string} description - New task description
+	 * @returns {boolean} Success status
+	 */
+	editItem(itemId, description) {
+		const item = this.#backlogItems.find(backlogItem => backlogItem.id === itemId);
+		if (!item) return false;
+
+		item.description = this.#escapeHtml(description);
+		this.#saveToStorage();
+		this.render();
+		return true;
 	}
 
 	/**
@@ -342,25 +358,24 @@ export default class BacklogPanel {
 		const activeCount = this.#backlogItems.filter(item => !item.completed).length;
 		countEl.textContent = `${activeCount} task${activeCount !== 1 ? 's' : ''}`;
 
-		// Notify listeners of refresh first to ensure integrated streamer tasks 
-		// are updated even if the viewer backlog is empty.
+		// Notify listeners first so integrated viewer tasks stay current.
 		if (this.#onRefresh) {
 			this.#onRefresh();
 		}
 
-		// Count streamer tasks (from the integrated container)
-		const streamerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
-		const viewerTaskCount = this.#backlogItems.length;
+		// Count viewer tasklist items and broadcaster backlog items.
+		const viewerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
+		const backlogTaskCount = this.#backlogItems.length;
 		
 		// Calculate total visible tasks
-		const totalVisibleTasks = streamerTaskCount + viewerTaskCount;
+		const totalVisibleTasks = viewerTaskCount + backlogTaskCount;
 		
-		// Max visible without scrolling: 3 streamer + 5 viewer = 8 total
-		const maxStreamerVisible = 3;
-		const maxViewerVisible = 5;
-		const maxTotalVisible = maxStreamerVisible + maxViewerVisible;
+		// Max visible without scrolling: 3 viewer tasks + 5 backlog items = 8 total
+		const maxViewerVisible = 3;
+		const maxBacklogVisible = 5;
+		const maxTotalVisible = maxViewerVisible + maxBacklogVisible;
 
-		// Apply dynamic sizing classes based on TOTAL content (backlog + streamer tasks)
+		// Apply dynamic sizing classes based on all visible content.
 		panelEl.classList.remove('minimized', 'few-items', 'medium-content', 'expanded');
 
 		if (totalVisibleTasks === 0) {
@@ -437,12 +452,12 @@ export default class BacklogPanel {
 
 		if (!primaryList) return;
 
-		// Count streamer tasks
-		const streamerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
-		const viewerTaskCount = this.#backlogItems.length;
-		const totalTasks = streamerTaskCount + viewerTaskCount;
+		// Count viewer tasklist items and broadcaster backlog items.
+		const viewerTaskCount = streamerContainer ? streamerContainer.querySelectorAll('.task').length : 0;
+		const backlogTaskCount = this.#backlogItems.length;
+		const totalTasks = viewerTaskCount + backlogTaskCount;
 		
-		// Max visible without scrolling: 3 streamer + 5 viewer = 8 total
+		// Max visible without scrolling: 3 viewer tasks + 5 backlog items = 8 total
 		const maxTotalVisible = 8;
 
 		// Only start scrolling if we have MORE than the max visible items

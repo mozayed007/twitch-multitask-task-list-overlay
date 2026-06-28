@@ -65,6 +65,37 @@ describe("TwitchChat", () => {
 			expect(twitchChat.authToken).toBe("oauth:1a2b3c4d5e6f");
 			expect(twitchChat.WebSocketService).toBe(mockWebSocket);
 		});
+
+		it("should store refresh token and client id when provided", () => {
+			const chat = new TwitchChat(
+				"ws://test-url:80",
+				{
+					username: "UserName",
+					authToken: "1a2b3c4d5e6f",
+					channel: "CHANNEL",
+					refreshToken: "refresh123",
+					clientId: "client456",
+				},
+				mockWebSocket
+			);
+
+			expect(chat.refreshToken).toBe("refresh123");
+			expect(chat.clientId).toBe("client456");
+		});
+	});
+
+	describe("setAuthToken method", () => {
+		it("should update the auth token and normalize the oauth prefix", () => {
+			twitchChat.setAuthToken("newtoken123");
+
+			expect(twitchChat.authToken).toBe("oauth:newtoken123");
+		});
+
+		it("should not double-prefix a token that already has oauth:", () => {
+			twitchChat.setAuthToken("oauth:existingtoken");
+
+			expect(twitchChat.authToken).toBe("oauth:existingtoken");
+		});
 	});
 
 	describe("connect method and its WebSocket events", () => {
@@ -105,6 +136,18 @@ describe("TwitchChat", () => {
 			});
 			expect(onMessageSpy).toHaveBeenCalledTimes(1);
 			expect(chatEvent).toHaveLastReturnedWith("task walk dog");
+		});
+
+		it("should emit oauthError on authentication NOTICE", () => {
+			const oauthErrorSpy = vi.fn();
+			twitchChat.on("oauthError", oauthErrorSpy);
+			twitchChat.connect();
+			mockWsInstance.onmessage({
+				data: ":tmi.twitch.tv NOTICE #channel :Login authentication failed\r\n",
+			});
+
+			expect(oauthErrorSpy).toHaveBeenCalled();
+			expect(mockWsInstance.send).toHaveBeenCalledWith("PART #channel");
 		});
 	});
 

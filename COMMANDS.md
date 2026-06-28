@@ -48,6 +48,11 @@ Complete list of all available chat commands for the interactive task list overl
 
 ## ⏱️ Pomodoro Timer Commands (Broadcaster/Mod Only)
 
+**`!pomo-help`** - Show Pomodoro commands with examples
+
+- Lists start examples, control commands, and permissions in chat
+- Available to everyone
+
 ### Start/Control Timer
 
 **`!pomo [focus]/[break]/[sessions]`** or **`!pomodoro`** - Start a Pomodoro cycle
@@ -89,31 +94,44 @@ Complete list of all available chat commands for the interactive task list overl
 
 ---
 
-## 📋 Task Backlog Commands (Everyone)
+## 📋 Stream Backlog Commands (Broadcaster/Mod Only)
 
-**Purpose:** Personal to-do list for viewers. Each viewer manages their own backlog items.
+**Purpose:** Shared stream backlog for broadcaster planning and moderation.
 
-**`!backlog add [task]`** - Add item to your personal backlog
+**`!backlog-help`** - Show broadcaster backlog commands with examples
+
+- Lists add, edit, done, remove, and clear commands
+- Available to everyone
+
+**`!backlog add [task]`** - Add item to the stream backlog
 
 - `!backlog add Learn React hooks`
 - `!backlog add Fix bug in project`
+- `!backlog add Prep intro, Check audio, Review chat questions` - Add multiple items in order
 
-**`!backlog done [number]`** - Mark a backlog item as complete
+**`!backlog edit [number] [new description]`** - Edit backlog items
+
+- `!backlog edit 1 Update stream title`
+- `!backlog edit 1 Prep intro, 2 Check microphone` - Edit multiple items in order
+
+**`!backlog done [number]`** - Mark backlog items as complete
 
 - `!backlog done 1` - Mark item #1 as done
+- `!backlog done 1, 3, 4` - Mark multiple items as done
 - Items stay visible but show as completed
 
-**`!backlog remove [number]`** - Remove a backlog item
+**`!backlog remove [number]`** - Remove backlog items
 
 - `!backlog remove 2` - Delete item #2 from backlog
+- `!backlog remove 2, 4` - Remove multiple items by their current order
 
-**`!backlog clear`** (Broadcaster/Mod Only) - Clear completed backlog items
+**`!backlog clear`** - Clear completed backlog items
 
 - Removes all items marked as done
 
-**`!backlog clear all`** (Broadcaster/Mod Only) - Clear EVERY item in the backlog
+**`!backlog clear all`** - Clear EVERY item in the backlog
 
-- Wipes the entire viewer backlog list clean
+- Wipes the entire stream backlog clean
 
 **`!backlog`** - Show usage help
 
@@ -139,34 +157,37 @@ Complete list of all available chat commands for the interactive task list overl
 
 ---
 
-## 📝 Task List Commands (Broadcaster Only)
+## 📝 Viewer Task List Commands (Everyone)
 
-**Purpose:** Main task list visible to everyone - **BROADCASTER USE ONLY**. Viewers should use `!backlog` commands instead.
+**Purpose:** Viewer-owned task lists visible in the task panel.
 
-**`!task [description]`** - Add a new task (Broadcaster Only)
+**`!tasklist-help`** - Show viewer tasklist commands with examples
+
+- Lists task, edit, done, delete, focus, and check commands
+- Available to everyone
+
+**`!task [description]`** - Add a new viewer task
 
 - `!task Complete homework`
-- Viewers will be redirected to use `!backlog add` instead
+- `!task Read chapter 3, Review notes` - Add multiple tasks in order
 
-**`!edit [task#] [new description]`** - Edit a task (Broadcaster Only)
+**`!edit [task#] [new description]`** - Edit a viewer task
 
 - `!edit 1 Finish homework by 5pm`
 
-**`!done [task#]`** - Mark task as complete
+**`!done [task#]`** - Mark viewer tasks as complete
 
 - `!done 1`
+- `!done 1, 2`
 
-**`!delete [task#]`** - Delete a task
+**`!delete [task#]`** - Delete viewer tasks
 
 - `!delete 2`
+- `!delete 2, 3`
 
 **`!check`** - Check your current tasks
 
 **`!help`** - Show command help
-
----
-
-**Note:** If you're a viewer and want to manage your own tasks, use the **!backlog** commands above! The main task list is for the broadcaster's workflow.
 
 ---
 
@@ -218,9 +239,13 @@ Complete list of all available chat commands for the interactive task list overl
 # Start a study session
 !pomo 50/10/4
 
-# Add personal tasks
-!backlog add Review calculus notes
-!backlog add Prepare presentation slides
+# Viewer tasklist
+!task Review calculus notes, Prepare presentation slides
+!done 1
+
+# Broadcaster stream backlog
+!backlog add Prep intro, Check audio
+!backlog edit 1 Prep intro slides
 !backlog done 1
 
 # Set your profile
@@ -242,8 +267,8 @@ Complete list of all available chat commands for the interactive task list overl
 
 ## 🔒 Permissions
 
-- **Everyone:** task, backlog, setinfo, getinfo, pomostatus commands
-- **Mods/Broadcaster:** All timer commands, layout, theme, clear, resetpanel, resetlayout
+- **Everyone:** tasklist, setinfo, getinfo, help, and pomostatus commands
+- **Mods/Broadcaster:** backlog, all timer controls, layout, theme, clear, resetpanel, resetlayout
 
 ---
 

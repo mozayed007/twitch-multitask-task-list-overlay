@@ -51,6 +51,35 @@ Custom CSS: (leave blank)
 
 5. Click **OK**
 
+### **Step 1b: Keep Token Refresh Running**
+
+The OBS source is a static local file. It can read `_auth.js` and save refreshed tokens in OBS browser storage, but it cannot safely store your Twitch Client Secret or rewrite `_auth.js`.
+
+For automatic token refresh, keep the local backend running while OBS is open:
+
+```powershell
+Set-Location F:\Streaming-business\twitch-multitask-task-list-overlay-main\backend
+python main.py
+```
+
+Store backend secrets in `backend/.env`:
+
+```txt
+TWITCH_CLIENT_ID=your_twitch_app_client_id
+TWITCH_CLIENT_SECRET=your_client_secret
+TWITCH_REDIRECT_URI=http://localhost:8000/auth/callback
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=8000
+```
+
+Leave `_auth.js` pointed at the local helper:
+
+```js
+twitch_auth_refresh_url: "http://127.0.0.1:8000/auth/refresh"
+```
+
+If the backend is not running or `_auth.js` has no refresh token, the overlay falls back to the invalid-token modal.
+
 ### **Step 2: Position the Overlay**
 
 The overlay will now **fill the entire 1920x1080 canvas**. You can:

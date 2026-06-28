@@ -217,6 +217,20 @@ describe("App.chatHandler", () => {
 					);
 				});
 
+				test("should allow a viewer to add tasks to their tasklist", () => {
+					const response = app.chatHandler(
+						chatUser.username,
+						chatUser.command.ADDTASK,
+						"viewerTask",
+						chatUser.flags,
+						chatUser.extra
+					);
+					expect(response.error).toBe(false);
+					expect(response.message).toBe(
+						botResponsePrefix + 'Task(s) 📝 "viewerTask" added!'
+					);
+				});
+
 				test("should accept multiple, comma separated, tasks", () => {
 					const response = app.chatHandler(
 						broadcasterUser.username,

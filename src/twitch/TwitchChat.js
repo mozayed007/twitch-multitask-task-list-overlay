@@ -14,6 +14,7 @@ export default class TwitchChat extends EventEmitter {
 	 */
 	#ws = null;
 	#reconnectInterval = 1000; // milliseconds
+	#shouldReconnect = true;
 
 	/**
 	 * @constructor
@@ -22,11 +23,13 @@ export default class TwitchChat extends EventEmitter {
 	 * @param {string} options.username - Twitch username
 	 * @param {string} options.authToken - Twitch OAuth token
 	 * @param {string} options.channel - Twitch channel name
+	 * @param {string} [options.refreshToken] - Twitch OAuth refresh token
+	 * @param {string} [options.clientId] - Twitch app client ID
 	 * @param {Object} [WebSocketService] - WebSocket service
 	 */
 	constructor(
 		url,
-		{ username, authToken, channel },
+		{ username, authToken, channel, refreshToken, clientId },
 		WebSocketService = WebSocket
 	) {
 		super();
@@ -36,6 +39,8 @@ export default class TwitchChat extends EventEmitter {
 		this.authToken = authToken.includes("oauth:")
 			? authToken
 			: `oauth:${authToken}`;
+		this.refreshToken = refreshToken || "";
+		this.clientId = clientId || "";
 		this.WebSocketService = WebSocketService;
 	}
 
@@ -44,6 +49,7 @@ export default class TwitchChat extends EventEmitter {
 	 * @returns {void}
 	 */
 	connect() {
+		this.#shouldReconnect = true;
 		this.#ws = new this.WebSocketService(this.url);
 
 		this.#ws.onopen = () => {
@@ -96,6 +102,7 @@ export default class TwitchChat extends EventEmitter {
 							// If the authentication failed, leave the channel.
 							// The server will close the connection.
 							console.error(`${parsedMessage.parameters}; left ${this.channel}`);
+							this.#shouldReconnect = false;
 							this.emit("oauthError");
 							this.#ws.send(`PART ${this.channel}`);
 							break;
@@ -111,6 +118,10 @@ export default class TwitchChat extends EventEmitter {
 					console.log("Connection closed normally.");
 					break;
 				case 1006:
+					if (!this.#shouldReconnect) {
+						console.log("Reconnection skipped: authentication failure pending refresh.");
+						break;
+					}
 					// If your connection is dropped, try reconnecting
 					// using an exponential backoff approach.
 					console.error(
@@ -125,6 +136,10 @@ export default class TwitchChat extends EventEmitter {
 					this.#reconnectInterval = this.#reconnectInterval * 2;
 					break;
 				case 1012:
+					if (!this.#shouldReconnect) {
+						console.log("Server switch skipped: authentication failure pending refresh.");
+						break;
+					}
 					console.log(`Switching  servers...`);
 					this.connect();
 					break;
@@ -134,6 +149,17 @@ export default class TwitchChat extends EventEmitter {
 					);
 			}
 		};
+	}
+
+	/**
+	 * Updates the OAuth token used for IRC authentication.
+	 * @param {string} newToken
+	 * @returns {void}
+	 */
+	setAuthToken(newToken) {
+		this.authToken = newToken.includes("oauth:")
+			? newToken
+			: `oauth:${newToken}`;
 	}
 
 	/**

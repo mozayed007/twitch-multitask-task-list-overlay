@@ -53,11 +53,13 @@
    =================================== */
 .circular-timer {
 	position: relative;
-	width: 224px;
-	height: 224px;
+	width: min(100%, 288px);
+	aspect-ratio: 1;
+	height: auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	margin: auto;
 }
 
 /* Rotating Orbit Ring */
@@ -65,8 +67,8 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: 244px;
-	height: 244px;
+	width: 109%;
+	height: 109%;
 	transform: translate(-50%, -50%);
 	border-radius: 50%;
 	border: 2px solid transparent;
@@ -86,11 +88,11 @@
 /* Orbit Planet (The visible glow following the progress tip) */
 .timer-orbit-planet {
 	position: absolute;
-	top: -6px;
+	top: -7px;
 	/* Half of stroke-width */
 	left: 50%;
-	width: 12px;
-	height: 12px;
+	width: 14px;
+	height: 14px;
 	background: var(--color-accent);
 	border-radius: 50%;
 	transform: translateX(-50%);
@@ -132,18 +134,18 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 6px;
+	gap: 7px;
 }
 
 .timer-icon {
-	font-size: 22px;
+	font-size: 26px;
 	animation: floatIcon 3s ease-in-out infinite;
 	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .timer-time {
 	font-family: var(--font-primary);
-	font-size: 38px;
+	font-size: 46px;
 	font-weight: 700;
 	color: var(--color-text);
 	line-height: 1;
@@ -153,7 +155,7 @@
 
 .timer-label {
 	font-family: var(--font-secondary);
-	font-size: 12px;
+	font-size: 13px;
 	color: var(--color-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 2px;
@@ -169,14 +171,14 @@
 }
 
 .pomo-text {
-	font-size: 9px;
+	font-size: 10px;
 	color: var(--color-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }
 
 .pomo-number {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 600;
 	color: var(--color-accent);
 }
@@ -347,8 +349,10 @@
 	border-radius: var(--card-radius);
 	border: 1px solid var(--color-card-border);
 	box-shadow: var(--shadow);
-	padding: var(--spacing-lg);
-	min-height: 200px;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 18px 20px;
+	min-height: 168px;
 	/* Dynamic height - will grow based on content */
 	max-height: 800px;
 	display: flex;
@@ -358,34 +362,52 @@
 
 /* Dynamic sizing states for backlog panel */
 .backlog-panel.minimized {
-	min-height: 180px;
-	max-height: 350px;
+	min-height: 246px;
+	max-height: 246px;
+}
+
+.backlog-panel.minimized .backlog-content {
+	gap: 6px;
+	padding-top: 4px;
+}
+
+.backlog-panel.minimized .backlog-list-header {
+	margin-top: 4px;
+}
+
+.backlog-panel.minimized .backlog-empty {
+	height: 34px;
+	justify-content: flex-start;
+}
+
+.backlog-panel.minimized .backlog-hint {
+	display: none;
 }
 
 /* Few items - just show them naturally */
 .backlog-panel.few-items {
-	min-height: 200px;
+	min-height: 246px;
 	max-height: none;
 }
 
 /* Medium content - 3 streamer + 5 viewer tasks visible */
 .backlog-panel.medium-content {
-	min-height: 400px;
-	max-height: 500px;
+	min-height: 360px;
+	max-height: 460px;
 }
 
 /* Full expanded - scrolling will be active */
 .backlog-panel.expanded {
-	min-height: 500px;
-	max-height: 550px;
+	min-height: 460px;
+	max-height: 540px;
 }
 
 .backlog-header {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-sm);
-	margin-bottom: var(--spacing-md);
-	padding-bottom: var(--spacing-md);
+	gap: 10px;
+	margin-bottom: 12px;
+	padding-bottom: 12px;
 	border-bottom: 2px solid var(--color-card-border);
 	cursor: grab;
 	user-select: none;
@@ -427,7 +449,7 @@
 
 .backlog-title {
 	font-family: var(--font-primary);
-	font-size: var(--font-size-lg);
+	font-size: 18px;
 	font-weight: 600;
 	color: var(--color-text);
 	display: flex;
@@ -437,22 +459,22 @@
 }
 
 .backlog-icon {
-	font-size: var(--font-size-xl);
+	font-size: 24px;
 	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .backlog-controls {
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-md);
+	gap: 10px;
 }
 
 .backlog-count {
 	font-family: var(--font-secondary);
-	font-size: var(--font-size-sm);
+	font-size: 12px;
 	color: var(--color-text-secondary);
 	font-weight: 500;
-	padding: 4px 12px;
+	padding: 4px 10px;
 	background: rgba(255, 255, 255, 0.1);
 	border-radius: 20px;
 }
@@ -492,9 +514,9 @@
 .backlog-commands-hint {
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-sm);
-	font-size: var(--font-size-xs);
-	padding: 6px 12px;
+	gap: 8px;
+	font-size: 11px;
+	padding: 6px 10px;
 	background: rgba(30, 50, 80, 0.4);
 	border-radius: 6px;
 	border: 1px solid rgba(100, 150, 255, 0.2);
@@ -511,10 +533,10 @@
 
 .backlog-cmd-typewriter {
 	font-family: 'Courier New', monospace;
-	font-size: var(--font-size-sm);
+	font-size: 13px;
 	color: #60a5fa;
 	font-weight: 600;
-	min-width: 180px;
+	min-width: 150px;
 	white-space: nowrap;
 	position: relative;
 }
@@ -543,7 +565,12 @@
 	background: rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	border-radius: 8px;
-	padding: 6px 12px;
+	width: 34px;
+	height: 30px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	cursor: pointer;
 	transition: all var(--transition-fast);
 	font-size: var(--font-size-md);
@@ -565,8 +592,8 @@
 .backlog-content {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-md);
-	padding: var(--spacing-md);
+	gap: 10px;
+	padding: 8px 14px 0;
 }
 
 .streamer-tasks-container {
@@ -578,14 +605,14 @@
 
 .backlog-list-header {
 	font-family: var(--font-primary);
-	font-size: var(--font-size-sm);
+	font-size: 13px;
 	font-weight: 700;
 	color: var(--color-text-secondary);
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	padding-bottom: var(--spacing-xs);
 	border-bottom: 2px solid var(--color-card-border);
-	margin-top: var(--spacing-md);
+	margin-top: 10px;
 }
 
 .backlog-list {
@@ -723,15 +750,16 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	height: 200px;
+	height: 72px;
 	text-align: center;
 	color: var(--color-text-secondary);
 	opacity: 0.7;
 }
 
 .backlog-empty p {
-	margin: var(--spacing-xs) 0;
+	margin: 3px 0;
 	font-family: var(--font-secondary);
+	font-size: 12px;
 }
 
 .backlog-hint {
