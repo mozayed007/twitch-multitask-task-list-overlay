@@ -1,84 +1,131 @@
 # Twitch Multitask Overlay
 
-A Twitch chat productivity overlay for streamers who run focused work, study, coding, planning, or community task sessions.
+A Twitch chat productivity overlay for work streams, study streams, coding sessions, and community focus blocks.
 
-The overlay gives viewers a task list, the broadcaster a stream backlog, a Pomodoro session timer, profile notes, themes, layouts, and draggable panels designed for OBS browser sources.
+This repository has been reshaped into a streamer-first OBS overlay with viewer tasklists, a broadcaster backlog, a persistent Pomodoro timer, draggable panels, theme support, storage hardening, and a local backend for Twitch token refresh.
 
-## What It Does
+## Project Direction
 
-- Runs as a local OBS browser overlay.
-- Connects to Twitch chat through `_auth.js`.
-- Lets viewers manage their own tasklist.
-- Lets the broadcaster and moderators manage the stream backlog.
-- Provides Pomodoro focus sessions with pause, resume, reset, and status commands.
-- Supports themes, preset layouts, draggable panels, and manual resizing.
-- Saves timer state, panel positions, stream backlog, viewer tasklists, and profile data locally.
-- Includes an optional FastAPI backend for persistent storage and API-driven features.
-- Ships with tests for task handling, chat handling, validation, storage, and security behavior.
+Recent Codex-assisted work on this repo focused on making the overlay usable as a real streaming tool:
 
-## Current Feature Set
+- Viewer tasklists remain open to chat so each viewer can track their own work.
+- The backlog is now a broadcaster/moderator planning surface for stream tasks.
+- The Pomodoro timer is stateful and can survive browser source refreshes.
+- OBS layouts were rebuilt around fixed 1920x1080 overlay behavior.
+- Panels can be dragged, reset, and persisted per layout.
+- Twitch OAuth refresh was added through the FastAPI backend so the browser does not hold the Client Secret.
+- localStorage handling was hardened with schema migrations, quota handling, and safer rendering.
+- Security and validation coverage was added around task and backlog data.
+- The README and ignore rules were cleaned so the project presents itself as its own tool.
+
+## Core Features
+
+### Viewer Tasklists
+
+Viewers can use chat commands to create and manage their own tasklist.
+
+- Add one task or many comma-separated tasks.
+- Edit, focus, complete, delete, and check tasks.
+- Enforce a configurable task limit per user.
+- Store tasklists in browser localStorage.
+- Render viewer task cards inside the overlay.
+
+### Streamer Backlog
+
+The backlog is for broadcaster and moderator planning.
+
+- `!backlog add` creates stream backlog items.
+- `!backlog edit` updates existing backlog items.
+- `!backlog done` marks items complete.
+- `!backlog remove` deletes items.
+- `!backlog clear` clears completed items.
+- `!backlog clear all` clears the full backlog.
+- Backlog rendering escapes user content before display.
 
 ### Pomodoro Timer
 
-- `!pomo` and `!pomodoro` start a default 25/5 cycle.
-- Custom cycles support `!pomo 50/10` and `!pomo 25/5/6`.
-- Sessions can be paused, resumed, reset, stopped, and queried.
-- Timer state survives page refreshes.
-- Focus and break transitions are announced in chat.
+The circular timer supports focused stream sessions.
 
-### Viewer Task List
+- Start default or custom focus/break cycles.
+- Configure session count up to 12 sessions.
+- Pause, resume, stop, reset, and check status from chat.
+- Save timer state across browser source refreshes.
+- Announce focus, break, and cycle transitions in chat.
 
-- Viewers can manage their own tasklist.
-- Viewer task commands include add, edit, done, delete, focus, and check.
-- Comma-separated add, done, and delete commands are supported.
+### Layouts And Panels
 
-### Stream Backlog
+The overlay is built for OBS browser sources.
 
-- The backlog is for broadcaster/mod stream planning.
-- Broadcasters and moderators can add, edit, complete, remove, and clear backlog items.
-- Comma-separated add, edit, done, and remove commands are supported.
+- Layout presets: `compact`, `split`, `fullOverlay`, `minimal`, `timerWithTasks`, and `dashboard`.
+- Draggable panels with saved positions.
+- Panel reset commands for recovering a clean layout.
+- Default viewport target: `1920x1080`.
 
-### Viewer Info Profiles
+### Themes
 
-- Viewers can save custom profile fields with `!setinfo`.
-- Viewers can read profile fields with `!getinfo`.
-- Useful fields include timezone, current goal, preferred language, and active project.
+Themes are loaded from `themes.json`.
 
-### Themes And Layouts
+- Theme changes can be triggered from chat by broadcaster/moderator commands.
+- Theme selection is persisted locally.
+- ThemeManager applies CSS variables and optional Google fonts.
 
-- Themes are loaded from `themes.json`.
-- Layout presets include `compact`, `split`, `fullOverlay`, `minimal`, `timerWithTasks`, and `dashboard`.
-- Panels can be dragged into custom positions.
-- `Alt + G` opens the grid and resize handles.
-- Panel positions and sizes persist per layout.
+### Twitch Auth Refresh
 
-### Security, Quality, And Infrastructure
+Static OBS browser sources cannot safely store a Twitch Client Secret.
 
-Recent project work added:
+This repo solves that with a local FastAPI backend:
 
-- XSS hardening for backlog rendering.
-- User and task input validation.
-- localStorage quota handling and cleanup.
-- Versioned localStorage migration.
-- Centralized constants and error handling.
-- Accessibility improvements.
-- CSS-based animation improvements.
-- Conda environment support for the Python backend.
-- A broader automated test suite.
+- The browser keeps the access token, refresh token, and client ID.
+- The backend keeps `TWITCH_CLIENT_SECRET`.
+- The browser calls `/auth/refresh` when Twitch auth expires.
+- Refreshed tokens are saved in browser storage.
+- `/auth/start` and `/auth/callback` help create initial access and refresh tokens locally.
 
-See [CHANGELOG.md](./CHANGELOG.md) for the detailed feature log.
+## Architecture
+
+```text
+Twitch Chat
+    |
+    v
+src/twitch/TwitchChat.js
+    |
+    v
+src/index-enhanced.js
+    |
+    +--> src/app.js                  viewer tasklist commands
+    +--> src/classes/BacklogPanel.js streamer backlog panel
+    +--> src/classes/CircularTimer.js Pomodoro timer
+    +--> src/classes/LayoutManager.js layout and panel persistence
+    +--> src/classes/ThemeManager.js  theme loading and CSS variables
+    +--> src/twitch/tokenRefresh.js   browser-side token refresh flow
+
+backend/main.py
+    |
+    +--> /auth/start
+    +--> /auth/callback
+    +--> /auth/refresh
+    +--> SQLite-backed viewer, backlog, preference, and stats endpoints
+```
 
 ## Quick Start
 
-### 1. Install Dependencies
+### Requirements
+
+- Windows, macOS, or Linux.
+- Node.js 20 or newer.
+- OBS Studio.
+- A Twitch account for the bot or channel.
+- Python 3.8+ if using the backend.
+
+### Install
 
 ```powershell
 npm install
 ```
 
-### 2. Configure Twitch Auth
+### Configure Twitch Auth
 
-Copy the example auth file:
+Copy the auth template:
 
 ```powershell
 Copy-Item _auth.js.example _auth.js
@@ -97,41 +144,39 @@ const _authConfig = {
 };
 ```
 
-Create a Twitch application at https://dev.twitch.tv/console and use its Client ID here. Set the Client Secret only on the backend host. For local OBS use, create `backend/.env`:
+Do not commit `_auth.js`.
 
-```txt
-TWITCH_CLIENT_ID=your_twitch_app_client_id
-TWITCH_CLIENT_SECRET=your_client_secret
-TWITCH_REDIRECT_URI=http://localhost:8000/auth/callback
-BACKEND_HOST=127.0.0.1
-BACKEND_PORT=8000
-```
-
-Use an access token and refresh token with `chat:read` and `chat:edit` scopes. The official open-source Twitch CLI can help generate or refresh tokens locally with `twitch token`; see https://github.com/twitchdev/twitch-cli. When Twitch expires the access token, the static OBS browser source calls `twitch_auth_refresh_url` and saves the rotated token in OBS/browser storage.
-
-### 3. Build The Overlay
+### Build
 
 ```powershell
 npm run build
 ```
 
-### 4. Add It To OBS
+### Add To OBS
 
-1. Add a new Browser Source.
+1. Add a Browser Source.
 2. Enable Local File.
-3. Select `index.html` from this project.
-4. Use `1920x1080` for a full overlay or a narrower width for a side panel.
-5. Enable browser refresh when the scene becomes active.
+3. Select this repo's `index.html`.
+4. Use `1920x1080` for a full overlay.
+5. Refresh the source after changing config files.
 
-Detailed OBS notes are in [OBS_SETUP.md](./OBS_SETUP.md).
+See [OBS_SETUP.md](./OBS_SETUP.md) for more OBS-specific notes.
 
-## Optional Backend
+## Backend Setup
 
-The overlay works without the backend, but automatic token refresh does not. A static OBS browser source cannot safely hold your Twitch Client Secret and cannot rewrite `_auth.js`.
+The overlay can run without the backend, but automatic token refresh needs it.
 
-Use the backend when you want automatic Twitch token refresh, SQLite-backed persistence, API access, viewer statistics, or server-side backlog/profile storage.
+Create `backend/.env`:
 
-### Conda
+```txt
+TWITCH_CLIENT_ID=your_twitch_app_client_id
+TWITCH_CLIENT_SECRET=your_twitch_client_secret
+TWITCH_REDIRECT_URI=http://localhost:8000/auth/callback
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=8000
+```
+
+Run with Conda:
 
 ```powershell
 conda env create -f environment.yml
@@ -140,7 +185,7 @@ Set-Location backend
 python main.py
 ```
 
-### pip
+Or run with pip:
 
 ```powershell
 Set-Location backend
@@ -150,68 +195,62 @@ pip install -r requirements.txt
 python main.py
 ```
 
-The backend runs at `http://127.0.0.1:8000` by default.
+Then open:
 
-API docs are available at `http://localhost:8000/docs`.
+- `http://127.0.0.1:8000/docs` for API docs.
+- `http://127.0.0.1:8000/auth/start` to start the local Twitch authorization flow.
 
 ## Command Overview
 
-Full command documentation is in [COMMANDS.md](./COMMANDS.md).
-
 ### Everyone
 
-- `!task [description]` adds a viewer task. Use commas for multiple tasks.
-- `!edit [number] [description]` edits a viewer task.
-- `!done [number]` completes a viewer task. Use commas for multiple tasks.
-- `!delete [number]` deletes a viewer task. Use commas for multiple tasks.
-- `!focus [number]` focuses a viewer task.
-- `!check` shows your viewer tasklist.
-- `!tasklist-help` shows viewer tasklist commands with examples.
-- `!setinfo [field] [value]` saves a profile field.
-- `!getinfo [username]` reads profile info.
-- `!backlog-help` shows broadcaster backlog commands with examples.
-- `!pomo-help` shows Pomodoro commands with examples.
-- `!pomostatus` shows timer status.
-- `!help` shows command help.
+- `!task [description]` adds viewer tasklist items. Use commas for multiple tasks.
+- `!edit [number] [description]` edits one viewer task.
+- `!done [number]` completes viewer tasklist items. Use commas for multiple tasks.
+- `!delete [number]` deletes viewer tasklist items. Use commas or `all`.
+- `!focus [number]` focuses one viewer task.
+- `!check` lists your current viewer tasks.
+- `!tasklist-help` shows viewer tasklist examples.
+- `!backlog-help` explains streamer backlog commands.
+- `!pomo-help` explains Pomodoro commands.
+- `!pomostatus` shows the current timer state.
+- `!help` shows the legacy task help response.
 
-### Broadcaster
+### Broadcasters And Moderators
 
-- `!clearlist` clears all stream tasks.
-- `!cleardone` clears completed stream tasks.
-
-### Broadcaster And Moderators
-
+- `!backlog add [task]` adds backlog items. Use commas for multiple items.
+- `!backlog edit [number] [description]` edits backlog items.
+- `!backlog done [number]` completes backlog items. Use commas for multiple items.
+- `!backlog remove [number]` removes backlog items. Use commas for multiple items.
+- `!backlog clear` clears completed backlog items.
+- `!backlog clear all` clears every backlog item.
 - `!pomo [focus]/[break]/[sessions]` starts a Pomodoro cycle.
 - `!pomopause` pauses the timer.
 - `!pomoresume` resumes the timer.
 - `!pomostop` or `!stoptimer` stops the timer.
 - `!pomoreset` resets timer progress.
-- `!theme [name]` changes the active theme.
-- `!layout [name]` changes the active layout.
-- `!resetpanel [panel] [layout]` resets a panel position.
-- `!resetlayout [name]` resets a layout.
-- `!backlog add [task]` adds broadcaster backlog items. Use commas for multiple items.
-- `!backlog edit [number] [description]` edits backlog items. Use comma-separated `number description` chunks for multiple edits.
-- `!backlog done [number]` completes backlog items. Use commas for multiple items.
-- `!backlog remove [number]` removes backlog items. Use commas for multiple items.
-- `!backlog clear` clears completed backlog items.
-- `!backlog clear all` clears every backlog item.
+- `!theme [name]` changes the theme.
+- `!layout [name]` changes the layout.
+- `!resetpanel [panel] [layout]` resets a panel.
+- `!resetlayout [name]` resets all saved panel positions for a layout.
+- `!clearlist` clears all viewer tasklists.
+- `!cleardone` clears completed viewer tasks.
+- `!clearuser [username]` clears one user's tasklist.
 
 ## Keyboard Shortcuts
 
-- `Alt + G` toggles the grid and panel resize handles.
-- `Alt + T` opens the theme menu.
-- `Alt + L` opens the layout menu.
-- `Escape` closes menus and hides the grid.
+- `Ctrl + Shift + T` opens the theme menu.
+- `Ctrl + Shift + L` opens the layout selector.
+- `Escape` closes open overlay controls.
 
-## Configuration Files
+## Configuration
 
-- `_auth.js` stores Twitch credentials. Do not commit real tokens.
-- The backend reads `TWITCH_CLIENT_SECRET` to refresh Twitch tokens without exposing the client secret in the browser.
-- `_settings.js` controls behavior such as language, task limits, scrolling, and test mode.
-- `_styles.js` controls legacy visual defaults.
-- `_configAdmin.js` and `_configUser.js` define command permissions and aliases.
-- `_enhancedCommands.js` defines the newer command groups.
+- `_auth.js` contains local Twitch credentials. It is ignored by git.
+- `backend/.env` contains backend Twitch secrets. It is ignored by git.
+- `_settings.js` controls language, task limits, header behavior, scroll speed, and test mode.
+- `_styles.js` contains legacy style settings.
+- `_configAdmin.js` and `_configUser.js` define legacy command aliases and responses.
+- `_enhancedCommands.js` documents newer command groups.
 - `themes.json` stores theme definitions.
 - `src/classes/LayoutManager.js` stores layout presets.
 
@@ -224,20 +263,34 @@ npm test
 npm run test:coverage
 ```
 
-The project requires Node.js 20 or newer.
+Backend tests:
+
+```powershell
+Set-Location backend
+pytest
+```
+
+## Storage And Security Notes
+
+- Viewer tasks, backlog items, timer state, panel positions, and theme/layout choices use browser localStorage.
+- The storage migration layer updates older localStorage data shapes.
+- Usernames and task descriptions are validated.
+- Backlog rendering uses text escaping to reduce XSS risk.
+- localStorage quota failures attempt cleanup before failing.
+- Real tokens, secrets, SQLite databases, Vercel metadata, and local auth files should stay out of git.
 
 ## Project Docs
 
-- [COMMANDS.md](./COMMANDS.md) has the complete chat command reference.
+- [COMMANDS.md](./COMMANDS.md) is the extended command reference.
 - [SETUP_GUIDE.md](./SETUP_GUIDE.md) has a longer setup walkthrough.
-- [OBS_SETUP.md](./OBS_SETUP.md) has OBS-specific setup notes.
-- [backend/README.md](./backend/README.md) documents the optional API server.
+- [OBS_SETUP.md](./OBS_SETUP.md) has OBS layout notes.
+- [backend/README.md](./backend/README.md) documents the API server.
 - [CHANGELOG.md](./CHANGELOG.md) tracks notable changes.
 
 ## License
 
 MIT.
 
-## Acknowledgement
+## Origin Credit
 
-This project builds on the initial work from [Jujoco's Twitch Multitask Task List Overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay). Credit and thanks go to Jujoco and the contributors of that project for the foundation.
+This project started as a fork of [Jujoco's Twitch Multitask Task List Overlay](https://github.com/jujoco/twitch-multitask-task-list-overlay). Credit goes to Jujoco and the original contributors for the foundation. This README describes the current direction and implementation of this repository.
