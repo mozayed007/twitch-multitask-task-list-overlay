@@ -269,7 +269,7 @@ describe("App.chatHandler", () => {
 					);
 					expect(response.error).toBe(false);
 					expect(response.message).toBe(
-						botResponsePrefix + "!task [description] — add one or more tasks separated by commas. Example: !task Review notes, Draft outline"
+						botResponsePrefix + "!task [description] — viewer command to add one or more tasks separated by commas. Example: !task Review notes, Draft outline"
 					);
 				});
 			});

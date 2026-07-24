@@ -196,7 +196,15 @@ export default class App {
 	 * @returns {void}
 	 */
 	renderCommandTips() {
-		const tips = ["!task", "!edit", "!done", "!delete", "!check", "!help"];
+		const tips = [
+			"!task (viewer)",
+			"!edit (viewer)",
+			"!done (viewer)",
+			"!delete (viewer)",
+			"!check (viewer)",
+			"!backlog (broadcaster/mods)",
+			"!help (viewer)",
+		];
 		const commandTipEl = document.querySelector(".command-tips");
 		commandTipEl.classList.remove("hidden");
 		let tipIdx = 0;
@@ -279,7 +287,7 @@ export default class App {
 			if (_userConfig.commands.addTask.includes(command)) {
 				// ADD TASK
 				if (message === "") {
-					template = `${command} [description] — add one or more tasks separated by commas. Example: ${command} Review notes, Draft outline`;
+					template = `${command} [description] — viewer command to add one or more tasks separated by commas. Example: ${command} Review notes, Draft outline`;
 					return respondMessage(template, username, "", false);
 				}
 				let user =
