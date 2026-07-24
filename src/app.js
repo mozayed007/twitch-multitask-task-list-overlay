@@ -197,12 +197,13 @@ export default class App {
 	 */
 	renderCommandTips() {
 		const tips = [
-			"!task (viewer)",
-			"!edit (viewer)",
-			"!done (viewer)",
-			"!delete (viewer)",
+			"!task eat, clean, shower (viewer)",
+			"!edit 1 New description (viewer)",
+			"!done 1, 2, 3 (viewer)",
+			"!delete 1, 2 (viewer)",
 			"!check (viewer)",
-			"!backlog (broadcaster/mods)",
+			"!backlog add task1, task2 (broadcaster/mods)",
+			"!backlog done 1, 2 (broadcaster/mods)",
 			"!help (viewer)",
 		];
 		const commandTipEl = document.querySelector(".command-tips");

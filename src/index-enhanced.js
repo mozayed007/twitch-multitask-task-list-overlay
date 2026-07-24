@@ -329,7 +329,7 @@ function handleEnhancedCommands(username, command, message, flags, extra) {
 
 		if (!action) {
 			return {
-				message: `${prefix}@${username} Usage: !backlog add/edit/done/remove [text/number]`,
+				message: `${prefix}@${username} Usage: !backlog add/edit/done/remove [text/number]. Use commas for multiple items: !backlog done 1, 2, 3`,
 				error: false
 			};
 		}

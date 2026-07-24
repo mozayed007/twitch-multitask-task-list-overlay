@@ -104,8 +104,10 @@ export default class BacklogPanel {
 	#initTypewriter() {
 		const commands = [
 			'!backlog add [task]',
-			'!backlog done #',
-			'!backlog remove #',
+			'!backlog add task1, task2',
+			'!backlog done 1, 2, 3',
+			'!backlog edit 1 New task, 2 Another task',
+			'!backlog remove 1, 2',
 			'!backlog clear'
 		];
 
