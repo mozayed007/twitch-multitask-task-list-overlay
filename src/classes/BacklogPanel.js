@@ -67,10 +67,10 @@ export default class BacklogPanel {
 							</button>
 						</div>
 					</div>
-					<div class="backlog-commands-hint" aria-live="polite">
-						<span class="backlog-cmd-label">COMMANDS:</span>
-						<span class="backlog-cmd-typewriter" aria-label="Available commands"></span>
-					</div>
+						<div class="backlog-commands-hint" aria-live="polite">
+							<span class="backlog-cmd-label">VIEWER COMMANDS:</span>
+							<span class="backlog-cmd-typewriter" aria-label="Available commands"></span>
+						</div>
 				</div>
 				<div class="backlog-content-wrapper">
 					<div class="backlog-content">
@@ -82,7 +82,7 @@ export default class BacklogPanel {
 						<div class="backlog-list backlog-list-secondary" role="list" aria-hidden="true"></div>
 						<div class="backlog-empty" role="status" aria-live="polite">
 							<p>No tasks in backlog</p>
-							<p class="backlog-hint">Broadcaster: use !backlog add [task]</p>
+							<p class="backlog-hint">Viewer: use !task [description] to add your own tasks.</p>
 						</div>
 					</div>
 				</div>
@@ -103,12 +103,11 @@ export default class BacklogPanel {
 	 */
 	#initTypewriter() {
 		const commands = [
-			'!backlog add [task]',
-			'!backlog add task1, task2',
-			'!backlog done 1, 2, 3',
-			'!backlog edit 1 New task, 2 Another task',
-			'!backlog remove 1, 2',
-			'!backlog clear'
+			'!task eat, clean, shower',
+			'!done 1, 2, 3',
+			'!edit 1 New description',
+			'!delete 1, 2',
+			'!check'
 		];
 
 		const typewriterEl = this.#containerEl.querySelector('.backlog-cmd-typewriter');
