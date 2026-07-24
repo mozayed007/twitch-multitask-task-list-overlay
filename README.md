@@ -164,14 +164,14 @@ See [OBS_SETUP.md](./OBS_SETUP.md) for more OBS-specific notes.
 
 ## Backend Setup
 
-The overlay can run without the backend, but automatic token refresh needs it.
+The overlay can run without the backend, but automatic token refresh is most reliable when the backend is running locally to avoid browser CORS issues.
 
 Create `backend/.env`:
 
 ```txt
 TWITCH_CLIENT_ID=your_twitch_app_client_id
 TWITCH_CLIENT_SECRET=your_twitch_client_secret
-TWITCH_REDIRECT_URI=http://localhost:8000/auth/callback
+TWITCH_REDIRECT_URI=http://127.0.0.1:8000/auth/callback
 BACKEND_HOST=127.0.0.1
 BACKEND_PORT=8000
 ```
@@ -194,6 +194,8 @@ python -m venv venv
 pip install -r requirements.txt
 python main.py
 ```
+
+The backend exposes `/api/token/refresh/{refresh_token}` for twitchtokengenerator.com tokens, plus the original Twitch `/auth/refresh` endpoint for apps that have their own `client_secret`.
 
 Then open:
 

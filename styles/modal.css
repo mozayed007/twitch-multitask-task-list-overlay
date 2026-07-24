@@ -37,3 +37,12 @@
 .modal-list {
   padding-left: 22px;
 }
+
+.modal-link {
+  color: #9146ff;
+  text-decoration: underline;
+}
+
+.modal-link:hover {
+  color: #9146ff;
+}

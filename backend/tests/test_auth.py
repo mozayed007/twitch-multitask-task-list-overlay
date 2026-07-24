@@ -148,3 +148,39 @@ def test_auth_callback_rejects_invalid_state():
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid Twitch authorization state"
+
+
+def test_token_refresh_proxy_success():
+    client = TestClient(app)
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "success": True,
+        "access_token": "refreshed_access_token",
+        "refresh_token": "same_refresh_token",
+    }
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response) as mock_get:
+        response = client.get("/api/token/refresh/test_refresh_token")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["access_token"] == "refreshed_access_token"
+    assert data["refresh_token"] == "same_refresh_token"
+
+    mock_get.assert_called_once()
+    call_args = mock_get.call_args
+    assert call_args[0][0] == "https://twitchtokengenerator.com/api/refresh/test_refresh_token"
+
+
+def test_token_refresh_proxy_requires_success_flag():
+    client = TestClient(app)
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"success": False, "message": "invalid token"}
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_response):
+        response = client.get("/api/token/refresh/bad_token")
+
+    assert response.status_code == 502
+

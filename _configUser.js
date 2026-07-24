@@ -4,7 +4,7 @@
 /** @type {UserConfig} */
 const _userConfig = {
   commands: {
-    addTask: ["!task", "!add", "!añadir", "!ajouter", "!追加", "!додати", "!aufgabe", "!tarefa"],
+    addTask: ["!task", "!tasks", "!add", "!añadir", "!ajouter", "!追加", "!додати", "!aufgabe", "!tarefa"],
     editTask: ["!edit", "!editar", "!modifier", "!編集", "!редагувати", "!bearbeiten"],
     finishTask: ["!done", "!hecho", "!terminé", "!完了", "!готово", "!erledigt", "!concluir"],
     deleteTask: ["!delete", "!eliminar", "!supprimer", "!削除", "!видалити", "!löschen", "!deletar"],

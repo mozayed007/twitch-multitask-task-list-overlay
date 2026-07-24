@@ -259,7 +259,7 @@ describe("App.chatHandler", () => {
 					);
 				});
 
-				test("should error if the message is empty", () => {
+				test("should show usage hint if the message is empty", () => {
 					const response = app.chatHandler(
 						broadcasterUser.username,
 						broadcasterUser.command.ADDTASK,
@@ -267,9 +267,9 @@ describe("App.chatHandler", () => {
 						broadcasterUser.flags,
 						broadcasterUser.extra
 					);
-					expect(response.error).toBe(true);
+					expect(response.error).toBe(false);
 					expect(response.message).toBe(
-						botResponsePrefix + 'Invalid command: Task description is empty. Try !help'
+						botResponsePrefix + "!task [description] — add one or more tasks separated by commas. Example: !task Review notes, Draft outline"
 					);
 				});
 			});

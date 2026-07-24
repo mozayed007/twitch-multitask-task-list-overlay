@@ -3,7 +3,7 @@
  * @property {string} twitch_oauth - The Twitch oauth access token
  * @property {string} [twitch_refresh_token] - The Twitch oauth refresh token
  * @property {string} [client_id] - The Twitch app client id
- * @property {string} [twitch_auth_refresh_url] - The local backend refresh endpoint
+ * @property {string} [twitch_token_refresh_url] - Optional custom refresh endpoint URL template; defaults to twitchtokengenerator.com
  * @property {string} twitch_channel - The Twitch channel
  * @property {string} twitch_username - The Twitch username
  */

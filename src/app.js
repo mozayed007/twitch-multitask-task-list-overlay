@@ -279,7 +279,8 @@ export default class App {
 			if (_userConfig.commands.addTask.includes(command)) {
 				// ADD TASK
 				if (message === "") {
-					throw new Error("Task description is empty");
+					template = `${command} [description] — add one or more tasks separated by commas. Example: ${command} Review notes, Draft outline`;
+					return respondMessage(template, username, "", false);
 				}
 				let user =
 					this.userList.getUser(username) ||
